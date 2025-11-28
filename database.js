@@ -1,5 +1,6 @@
 // ==========================================
-// database.js — Firebase Module (Stable + Chat Comments + Maintenance + Future Bookings)
+// database.js — Firebase Module
+// Jadual + Arkib + Chat + Maintenance + Tempahan Makmal
 // ==========================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
@@ -13,8 +14,8 @@ import {
 
 // ==============================
 // FIREBASE CONFIG — MILIK CIKGU
+// (guna config sama macam sebelum ini)
 // ==============================
-// (Pastikan config ini sama macam sebelum ini)
 const firebaseConfig = {
   apiKey: "AIzaSyA-IS8pSogAb9pS9EGPMngtQv9B_vNmHmw",
   authDomain: "jadual-makmal-sksa.firebaseapp.com",
@@ -42,7 +43,7 @@ const PATHS = {
   lastRolloverDate: "lastRolloverDate",
   weekComments: "weekComments",     // chat minggu semasa (array)
   maintenance: "maintenance",       // slot maintenance
-  futureBookings: "futureBookings"  // tempahan makmal untuk tarikh akan datang
+  futureBookings: "futureBookings"  // tempahan makmal (array)
 };
 
 // ==============================
@@ -70,11 +71,8 @@ export async function loadInitialData() {
     classOptions: data[PATHS.classOptions] || [],
     subjectOptions: data[PATHS.subjectOptions] || [],
     lastRolloverDate: data[PATHS.lastRolloverDate] || null,
-    // Chat minggu semasa (array mesej)
     weekComments: data[PATHS.weekComments] || [],
-    // Peta maintenance (hari -> period -> true/false)
     maintenance: data[PATHS.maintenance] || null,
-    // Senarai tempahan makmal (array objek)
     futureBookings: data[PATHS.futureBookings] || []
   };
 }
@@ -149,7 +147,7 @@ export async function saveLastRolloverDateToDB(dateStr) {
 }
 
 // ==============================
-// Simpan Chat Mingguan
+// Simpan CHAT minggu semasa
 // weekComments = [{id, name, text, time}, ...]
 // ==============================
 export async function saveWeekCommentsToDB(commentsArray) {
