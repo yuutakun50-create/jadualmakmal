@@ -1,5 +1,5 @@
 // ==========================================
-// database.js — Firebase Module (Stable + Chat Comments + Maintenance)
+// database.js — Firebase Module (Stable + Chat Comments + Maintenance + Future Bookings)
 // ==========================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
@@ -14,22 +14,23 @@ import {
 // ==============================
 // FIREBASE CONFIG — MILIK CIKGU
 // ==============================
+// (Pastikan config ini sama macam sebelum ini)
 const firebaseConfig = {
-  apiKey: "AIzaSyAJ-eGCASGs7ZWoHtFgzcfcc2Y30jt_CWo",
+  apiKey: "AIzaSyA-IS8pSogAb9pS9EGPMngtQv9B_vNmHmw",
   authDomain: "jadual-makmal-sksa.firebaseapp.com",
   databaseURL: "https://jadual-makmal-sksa-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "jadual-makmal-sksa",
   storageBucket: "jadual-makmal-sksa.firebasestorage.app",
-  messagingSenderId: "660473497546",
-  appId: "1:660473497546:web:97fc1bf2b25e6e6b583133"
+  messagingSenderId: "1042517445810",
+  appId: "1:1042517445810:web:1c3f635069f928adf75e0f"
 };
 
-// Init Firebase
+// Init
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 // ==============================
-// PATH DALAM Realtime Database
+// Lokasi Data dalam Realtime DB
 // ==============================
 const PATHS = {
   schedule: "currentSchedule",
@@ -40,21 +41,19 @@ const PATHS = {
   subjectOptions: "subjectOptions",
   lastRolloverDate: "lastRolloverDate",
   weekComments: "weekComments",     // chat minggu semasa (array)
-  maintenance: "maintenance"        // slot maintenance
+  maintenance: "maintenance",       // slot maintenance
+  futureBookings: "futureBookings"  // tempahan makmal untuk tarikh akan datang
 };
 
 // ==============================
-// Helper: Baca root database
+// Helper: baca root
 // ==============================
 async function readRoot() {
-  try {
-    const rootRef = ref(db, "/");
-    const snap = await get(rootRef);
-    return snap.exists() ? snap.val() : {};
-  } catch (err) {
-    console.error("❌ Firebase readRoot error:", err);
-    return {};
+  const snapshot = await get(ref(db, "/"));
+  if (snapshot.exists()) {
+    return snapshot.val();
   }
+  return {};
 }
 
 // ==============================
@@ -74,7 +73,9 @@ export async function loadInitialData() {
     // Chat minggu semasa (array mesej)
     weekComments: data[PATHS.weekComments] || [],
     // Peta maintenance (hari -> period -> true/false)
-    maintenance: data[PATHS.maintenance] || null
+    maintenance: data[PATHS.maintenance] || null,
+    // Senarai tempahan makmal (array objek)
+    futureBookings: data[PATHS.futureBookings] || []
   };
 }
 
@@ -90,7 +91,7 @@ export async function saveScheduleToDB(scheduleObj) {
 }
 
 // ==============================
-// Simpan Arkib Mingguan
+// Simpan Arkib
 // ==============================
 export async function saveArchiveToDB(archiveArray) {
   try {
@@ -103,9 +104,9 @@ export async function saveArchiveToDB(archiveArray) {
 // ==============================
 // Simpan Tarikh Mula Minggu
 // ==============================
-export async function saveWeekStartToDB(dateString) {
+export async function saveWeekStartToDB(weekStartStr) {
   try {
-    await set(ref(db, PATHS.weekStart), dateString || null);
+    await set(ref(db, PATHS.weekStart), weekStartStr);
   } catch (err) {
     console.error("❌ Error simpan weekStart:", err);
   }
@@ -114,9 +115,9 @@ export async function saveWeekStartToDB(dateString) {
 // ==============================
 // Simpan Label Minggu
 // ==============================
-export async function saveWeekLabelToDB(label) {
+export async function saveWeekLabelToDB(weekLabelStr) {
   try {
-    await set(ref(db, PATHS.weekLabel), label || "");
+    await set(ref(db, PATHS.weekLabel), weekLabelStr || "");
   } catch (err) {
     console.error("❌ Error simpan weekLabel:", err);
   }
@@ -125,11 +126,11 @@ export async function saveWeekLabelToDB(label) {
 // ==============================
 // Simpan Pilihan Dropdown
 // ==============================
-export async function saveOptionsToDB(classOptions, subjectOptions) {
+export async function saveOptionsToDB(classOptionsArray, subjectOptionsArray) {
   try {
     await update(ref(db, "/"), {
-      [PATHS.classOptions]: classOptions || [],
-      [PATHS.subjectOptions]: subjectOptions || []
+      [PATHS.classOptions]: classOptionsArray || [],
+      [PATHS.subjectOptions]: subjectOptionsArray || []
     });
   } catch (err) {
     console.error("❌ Error simpan options:", err);
@@ -137,18 +138,18 @@ export async function saveOptionsToDB(classOptions, subjectOptions) {
 }
 
 // ==============================
-// Simpan Tarikh Auto-Rollover
+// Simpan Tarikh Rollover Terakhir
 // ==============================
-export async function saveLastRolloverDateToDB(dateString) {
+export async function saveLastRolloverDateToDB(dateStr) {
   try {
-    await set(ref(db, PATHS.lastRolloverDate), dateString || null);
+    await set(ref(db, PATHS.lastRolloverDate), dateStr || null);
   } catch (err) {
     console.error("❌ Error simpan lastRolloverDate:", err);
   }
 }
 
 // ==============================
-// Simpan CHAT minggu semasa
+// Simpan Chat Mingguan
 // weekComments = [{id, name, text, time}, ...]
 // ==============================
 export async function saveWeekCommentsToDB(commentsArray) {
@@ -167,5 +168,17 @@ export async function saveMaintenanceToDB(maintenanceObj) {
     await set(ref(db, PATHS.maintenance), maintenanceObj || {});
   } catch (err) {
     console.error("❌ Error simpan maintenance:", err);
+  }
+}
+
+// ==============================
+// Simpan Senarai Tempahan Makmal
+// futureBookings = [{id, date, reason, name, status, createdAt}, ...]
+// ==============================
+export async function saveFutureBookingsToDB(bookingsArray) {
+  try {
+    await set(ref(db, PATHS.futureBookings), bookingsArray || []);
+  } catch (err) {
+    console.error("❌ Error simpan futureBookings:", err);
   }
 }
