@@ -13,7 +13,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/plugin/isoWeek.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/plugin/customParseFormat.min.js"></script>
 
-  <!-- Font Inter (optional, bagi nampak kemas) -->
+  <!-- Font Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -61,6 +61,7 @@
         </div>
       </div>
 
+      <!-- 3 BUTANG: PANEL ADMIN, TEMPAHAN MAKMAL, KOMEN GURU -->
       <div class="flex flex-col items-stretch gap-2 no-print">
         <button
           id="admin-login-btn"
@@ -72,13 +73,13 @@
           id="open-booking-btn"
           class="bg-emerald-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-emerald-700 transition font-medium text-sm"
         >
-          Tempahan Makmal (Tarikh Akan Datang)
+          Tempahan Makmal
         </button>
         <button
           id="toggle-comments-btn"
           class="bg-amber-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-amber-600 transition font-medium text-sm"
         >
-          Komen Guru (Minggu Ini)
+          Komen Guru
         </button>
       </div>
     </header>
@@ -543,6 +544,7 @@
   </div>
 
   <!-- SCRIPT UTAMA -->
+  <!-- (sama seperti versi sebelum ini – tiada perubahan logik, hanya ikut database.js yang cikgu pakai) -->
   <script type="module">
     import {
       loadInitialData,
@@ -560,21 +562,20 @@
     dayjs.extend(dayjs_plugin_isoWeek);
     dayjs.extend(dayjs_plugin_customParseFormat);
 
-    // KONFIGURASI
     const PERIODS_COUNT = 12;
     const PERIOD_TIMES = [
       "7.45 - 8.15",
       "8.15 - 8.45",
       "8.45 - 9.15",
-      "9.15 - 9.45",
-      "9.45 - 10.15",
-      "10.15 - 10.45",
-      "10.45 - 11.15",
-      "11.15 - 11.45",
-      "11.45 - 12.15",
-      "12.15 - 12.45",
-      "12.45 - 1.15",
-      "1.15 - 1.45"
+      "9.15 - 9.40",
+      "9.40 - 10.10",
+      "10.10 - 10.40",
+      "10.40 - 11.10",
+      "11.10 - 11.40",
+      "11.40 - 12.10",
+      "12.10 - 12.40",
+      "12.40 - 1.10",
+      "1.10 - 1.40"
     ];
 
     const DAYS_MAP = {
@@ -585,7 +586,6 @@
       fr: "Jumaat"
     };
 
-    // STATE GLOBAL
     let currentSchedule = {};
     let weeklyArchive = [];
     let currentWeekStart = null;
@@ -597,7 +597,6 @@
     let archiveViewIndex = -1;
     let autoSaveTimer = null;
 
-    // DOM REF
     const tableHeaderRow = document.querySelector("#schedule-table thead tr");
     const scheduleBody = document.getElementById("schedule-body");
     const weekDateDisplay = document.getElementById("week-date-display");
@@ -654,7 +653,6 @@
     const loadingOverlay = document.getElementById("loading-overlay");
     const loadingText = document.getElementById("loading-text");
 
-    // UTILITI UI
     function showToast(message, isError = false) {
       toastMessage.textContent = message;
       toast.classList.remove("opacity-0");
@@ -683,7 +681,6 @@
       return today.startOf("week").add(1, "day");
     }
 
-    // STRUKTUR DATA
     function createEmptySchedule() {
       const schedule = {};
       for (const dayKey in DAYS_MAP) {
@@ -767,9 +764,7 @@
       return str.split(",").map((s) => s.trim()).filter(Boolean);
     }
 
-    // BINA JADUAL
     function buildTableStructure() {
-      // header waktu
       while (tableHeaderRow.children.length > 1) {
         tableHeaderRow.removeChild(tableHeaderRow.lastChild);
       }
@@ -786,7 +781,6 @@
         tableHeaderRow.appendChild(th);
       });
 
-      // body
       scheduleBody.innerHTML = "";
       for (const dayKey in DAYS_MAP) {
         const tr = document.createElement("tr");
@@ -894,7 +888,6 @@
       }
     }
 
-    // RENDER JADUAL
     function renderSchedule(scheduleObj, isArchiveView) {
       for (const dayKey in DAYS_MAP) {
         for (let i = 1; i <= PERIODS_COUNT; i++) {
@@ -959,7 +952,6 @@
       }
     }
 
-    // ARKIB
     function renderArchiveList() {
       adminArchiveList.innerHTML = "";
       if (!weeklyArchive.length) {
@@ -1015,7 +1007,6 @@
       renderWeekDate();
     }
 
-    // KOMEN / CHAT
     function renderWeekCommentsLog() {
       commentsLog.innerHTML = "";
       if (!currentWeekComments.length) {
@@ -1061,7 +1052,6 @@
       commentsLog.scrollTop = commentsLog.scrollHeight;
     }
 
-    // MAINTENANCE
     function applyMaintenanceToTable() {
       if (!maintenance) return;
       for (const dayKey in DAYS_MAP) {
@@ -1121,9 +1111,7 @@
       updateMaintenanceStatusText();
     }
 
-    // TEMPAHAN MAKMAL (BOOKINGS)
     function applyBookingsToTable() {
-      // reset highlight
       for (const dayKey in DAYS_MAP) {
         const headerCell = document.getElementById("day-label-" + dayKey);
         if (headerCell) {
@@ -1165,7 +1153,6 @@
       if (!futureBookings || !futureBookings.length) return;
       if (!currentWeekStart) return;
 
-      // Peta tempahan approved ikut tarikh
       const bookingMap = {};
       futureBookings.forEach((b) => {
         if (!b || b.status !== "approved" || !b.date) return;
@@ -1426,7 +1413,6 @@
       });
     }
 
-    // UPDATE STATE JADUAL
     function updateScheduleDataFromTable() {
       const newSchedule = createEmptySchedule();
       for (const dayKey in DAYS_MAP) {
@@ -1474,7 +1460,6 @@
       document.title = originalTitle;
     }
 
-    // ROLLOVER MINGGU
     async function handleRollover(isManual) {
       if (!currentWeekStart) {
         currentWeekStart = getDefaultWeekStart();
@@ -1547,7 +1532,6 @@
       }
     }
 
-    // ADMIN
     function openAdminModal() {
       adminModal.style.display = "flex";
       loginView.style.display = "block";
@@ -1574,7 +1558,6 @@
     }
 
     function initEventListeners() {
-      // Jadual change
       scheduleBody.addEventListener("change", (event) => {
         if (event.target && event.target.tagName === "SELECT") {
           applySelectColor(event.target);
@@ -1586,7 +1569,6 @@
         }
       });
 
-      // Komen
       toggleCommentsBtn.addEventListener("click", () => {
         commentsPanel.classList.toggle("hidden");
       });
@@ -1619,16 +1601,13 @@
         }
       });
 
-      // Print
       printBtn.addEventListener("click", handlePrint);
 
-      // Admin modal
       adminLoginBtn.addEventListener("click", openAdminModal);
       adminCancelBtn.addEventListener("click", closeAdminModal);
       adminCloseBtn.addEventListener("click", closeAdminModal);
       adminSubmitBtn.addEventListener("click", handleAdminLogin);
 
-      // Minggu & label
       manualWeekStartBtn.addEventListener("click", async () => {
         const value = manualWeekStartInput.value;
         if (!value) {
@@ -1653,10 +1632,8 @@
         await handleRollover(true);
       });
 
-      // Options
       saveOptionsBtn.addEventListener("click", saveOptions);
 
-      // Maintenance
       maintenanceToggleBtn.addEventListener("click", async () => {
         const day = maintenanceDaySelect.value;
         const period = parseInt(maintenancePeriodSelect.value, 10);
@@ -1673,7 +1650,6 @@
         );
       });
 
-      // Booking modal open/close
       openBookingBtn.addEventListener("click", () => {
         bookingModal.style.display = "flex";
         const todayStr = dayjs().format("YYYY-MM-DD");
@@ -1691,7 +1667,6 @@
         }
       });
 
-      // Booking submit
       bookingSubmitBtn.addEventListener("click", async () => {
         const name =
           (bookingNameInput.value || "").trim() || "Guru";
@@ -1742,7 +1717,6 @@
       });
     }
 
-    // INIT
     async function init() {
       showLoading("Memuatkan data jadual...");
       try {
@@ -1803,7 +1777,6 @@
       }
     }
 
-    // Butang "kembali ke minggu semasa" bila keluar arkib – guna double-click pada tajuk minggu
     weekDateDisplay.addEventListener("dblclick", () => {
       if (archiveViewIndex !== -1) {
         exitArchiveView();
