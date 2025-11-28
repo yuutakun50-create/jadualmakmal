@@ -1,86 +1,124 @@
 <!DOCTYPE html>
 <html lang="ms">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Jadual Makmal Komputer SK Sri Aman</title>
 
-  <!-- Tailwind CSS -->
+  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- Day.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/plugin/isoWeek.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/plugin/customParseFormat.min.js"></script>
+
+  <!-- Font Inter (optional, bagi nampak kemas) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    body {
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+    }
+
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+      body {
+        background: white !important;
+      }
+    }
+  </style>
 </head>
 <body class="bg-slate-100 min-h-screen">
-
   <div class="max-w-6xl mx-auto py-6 px-3 sm:px-4 lg:px-0">
+
     <!-- HEADER -->
-    <header class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-      <div class="flex items-center gap-3">
-        <img src="https://i.imgur.com/AfsVtVG.jpeg"
-             alt="Logo SKSA"
-             class="w-16 h-16 sm:w-20 sm:h-20 rounded-md border-2 border-slate-300 bg-white object-cover">
+    <header class="flex flex-col sm:flex-row items-center justify-between mb-4 sm:mb-6 pb-4 border-b border-slate-200">
+      <div class="flex items-center mb-3 sm:mb-0">
+        <img
+          src="https://i.imgur.com/AfsVtVG.jpeg"
+          alt="Logo SKSA"
+          class="h-16 w-16 sm:h-20 sm:w-20 mr-4 rounded-md border-2 border-slate-300 bg-white object-cover"
+        />
         <div>
-          <h1 class="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-800 tracking-tight">
+          <h1 class="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
             Jadual Makmal Komputer SK Sri Aman
           </h1>
           <p class="text-xs sm:text-sm text-slate-600">
             Sistem Jadual, Tempahan & Tatacara Penggunaan
           </p>
-          <p id="week-date-display" class="mt-1 text-xs sm:text-sm font-medium text-slate-700">
+          <p
+            id="week-date-display"
+            class="mt-1 text-xs sm:text-sm font-semibold text-slate-800"
+          >
             Minggu: -
           </p>
         </div>
       </div>
 
       <div class="flex flex-col items-stretch gap-2 no-print">
-        <button id="admin-login-btn"
-                class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 font-medium">
+        <button
+          id="admin-login-btn"
+          class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 transition font-medium"
+        >
           Panel Admin
         </button>
-        <button id="open-booking-btn"
-                class="bg-emerald-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-emerald-700 transition duration-300 font-medium text-sm">
+        <button
+          id="open-booking-btn"
+          class="bg-emerald-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-emerald-700 transition font-medium text-sm"
+        >
           Tempahan Makmal (Tarikh Akan Datang)
         </button>
-        <button id="toggle-comments-btn"
-                class="bg-amber-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-amber-600 transition duration-300 font-medium text-sm">
+        <button
+          id="toggle-comments-btn"
+          class="bg-amber-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-amber-600 transition font-medium text-sm"
+        >
           Komen Guru (Minggu Ini)
         </button>
       </div>
     </header>
 
-    <!-- KOMEN GURU (CHAT) -->
-    <div id="comments-panel" class="no-print hidden mb-4">
-      <div class="border border-amber-300 rounded-xl bg-amber-50 p-3 sm:p-4">
+    <!-- PANEL KOMEN GURU -->
+    <section id="comments-panel" class="no-print hidden mb-4">
+      <div class="border border-amber-300 bg-amber-50 rounded-xl p-3 sm:p-4">
         <div class="flex items-center justify-between mb-2">
-          <h2 class="text-sm sm:text-base font-semibold text-amber-800">
-            Ruang Komen / Pesanan Untuk Minggu Ini
+          <h2 class="text-sm sm:text-base font-semibold text-amber-900">
+            Ruang Komen Minggu Ini
           </h2>
-          <span class="text-[11px] text-amber-700">
-            Khas untuk guru letak nota / pesan penggunaan makmal minggu ini
+          <span class="text-[11px] text-amber-800">
+            Untuk guru tinggalkan pesanan berkaitan penggunaan makmal minggu ini.
           </span>
         </div>
 
-        <div id="comments-log"
-             class="border border-amber-200 rounded-lg bg-white max-h-48 overflow-y-auto p-2 mb-2 text-xs sm:text-sm space-y-1">
-          <!-- Log komen akan dimasukkan melalui JS -->
+        <div
+          id="comments-log"
+          class="border border-amber-200 rounded-lg bg-white max-h-48 overflow-y-auto p-2 mb-2 text-xs sm:text-sm space-y-1"
+        >
+          <!-- Komen akan dimasukkan melalui JS -->
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-[0.7fr,2fr,auto] gap-2 items-start">
-          <input id="week-comment-name"
-                 type="text"
-                 placeholder="Nama guru (optional)"
-                 class="border border-amber-300 rounded-lg px-2 py-1 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-400">
-
-          <textarea id="week-comment-text"
-                    rows="2"
-                    placeholder="Tulis komen / pesanan minggu ini..."
-                    class="border border-amber-300 rounded-lg px-2 py-1 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"></textarea>
-
-          <button id="send-comment-btn"
-                  class="bg-amber-600 text-white text-xs sm:text-sm px-3 py-2 rounded-lg shadow hover:bg-amber-700">
+        <div class="grid grid-cols-1 sm:grid-cols-[0.6fr,2fr,auto] gap-2 items-start">
+          <input
+            id="week-comment-name"
+            type="text"
+            placeholder="Nama guru (optional)"
+            class="border border-amber-300 rounded-lg px-2 py-1 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+          />
+          <textarea
+            id="week-comment-text"
+            rows="2"
+            placeholder="Tulis komen / pesanan minggu ini..."
+            class="border border-amber-300 rounded-lg px-2 py-1 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+          ></textarea>
+          <button
+            id="send-comment-btn"
+            class="bg-amber-600 text-white text-xs sm:text-sm px-3 py-2 rounded-lg shadow hover:bg-amber-700"
+          >
             Hantar
           </button>
         </div>
@@ -89,23 +127,29 @@
           Tip: Tekan <span class="font-semibold">Ctrl + Enter</span> untuk hantar komen dengan cepat.
         </p>
       </div>
-    </div>
+    </section>
 
-    <!-- JADUAL -->
+    <!-- JADUAL MINGGUAN -->
     <section class="bg-white rounded-2xl shadow-lg overflow-hidden mb-4">
       <div class="p-3 sm:p-4 border-b border-slate-200 flex items-center justify-between gap-3">
         <div>
-          <h2 class="text-base sm:text-lg font-semibold text-slate-800">
+          <h2 class="text-base sm:text-lg font-semibold text-slate-900">
             Jadual Mingguan Makmal Komputer
           </h2>
           <p class="text-[11px] sm:text-xs text-slate-500">
             Tempahan khas (contoh pertandingan / program) akan blok semua slot hari tersebut.
           </p>
         </div>
-        <div class="flex flex-wrap items-center gap-2 text-[11px] sm:text-xs text-slate-500">
-          <span class="w-3 h-3 rounded bg-green-100 border border-green-500"></span> Slot Aktif
-          <span class="w-3 h-3 rounded bg-gray-200 border border-gray-400 ml-2"></span> Maintenance / Ditutup
-          <span class="w-3 h-3 rounded bg-purple-200 border border-purple-500 ml-2"></span> Hari Ditempah
+        <div class="flex flex-wrap items-center gap-2 text-[11px] sm:text-xs text-slate-500 no-print">
+          <span class="inline-flex items-center">
+            <span class="w-3 h-3 rounded bg-green-100 border border-green-500 mr-1"></span> Slot Aktif
+          </span>
+          <span class="inline-flex items-center">
+            <span class="w-3 h-3 rounded bg-gray-200 border border-gray-500 mr-1"></span> Maintenance / Ditutup
+          </span>
+          <span class="inline-flex items-center">
+            <span class="w-3 h-3 rounded bg-purple-200 border border-purple-500 mr-1"></span> Hari Ditempah
+          </span>
         </div>
       </div>
 
@@ -113,182 +157,160 @@
         <table id="schedule-table" class="min-w-full text-[11px] sm:text-xs">
           <thead class="bg-slate-100 border-b border-slate-200">
             <tr>
-              <th class="px-2 py-2 text-left font-semibold text-slate-700 w-24 sticky left-0 bg-slate-100 z-10">
+              <th
+                class="px-2 py-2 text-left font-semibold text-slate-700 w-28 sticky left-0 bg-slate-100 z-10"
+              >
                 Hari / Waktu
               </th>
+              <!-- Kolum waktu akan ditambah melalui JS -->
             </tr>
           </thead>
           <tbody id="schedule-body" class="divide-y divide-slate-100">
-            <!-- Diisi melalui JS -->
+            <!-- Baris jadual akan dibina melalui JS -->
           </tbody>
         </table>
       </div>
     </section>
 
-    <!-- KALENDAR RINGKAS TEMPAHAN (PUBLIC VIEW) -->
-    <section class="no-print mb-4">
-      <div class="bg-white rounded-2xl shadow p-3 sm:p-4">
-        <div class="flex items-center justify-between mb-2">
-          <h3 class="text-sm sm:text-base font-semibold text-slate-800">
-            Kalendar Tempahan (Ringkas)
-          </h3>
-          <span class="text-[11px] text-slate-500">
-            Paparan semua tempahan akan datang (pending & lulus).
-          </span>
-        </div>
-        <ul id="public-booking-list" class="max-h-52 overflow-y-auto text-[11px] sm:text-xs space-y-1">
-          <li class="text-slate-500">Tiada tempahan direkodkan.</li>
-        </ul>
-      </div>
+    <!-- BUTANG CETAK -->
+    <section class="no-print mb-6 flex justify-end">
+      <button
+        id="print-btn"
+        class="bg-emerald-600 text-white text-xs sm:text-sm px-4 py-2 rounded-lg shadow hover:bg-emerald-700"
+      >
+        Cetak / Simpan PDF Jadual
+      </button>
     </section>
 
-    <!-- FOOTER / KAWALAN -->
-    <section class="no-print grid grid-cols-1 md:grid-cols-2 gap-3">
-      <!-- Kiri: Info Minggu & Label -->
-      <div class="bg-white rounded-2xl shadow p-3 sm:p-4">
-        <h3 class="text-sm sm:text-base font-semibold text-slate-800 mb-2">Label Minggu</h3>
-        <p class="text-[11px] sm:text-xs text-slate-600 mb-2">
-          Contoh: Minggu Ujian, Minggu Program STEM, dsb.
-        </p>
-        <input id="week-label-input" type="text"
-               class="w-full border border-slate-300 rounded-lg px-2 py-1 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-               placeholder="Contoh: Minggu Program STEM Tahun 5">
-        <button id="save-week-label-btn"
-                class="mt-2 bg-blue-600 text-white text-xs sm:text-sm px-3 py-1.5 rounded-lg hover:bg-blue-700">
-          Simpan Label Minggu
-        </button>
-      </div>
-
-      <!-- Kanan: Arkib & Print -->
-      <div class="bg-white rounded-2xl shadow p-3 sm:p-4 flex flex-col gap-3">
-        <div>
-          <div class="flex items-center justify-between mb-1">
-            <h3 class="text-sm sm:text-base font-semibold text-slate-800">Arkib Mingguan</h3>
-            <div class="flex items-center gap-1">
-              <button id="archive-prev-btn"
-                      class="px-2 py-1 text-xs bg-slate-200 rounded hover:bg-slate-300">&lt;</button>
-              <button id="archive-next-btn"
-                      class="px-2 py-1 text-xs bg-slate-200 rounded hover:bg-slate-300">&gt;</button>
-            </div>
-          </div>
-          <p id="archive-info" class="text-[11px] sm:text-xs text-slate-600 mb-1">
-            Tiada arkib.
-          </p>
-          <p id="archive-comment-text" class="text-[11px] sm:text-xs text-slate-500">
-            Tiada arkib dipilih.
-          </p>
-          <ul id="archive-list"
-              class="mt-2 max-h-32 overflow-y-auto text-[11px] sm:text-xs space-y-1">
-            <!-- Senarai arkib -->
-          </ul>
-        </div>
-        <div>
-          <button id="print-btn"
-                  class="w-full bg-emerald-600 text-white text-xs sm:text-sm px-3 py-2 rounded-lg hover:bg-emerald-700">
-            Cetak / Simpan PDF Jadual
-          </button>
-        </div>
-      </div>
-    </section>
-
-    <!-- TATACARA (RUJUKAN GURU) -->
-    <section class="mt-6 sm:mt-8 p-4 sm:p-5 bg-yellow-100 border-l-4 border-yellow-500 rounded-lg shadow-md no-print">
-      <h3 class="text-lg sm:text-xl font-bold text-yellow-800 mb-3">Tatacara Penggunaan Laptop Makmal</h3>
+    <!-- Tatacara ringkas (rujukan guru) -->
+    <section class="no-print p-4 sm:p-5 bg-yellow-50 border-l-4 border-yellow-500 rounded-xl shadow">
+      <h3 class="text-lg sm:text-xl font-bold text-yellow-800 mb-3">
+        Tatacara Penggunaan Laptop Makmal
+      </h3>
       <ol class="list-decimal list-inside text-sm sm:text-base text-gray-700 space-y-2">
         <li>Guru meminta murid mengambil laptop di rak besi dengan tertib.</li>
         <li>Pastikan murid mencabut wayar charger dengan cermat sebelum mengangkat laptop.</li>
-        <li>Buka laptop dan masukkan password yang ditetapkan pihak sekolah.</li>
-        <li>Murid dibenarkan menggunakan mouse yang ada di dalam meja komputer jika perlu.</li>
-        <li>Selepas tamat penggunaan, pastikan murid shut down dan simpan semula di rak besi.</li>
-        <li>Charge semula laptop jika bateri rendah (jika keadaan mengizinkan).</li>
-        <li>Kegagalan mematuhi tatacara ini boleh menyebabkan tempahan guru akan datang dibatalkan.</li>
+        <li>Buka laptop dan masukkan kata laluan yang ditetapkan pihak sekolah.</li>
+        <li>Murid dibenarkan menggunakan tetikus yang ada di dalam meja komputer sekiranya perlu.</li>
+        <li>Selepas tamat penggunaan, pastikan murid shut down dan simpan semula di rak.</li>
+        <li>Charge semula laptop jika bateri rendah dan keadaan mengizinkan.</li>
+        <li>
+          Kerosakan / masalah hendaklah dimaklumkan segera kepada penyelaras ICT.
+        </li>
       </ol>
     </section>
   </div>
 
   <!-- ADMIN MODAL -->
-  <div id="admin-modal"
-       class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4"
-       style="display: none;">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-5 sm:p-8">
-      <!-- Login View -->
+  <div
+    id="admin-modal"
+    class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
+    style="display: none;"
+  >
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6 sm:p-8">
+      <!-- LOGIN VIEW -->
       <div id="login-view">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6">Log Masuk Admin</h2>
-
-        <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 mb-1">Kata Laluan Admin</label>
-          <input id="admin-password-input" type="password"
-                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                 placeholder="Masukkan kata laluan">
-          <p class="text-xs text-gray-500 mt-1">Hanya untuk pentadbir jadual makmal.</p>
-        </div>
-
-        <div class="flex justify-end gap-2 mt-4">
-          <button id="admin-cancel-btn"
-                  class="px-4 py-2 text-sm rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300">
+        <h2 class="text-2xl font-bold text-slate-900 mb-4">Log Masuk Admin</h2>
+        <p class="text-sm text-slate-600 mb-4">
+          Hanya untuk pentadbir jadual makmal.
+        </p>
+        <label class="block text-sm font-medium text-slate-700 mb-1">
+          Kata Laluan Admin
+        </label>
+        <input
+          id="admin-password-input"
+          type="password"
+          class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Masukkan kata laluan"
+        />
+        <div class="flex justify-end gap-2 mt-6">
+          <button
+            id="admin-cancel-btn"
+            class="px-4 py-2 text-sm rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300"
+          >
             Batal
           </button>
-          <button id="admin-submit-btn"
-                  class="px-4 py-2 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700 shadow">
+          <button
+            id="admin-submit-btn"
+            class="px-4 py-2 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700 shadow"
+          >
             Log Masuk
           </button>
         </div>
       </div>
 
-      <!-- Admin Panel View -->
+      <!-- ADMIN PANEL VIEW -->
       <div id="admin-panel-view" style="display: none;">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6">Panel Admin</h2>
+        <h2 class="text-2xl font-bold text-slate-900 mb-6">Panel Admin</h2>
 
-        <!-- Edit Dropdown Options -->
-        <div class="mb-6 p-4 border border-gray-300 rounded-lg bg-gray-50">
-          <h3 class="text-xl font-semibold text-gray-700 mb-4">Edit Pilihan Dropdown</h3>
-          <p class="text-sm text-gray-600 mb-3">
-            Masukkan pilihan dipisahkan dengan koma (cth: 1B,1C,2B,2C)
+        <!-- PILIHAN DROPDOWN -->
+        <section class="mb-6 p-4 border border-slate-200 rounded-xl bg-slate-50">
+          <h3 class="text-lg font-semibold text-slate-800 mb-2">Pilihan Kelas & Subjek</h3>
+          <p class="text-xs sm:text-sm text-slate-600 mb-3">
+            Masukkan pilihan dipisahkan dengan koma. Contoh kelas:
+            <span class="font-mono">1B,1C,2B,2C,3B,3C</span>
           </p>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Pilihan Kelas</label>
-              <textarea id="edit-class-options" rows="4"
-                        class="w-full border border-gray-300 rounded-lg px-2 py-1 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">
+                Pilihan Kelas
+              </label>
+              <textarea
+                id="edit-class-options"
+                rows="4"
+                class="w-full border border-slate-300 rounded-lg px-2 py-1 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              ></textarea>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Pilihan Subjek</label>
-              <textarea id="edit-subject-options" rows="4"
-                        class="w-full border border-gray-300 rounded-lg px-2 py-1 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">
+                Pilihan Subjek
+              </label>
+              <textarea
+                id="edit-subject-options"
+                rows="4"
+                class="w-full border border-slate-300 rounded-lg px-2 py-1 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              ></textarea>
             </div>
           </div>
-          <button id="save-options-btn"
-                  class="mt-3 bg-blue-600 text-white text-xs sm:text-sm px-3 py-1.5 rounded-lg hover:bg-blue-700">
+          <button
+            id="save-options-btn"
+            class="mt-3 bg-blue-600 text-white text-xs sm:text-sm px-3 py-1.5 rounded-lg hover:bg-blue-700"
+          >
             Simpan Pilihan
           </button>
-        </div>
+        </section>
 
-        <!-- Tetapan Minggu & Rollover -->
-        <div class="mb-6 p-4 border border-blue-300 rounded-lg bg-blue-50">
-          <h3 class="text-xl font-semibold text-blue-800 mb-2">Tetapan Minggu</h3>
-          <p class="text-xs sm:text-sm text-blue-800 mb-3">
-            Sistem akan auto-rollover pada hari Sabtu/Ahad (minggu baru).
-          </p>
-
+        <!-- TETAPAN MINGGU -->
+        <section class="mb-6 p-4 border border-blue-200 rounded-xl bg-blue-50">
+          <h3 class="text-lg font-semibold text-blue-900 mb-2">Tetapan Minggu & Rollover</h3>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs font-medium text-blue-900 mb-1">
-                Tarikh Mula Minggu Semasa
+              <label class="block text-xs font-semibold text-blue-900 mb-1">
+                Tarikh Mula Minggu Semasa (Isnin)
               </label>
-              <input id="week-start-display" type="text" readonly
-                     class="w-full border border-blue-200 rounded-lg px-2 py-1 text-xs bg-white">
+              <input
+                id="week-start-display"
+                type="text"
+                readonly
+                class="w-full border border-blue-200 rounded-lg px-2 py-1 text-xs bg-white"
+              />
               <p class="mt-1 text-[11px] text-blue-900">
-                Ini adalah tarikh Isnin untuk minggu jadual semasa.
+                Tarikh ini menentukan julat minggu yang dipaparkan di jadual.
               </p>
             </div>
             <div>
-              <label class="block text-xs font-medium text-blue-900 mb-1">
-                Tukar Tarikh Minggu Semasa (Manual)
+              <label class="block text-xs font-semibold text-blue-900 mb-1">
+                Tukar Tarikh Minggu (Manual)
               </label>
-              <input id="manual-week-start-input" type="date"
-                     class="w-full border border-blue-200 rounded-lg px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <button id="manual-week-start-btn"
-                      class="mt-2 bg-blue-600 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-blue-700">
+              <input
+                id="manual-week-start-input"
+                type="date"
+                class="w-full border border-blue-200 rounded-lg px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                id="manual-week-start-btn"
+                class="mt-2 bg-blue-600 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-blue-700"
+              >
                 Set Tarikh & Simpan
               </button>
               <p class="mt-1 text-[11px] text-blue-900">
@@ -297,75 +319,116 @@
             </div>
           </div>
 
-          <div class="mt-4">
-            <p id="last-rollover-info" class="text-[11px] text-blue-900 mb-2">
+          <div class="mt-3">
+            <label class="block text-xs font-semibold text-blue-900 mb-1">
+              Label Minggu (contoh: Minggu Ujian, Minggu STEM)
+            </label>
+            <input
+              id="week-label-input"
+              type="text"
+              class="w-full border border-blue-200 rounded-lg px-2 py-1 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Contoh: Minggu Program STEM Tahun 5"
+            />
+          </div>
+
+          <div class="mt-3 flex flex-wrap items-center justify-between gap-2">
+            <p
+              id="last-rollover-info"
+              class="text-[11px] text-blue-900"
+            >
               Tarikh rollover terakhir: -
             </p>
-            <button id="manual-rollover-btn"
-                    class="bg-red-600 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-red-700">
-              Paksa Rollover Minggu (Manual)
-            </button>
+            <div class="flex gap-2">
+              <button
+                id="save-week-label-btn"
+                class="bg-blue-600 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-blue-700"
+              >
+                Simpan Label
+              </button>
+              <button
+                id="manual-rollover-btn"
+                class="bg-red-600 text-white text-xs px-3 py-1.5 rounded-lg hover:bg-red-700"
+              >
+                Paksa Rollover Minggu (Arkibkan & Mulakan Minggu Baru)
+              </button>
+            </div>
           </div>
-        </div>
+        </section>
 
         <!-- MAINTENANCE SLOT -->
-        <div class="mb-6 p-4 border border-red-300 rounded-lg bg-red-50">
-          <h3 class="text-lg font-semibold text-red-700 mb-2">Maintenance Slot</h3>
-          <p class="text-xs text-red-700 mb-3">
-            Slot yang ditandakan sebagai <strong>maintenance</strong> akan dikunci dan berwarna kelabu
-            (tidak boleh ditempah / digunakan).
+        <section class="mb-6 p-4 border border-red-200 rounded-xl bg-red-50">
+          <h3 class="text-lg font-semibold text-red-800 mb-2">Slot Maintenance</h3>
+          <p class="text-xs text-red-800 mb-3">
+            Slot yang ditandakan sebagai maintenance akan dikunci (kelabu) dan tidak boleh digunakan.
           </p>
           <div class="flex flex-wrap items-center gap-2 mb-2">
-            <label class="text-sm text-gray-700">Hari:</label>
-            <select id="maintenance-day-select"
-                    class="border border-gray-300 rounded-md p-1 text-sm">
-              <option value="mo">Isnin (Mo)</option>
-              <option value="tu">Selasa (Tu)</option>
-              <option value="we">Rabu (We)</option>
-              <option value="th">Khamis (Th)</option>
-              <option value="fr">Jumaat (Fr)</option>
+            <span class="text-sm text-slate-800">Hari:</span>
+            <select
+              id="maintenance-day-select"
+              class="border border-slate-300 rounded-md p-1 text-sm"
+            >
+              <option value="mo">Isnin</option>
+              <option value="tu">Selasa</option>
+              <option value="we">Rabu</option>
+              <option value="th">Khamis</option>
+              <option value="fr">Jumaat</option>
             </select>
 
-            <label class="ml-2 text-sm text-gray-700">Waktu:</label>
-            <select id="maintenance-period-select"
-                    class="border border-gray-300 rounded-md p-1 text-sm"></select>
+            <span class="ml-2 text-sm text-slate-800">Waktu:</span>
+            <select
+              id="maintenance-period-select"
+              class="border border-slate-300 rounded-md p-1 text-sm"
+            ></select>
 
-            <button id="maintenance-toggle-btn"
-                    class="ml-2 bg-red-600 text-white px-4 py-1.5 rounded-lg text-sm shadow hover:bg-red-700">
+            <button
+              id="maintenance-toggle-btn"
+              class="ml-2 bg-red-600 text-white px-4 py-1.5 rounded-lg text-sm shadow hover:bg-red-700"
+            >
               Tutup / Buka Slot
             </button>
           </div>
-          <p id="maintenance-status-text"
-             class="mt-2 text-xs text-gray-700 whitespace-pre-line">
+          <p
+            id="maintenance-status-text"
+            class="mt-2 text-xs text-slate-700 whitespace-pre-line"
+          >
             Tiada slot maintenance (semua aktif).
           </p>
-        </div>
+        </section>
 
-        <!-- Booking Requests (Tempahan Makmal) -->
-        <div class="mb-6 p-4 border border-indigo-300 rounded-lg bg-indigo-50">
-          <h3 class="text-xl font-semibold text-indigo-700 mb-3">Permohonan Tempahan Makmal</h3>
-          <p class="text-xs sm:text-sm text-indigo-700 mb-3">
-            Senarai permohonan tempahan makmal oleh guru. Tempahan yang diluluskan akan menutup semua slot
-            hari yang dipilih dan memaparkan label aktiviti dalam jadual mingguan.
+        <!-- PERMOHONAN TEMPAHAN MAKMAL -->
+        <section class="mb-6 p-4 border border-indigo-200 rounded-xl bg-indigo-50">
+          <h3 class="text-lg font-semibold text-indigo-800 mb-2">
+            Permohonan Tempahan Makmal
+          </h3>
+          <p class="text-xs sm:text-sm text-indigo-800 mb-3">
+            Tempahan yang diluluskan akan menutup semua slot hari yang dipilih dan memaparkan label aktiviti di jadual.
           </p>
-          <div id="booking-list"
-               class="max-h-72 overflow-y-auto border border-indigo-200 rounded-lg p-3 bg-white space-y-2">
-            <p class="text-gray-500 text-sm">Tiada permohonan tempahan.</p>
+          <div
+            id="booking-list"
+            class="max-h-72 overflow-y-auto border border-indigo-200 rounded-lg p-3 bg-white space-y-2 text-sm"
+          >
+            <p class="text-slate-500 text-sm">Tiada permohonan tempahan.</p>
           </div>
-        </div>
+        </section>
 
-        <!-- Weekly Archive -->
-        <div class="mb-6 p-4 border border-slate-300 rounded-lg bg-slate-50">
-          <h3 class="text-xl font-semibold text-slate-800 mb-3">Senarai Arkib Mingguan</h3>
-          <ul id="admin-archive-list"
-              class="max-h-60 overflow-y-auto text-xs space-y-1">
-            <!-- Diisi oleh JS -->
-          </ul>
-        </div>
+        <!-- ARKIB MINGGUAN -->
+        <section class="mb-6 p-4 border border-slate-200 rounded-xl bg-slate-50">
+          <h3 class="text-lg font-semibold text-slate-800 mb-2">Arkib Mingguan</h3>
+          <p class="text-xs text-slate-600 mb-2">
+            Klik arkib untuk lihat jadual minggu tersebut. Untuk kembali ke minggu semasa,
+            tekan butang di bawah jadual.
+          </p>
+          <ul
+            id="admin-archive-list"
+            class="max-h-60 overflow-y-auto text-xs space-y-1"
+          ></ul>
+        </section>
 
         <div class="flex justify-end mt-4">
-          <button id="admin-close-btn"
-                  class="px-4 py-2 text-sm rounded-lg bg-gray-800 text-white hover:bg-black">
+          <button
+            id="admin-close-btn"
+            class="px-4 py-2 text-sm rounded-lg bg-slate-800 text-white hover:bg-black"
+          >
             Tutup Panel Admin
           </button>
         </div>
@@ -373,80 +436,113 @@
     </div>
   </div>
 
-  <!-- BOOKING MODAL (TEMPahan oleh guru) -->
-  <div id="booking-modal"
-       class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 p-4"
-       style="display: none;">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-5 sm:p-6">
-      <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-4">Tempahan Makmal Komputer</h2>
-      <p class="text-xs sm:text-sm text-gray-600 mb-4">
-        Sila pilih tarikh dan nyatakan sebab/aktiviti. Tempahan akan menutup
-        <span class="font-semibold">semua slot hari tersebut</span> selepas diluluskan oleh admin.
+  <!-- BOOKING MODAL (UNTUK GURU) -->
+  <div
+    id="booking-modal"
+    class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4"
+    style="display: none;"
+  >
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto p-5 sm:p-6">
+      <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mb-2">
+        Tempahan Makmal Komputer
+      </h2>
+      <p class="text-xs sm:text-sm text-slate-600 mb-4">
+        Pilih tarikh dan nyatakan sebab / aktiviti. Tempahan akan menutup
+        <span class="font-semibold">semua slot hari tersebut</span>
+        selepas diluluskan oleh admin.
       </p>
 
-      <div class="space-y-3">
+      <div class="space-y-3 mb-4">
         <div>
-          <label for="booking-name" class="block text-sm font-medium text-gray-700 mb-1">Nama Guru</label>
+          <label class="block text-sm font-medium text-slate-700 mb-1">
+            Nama Guru
+          </label>
           <input
             id="booking-name"
             type="text"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
             placeholder="Contoh: Cikgu Sufian"
           />
         </div>
 
         <div>
-          <label for="booking-date" class="block text-sm font-medium text-gray-700 mb-1">Tarikh Tempahan</label>
+          <label class="block text-sm font-medium text-slate-700 mb-1">
+            Tarikh Tempahan
+          </label>
           <input
             id="booking-date"
             type="date"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
           />
-          <p class="mt-1 text-[11px] text-gray-500">
-            Hanya tempahan hari Isnin–Jumaat yang akan muncul dalam jadual mingguan.
+          <p class="mt-1 text-[11px] text-slate-500">
+            Disaran pilih hari Isnin–Jumaat.
           </p>
         </div>
 
         <div>
-          <label for="booking-reason" class="block text-sm font-medium text-gray-700 mb-1">Sebab / Aktiviti</label>
+          <label class="block text-sm font-medium text-slate-700 mb-1">
+            Sebab / Aktiviti
+          </label>
           <textarea
             id="booking-reason"
             rows="3"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
             placeholder="Contoh: PERTANDINGAN ROBOTIK"
           ></textarea>
         </div>
       </div>
 
-      <div class="mt-5 flex justify-end gap-3">
-        <button id="booking-cancel-btn"
-                class="px-4 py-2 text-sm rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300 transition">
+      <div class="flex justify-end gap-2 mb-4">
+        <button
+          id="booking-cancel-btn"
+          class="px-4 py-2 text-sm rounded-lg bg-slate-200 text-slate-700 hover:bg-slate-300"
+        >
           Batal
         </button>
-        <button id="booking-submit-btn"
-                class="px-4 py-2 text-sm rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 shadow">
+        <button
+          id="booking-submit-btn"
+          class="px-4 py-2 text-sm rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 shadow"
+        >
           Hantar Permohonan
         </button>
       </div>
+
+      <hr class="my-3" />
+
+      <!-- KALENDAR TEMPAHAN RINGKAS: HANYA MUNCUL DALAM MODAL INI -->
+      <h3 class="text-sm sm:text-base font-semibold text-slate-800 mb-2">
+        Senarai Tempahan Akan Datang
+      </h3>
+      <ul
+        id="public-booking-list-modal"
+        class="max-h-56 overflow-y-auto text-[11px] sm:text-xs space-y-1"
+      >
+        <li class="text-slate-500">Tiada tempahan direkodkan.</li>
+      </ul>
     </div>
   </div>
 
   <!-- TOAST -->
-  <div id="toast"
-       class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-lg text-sm text-white shadow-lg bg-slate-800 opacity-0 pointer-events-none transition">
+  <div
+    id="toast"
+    class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2 rounded-lg text-sm text-white shadow-lg bg-slate-800 opacity-0 pointer-events-none transition"
+  >
     <span id="toast-message"></span>
   </div>
 
   <!-- LOADING OVERLAY -->
-  <div id="loading-overlay"
-       class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50"
-       style="display:none;">
+  <div
+    id="loading-overlay"
+    class="fixed inset-0 bg-black/30 flex items-center justify-center z-50"
+    style="display: none;"
+  >
     <div class="bg-white rounded-xl shadow-xl px-4 py-3 flex items-center gap-3">
       <div class="w-6 h-6 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
       <div class="text-sm text-slate-700" id="loading-text">Memuatkan...</div>
     </div>
   </div>
 
+  <!-- SCRIPT UTAMA -->
   <script type="module">
     import {
       loadInitialData,
@@ -459,18 +555,28 @@
       saveWeekCommentsToDB,
       saveMaintenanceToDB,
       saveFutureBookingsToDB
-    } from './database.js';
+    } from "./database.js";
 
     dayjs.extend(dayjs_plugin_isoWeek);
     dayjs.extend(dayjs_plugin_customParseFormat);
 
-    // === KONFIGURASI ===
+    // KONFIGURASI
     const PERIODS_COUNT = 12;
     const PERIOD_TIMES = [
-      "7.45-8.15", "8.15-8.45", "8.45-9.15", "9.15-9.45",
-      "9.45-10.15", "10.15-10.45", "10.45-11.15", "11.15-11.45",
-      "11.45-12.15", "12.15-12.45", "12.45-1.15", "1.15-1.45"
+      "7.45 - 8.15",
+      "8.15 - 8.45",
+      "8.45 - 9.15",
+      "9.15 - 9.45",
+      "9.45 - 10.15",
+      "10.15 - 10.45",
+      "10.45 - 11.15",
+      "11.15 - 11.45",
+      "11.45 - 12.15",
+      "12.15 - 12.45",
+      "12.45 - 1.15",
+      "1.15 - 1.45"
     ];
+
     const DAYS_MAP = {
       mo: "Isnin",
       tu: "Selasa",
@@ -479,53 +585,22 @@
       fr: "Jumaat"
     };
 
-    // === STATE ===
+    // STATE GLOBAL
     let currentSchedule = {};
     let weeklyArchive = [];
     let currentWeekStart = null;
-    let currentWeekLabel = '';
+    let currentWeekLabel = "";
     let lastRolloverDate = null;
-    let archiveViewIndex = -1;
-    let autoSaveTimer = null;
     let currentWeekComments = [];
     let maintenance = {};
     let futureBookings = [];
+    let archiveViewIndex = -1;
+    let autoSaveTimer = null;
 
-    // DOM refs
-    const tableHeader = document.querySelector("#schedule-table thead tr");
-    const tableBody = document.getElementById("schedule-body");
+    // DOM REF
+    const tableHeaderRow = document.querySelector("#schedule-table thead tr");
+    const scheduleBody = document.getElementById("schedule-body");
     const weekDateDisplay = document.getElementById("week-date-display");
-
-    const weekLabelInput = document.getElementById("week-label-input");
-    const saveWeekLabelBtn = document.getElementById("save-week-label-btn");
-
-    const archivePrevBtn = document.getElementById("archive-prev-btn");
-    const archiveNextBtn = document.getElementById("archive-next-btn");
-    const archiveInfo = document.getElementById("archive-info");
-    const archiveList = document.getElementById("archive-list");
-    const adminArchiveList = document.getElementById("admin-archive-list");
-    const archiveCommentText = document.getElementById("archive-comment-text");
-
-    const printBtn = document.getElementById("print-btn");
-
-    const adminLoginBtn = document.getElementById("admin-login-btn");
-    const adminModal = document.getElementById("admin-modal");
-    const adminPasswordInput = document.getElementById("admin-password-input");
-    const adminCancelBtn = document.getElementById("admin-cancel-btn");
-    const adminSubmitBtn = document.getElementById("admin-submit-btn");
-    const adminCloseBtn = document.getElementById("admin-close-btn");
-    const loginView = document.getElementById("login-view");
-    const adminPanelView = document.getElementById("admin-panel-view");
-
-    const weekStartDisplay = document.getElementById("week-start-display");
-    const manualWeekStartInput = document.getElementById("manual-week-start-input");
-    const manualWeekStartBtn = document.getElementById("manual-week-start-btn");
-    const manualRolloverBtn = document.getElementById("manual-rollover-btn");
-    const lastRolloverInfo = document.getElementById("last-rollover-info");
-
-    const editClassOptions = document.getElementById("edit-class-options");
-    const editSubjectOptions = document.getElementById("edit-subject-options");
-    const saveOptionsBtn = document.getElementById("save-options-btn");
 
     const commentsPanel = document.getElementById("comments-panel");
     const toggleCommentsBtn = document.getElementById("toggle-comments-btn");
@@ -534,44 +609,65 @@
     const weekCommentTextInput = document.getElementById("week-comment-text");
     const sendCommentBtn = document.getElementById("send-comment-btn");
 
-    const toast = document.getElementById("toast");
-    const toastMessage = document.getElementById("toast-message");
+    const printBtn = document.getElementById("print-btn");
 
-    const loadingOverlay = document.getElementById("loading-overlay");
-    const loadingText = document.getElementById("loading-text");
+    const adminLoginBtn = document.getElementById("admin-login-btn");
+    const adminModal = document.getElementById("admin-modal");
+    const loginView = document.getElementById("login-view");
+    const adminPanelView = document.getElementById("admin-panel-view");
+    const adminCancelBtn = document.getElementById("admin-cancel-btn");
+    const adminSubmitBtn = document.getElementById("admin-submit-btn");
+    const adminPasswordInput = document.getElementById("admin-password-input");
+    const adminCloseBtn = document.getElementById("admin-close-btn");
+
+    const editClassOptions = document.getElementById("edit-class-options");
+    const editSubjectOptions = document.getElementById("edit-subject-options");
+    const saveOptionsBtn = document.getElementById("save-options-btn");
+
+    const weekStartDisplay = document.getElementById("week-start-display");
+    const manualWeekStartInput = document.getElementById("manual-week-start-input");
+    const manualWeekStartBtn = document.getElementById("manual-week-start-btn");
+    const weekLabelInput = document.getElementById("week-label-input");
+    const saveWeekLabelBtn = document.getElementById("save-week-label-btn");
+    const manualRolloverBtn = document.getElementById("manual-rollover-btn");
+    const lastRolloverInfo = document.getElementById("last-rollover-info");
 
     const maintenanceDaySelect = document.getElementById("maintenance-day-select");
     const maintenancePeriodSelect = document.getElementById("maintenance-period-select");
     const maintenanceToggleBtn = document.getElementById("maintenance-toggle-btn");
     const maintenanceStatusText = document.getElementById("maintenance-status-text");
 
-    // Tempahan makmal
-    const openBookingBtn = document.getElementById("open-booking-btn");
+    const bookingListContainer = document.getElementById("booking-list");
+    const adminArchiveList = document.getElementById("admin-archive-list");
+
     const bookingModal = document.getElementById("booking-modal");
+    const openBookingBtn = document.getElementById("open-booking-btn");
     const bookingNameInput = document.getElementById("booking-name");
     const bookingDateInput = document.getElementById("booking-date");
     const bookingReasonInput = document.getElementById("booking-reason");
     const bookingSubmitBtn = document.getElementById("booking-submit-btn");
     const bookingCancelBtn = document.getElementById("booking-cancel-btn");
-    const bookingListContainer = document.getElementById("booking-list");
-    const publicBookingList = document.getElementById("public-booking-list");
+    const publicBookingListModal = document.getElementById("public-booking-list-modal");
 
+    const toast = document.getElementById("toast");
+    const toastMessage = document.getElementById("toast-message");
+    const loadingOverlay = document.getElementById("loading-overlay");
+    const loadingText = document.getElementById("loading-text");
+
+    // UTILITI UI
     function showToast(message, isError = false) {
-      toast.textContent = "";
       toastMessage.textContent = message;
-      toast.classList.remove("opacity-0", "bg-slate-800", "bg-red-700");
-      toast.classList.add(isError ? "bg-red-700" : "bg-slate-800");
-      toast.style.opacity = "1";
-      toast.style.pointerEvents = "auto";
-
+      toast.classList.remove("opacity-0");
+      toast.classList.add("opacity-100");
+      toast.style.backgroundColor = isError ? "#b91c1c" : "#0f172a";
       setTimeout(() => {
-        toast.style.opacity = "0";
-        toast.style.pointerEvents = "none";
+        toast.classList.remove("opacity-100");
+        toast.classList.add("opacity-0");
       }, 2500);
     }
 
-    function showLoading(msg = "Memuatkan...") {
-      loadingText.textContent = msg;
+    function showLoading(msg) {
+      loadingText.textContent = msg || "Memuatkan...";
       loadingOverlay.style.display = "flex";
     }
 
@@ -581,67 +677,196 @@
 
     function getDefaultWeekStart() {
       const today = dayjs();
-      return today.isoWeekday() === 7
-        ? today.add(1, "day").startOf("week").add(1, "day")
-        : today.startOf("week").add(1, "day");
+      if (today.isoWeekday() === 7) {
+        return today.add(1, "day").startOf("week").add(1, "day");
+      }
+      return today.startOf("week").add(1, "day");
     }
 
-    // ===========================
-    // STRUKTUR DATA JADUAL
-    // ===========================
+    // STRUKTUR DATA
     function createEmptySchedule() {
       const schedule = {};
-      Object.keys(DAYS_MAP).forEach(dayKey => {
+      for (const dayKey in DAYS_MAP) {
         schedule[dayKey] = {};
         for (let i = 1; i <= PERIODS_COUNT; i++) {
           schedule[dayKey][i] = { class: "", subject: "" };
         }
-      });
+      }
       return schedule;
     }
 
     function migrateScheduleData(data) {
-      if (!data || typeof data !== "object") {
-        return createEmptySchedule();
-      }
+      if (!data || typeof data !== "object") return createEmptySchedule();
       const base = createEmptySchedule();
-
-      Object.keys(DAYS_MAP).forEach(dayKey => {
-        if (data[dayKey] && typeof data[dayKey] === "object") {
-          for (let i = 1; i <= PERIODS_COUNT; i++) {
-            const slot = data[dayKey][i];
-            if (slot && typeof slot === "object") {
-              base[dayKey][i] = {
-                class: slot.class || "",
-                subject: slot.subject || ""
-              };
-            }
+      for (const dayKey in DAYS_MAP) {
+        if (!data[dayKey]) continue;
+        for (let i = 1; i <= PERIODS_COUNT; i++) {
+          const slot = data[dayKey][i];
+          if (slot && typeof slot === "object") {
+            base[dayKey][i] = {
+              class: slot.class || "",
+              subject: slot.subject || ""
+            };
           }
         }
-      });
-
+      }
       return base;
     }
 
     function createEmptyMaintenance() {
       const obj = {};
-      Object.keys(DAYS_MAP).forEach(dayKey => {
-        obj[dayKey] = {};
-      });
+      for (const dayKey in DAYS_MAP) obj[dayKey] = {};
       return obj;
     }
 
     function loadOptionsFromData(classOpts, subjectOpts) {
-      const classOptions = Array.isArray(classOpts) && classOpts.length
-        ? classOpts
-        : ["1B", "1C", "2B", "2C", "3B", "3C", "4B", "4C", "5B", "5C", "6B", "6C"];
+      const defaultClasses = [
+        "1B",
+        "1C",
+        "2B",
+        "2C",
+        "3B",
+        "3C",
+        "4B",
+        "4C",
+        "5B",
+        "5C",
+        "6B",
+        "6C"
+      ];
+      const defaultSubjects = [
+        "Matematik",
+        "Bahasa Melayu",
+        "Bahasa Inggeris",
+        "Sains",
+        "Sejarah",
+        "RBT",
+        "ICT"
+      ];
 
-      const subjectOptions = Array.isArray(subjectOpts) && subjectOpts.length
-        ? subjectOpts
-        : ["Matematik", "Bahasa Melayu", "Bahasa Inggeris", "Sains", "Sejarah", "RBT", "ICT"];
+      const classesArray =
+        Array.isArray(classOpts) && classOpts.length ? classOpts : defaultClasses;
+      const subjectsArray =
+        Array.isArray(subjectOpts) && subjectOpts.length
+          ? subjectOpts
+          : defaultSubjects;
 
-      editClassOptions.value = classOptions.join(", ");
-      editSubjectOptions.value = subjectOptions.join(", ");
+      editClassOptions.value = classesArray.join(", ");
+      editSubjectOptions.value = subjectsArray.join(", ");
+    }
+
+    function getClassOptionsArray() {
+      const str = editClassOptions.value.trim();
+      if (!str) return [];
+      return str.split(",").map((s) => s.trim()).filter(Boolean);
+    }
+
+    function getSubjectOptionsArray() {
+      const str = editSubjectOptions.value.trim();
+      if (!str) return [];
+      return str.split(",").map((s) => s.trim()).filter(Boolean);
+    }
+
+    // BINA JADUAL
+    function buildTableStructure() {
+      // header waktu
+      while (tableHeaderRow.children.length > 1) {
+        tableHeaderRow.removeChild(tableHeaderRow.lastChild);
+      }
+      PERIOD_TIMES.forEach((time, idx) => {
+        const th = document.createElement("th");
+        th.className =
+          "px-2 py-2 text-center font-semibold text-slate-700 border-l border-slate-200 min-w-[72px]";
+        th.innerHTML =
+          "<div>" +
+          (idx + 1) +
+          "</div><div class='text-[10px] sm:text-[11px] text-slate-500'>" +
+          time +
+          "</div>";
+        tableHeaderRow.appendChild(th);
+      });
+
+      // body
+      scheduleBody.innerHTML = "";
+      for (const dayKey in DAYS_MAP) {
+        const tr = document.createElement("tr");
+
+        const dayCell = document.createElement("td");
+        dayCell.className =
+          "px-2 py-2 text-xs sm:text-sm font-semibold text-slate-800 bg-slate-50 sticky left-0 z-10 border-r border-slate-200 align-top";
+        dayCell.textContent = DAYS_MAP[dayKey];
+        dayCell.id = "day-label-" + dayKey;
+        tr.appendChild(dayCell);
+
+        for (let i = 1; i <= PERIODS_COUNT; i++) {
+          const cell = document.createElement("td");
+          cell.className =
+            "px-1 py-1 border-l border-slate-100 bg-white align-top";
+          cell.dataset.day = dayKey;
+          cell.dataset.period = String(i);
+
+          const classSelect = document.createElement("select");
+          classSelect.dataset.type = "class";
+          classSelect.className =
+            "w-full mb-1 border border-slate-300 rounded px-1 py-0.5 text-[10px] sm:text-xs focus:outline-none focus:ring-2 focus:ring-blue-400";
+
+          const subjectSelect = document.createElement("select");
+          subjectSelect.dataset.type = "subject";
+          subjectSelect.className =
+            "w-full border border-slate-300 rounded px-1 py-0.5 text-[10px] sm:text-xs focus:outline-none focus:ring-2 focus:ring-green-400";
+
+          const emptyOpt1 = document.createElement("option");
+          emptyOpt1.value = "";
+          emptyOpt1.textContent = "-";
+          classSelect.appendChild(emptyOpt1);
+
+          const emptyOpt2 = document.createElement("option");
+          emptyOpt2.value = "";
+          emptyOpt2.textContent = "-";
+          subjectSelect.appendChild(emptyOpt2);
+
+          cell.appendChild(classSelect);
+          cell.appendChild(subjectSelect);
+          tr.appendChild(cell);
+        }
+        scheduleBody.appendChild(tr);
+      }
+
+      refreshDropdownOptions();
+      initMaintenancePeriodOptions();
+    }
+
+    function refreshDropdownOptions() {
+      const classOptions = getClassOptionsArray();
+      const subjectOptions = getSubjectOptionsArray();
+
+      scheduleBody
+        .querySelectorAll("select[data-type='class']")
+        .forEach((select) => {
+          const current = select.value;
+          while (select.options.length > 1) select.remove(1);
+          classOptions.forEach((optVal) => {
+            const opt = document.createElement("option");
+            opt.value = optVal;
+            opt.textContent = optVal;
+            select.appendChild(opt);
+          });
+          select.value = current;
+        });
+
+      scheduleBody
+        .querySelectorAll("select[data-type='subject']")
+        .forEach((select) => {
+          const current = select.value;
+          while (select.options.length > 1) select.remove(1);
+          subjectOptions.forEach((optVal) => {
+            const opt = document.createElement("option");
+            opt.value = optVal;
+            opt.textContent = optVal;
+            select.appendChild(opt);
+          });
+          select.value = current;
+        });
     }
 
     function applySelectColor(selectEl) {
@@ -659,119 +884,34 @@
       }
     }
 
-    // ===========================
-    // BINA JADUAL
-    // ===========================
-    function initTableStructure() {
-      while (tableHeader.children.length > 1) {
-        tableHeader.removeChild(tableHeader.lastChild);
-      }
-      PERIOD_TIMES.forEach((time, idx) => {
-        const th = document.createElement("th");
-        th.className = "px-2 py-2 text-center font-semibold text-slate-700 border-l border-slate-200 min-w-[72px]";
-        th.textContent = `${idx + 1}\n${time}`;
-        tableHeader.appendChild(th);
-      });
-
-      tableBody.innerHTML = "";
-      Object.keys(DAYS_MAP).forEach(dayKey => {
-        const tr = document.createElement("tr");
-
-        const dayCell = document.createElement("td");
-        dayCell.className = "px-2 py-2 text-xs sm:text-sm font-semibold text-slate-800 bg-slate-50 sticky left-0 z-10 border-r border-slate-200 align-top";
-        dayCell.textContent = DAYS_MAP[dayKey];
-        dayCell.id = `day-label-${dayKey}`;
-        tr.appendChild(dayCell);
-
-        for (let i = 1; i <= PERIODS_COUNT; i++) {
-          const cell = document.createElement("td");
-          cell.className = "px-1 py-1 border-l border-slate-100 bg-white align-top";
-          cell.dataset.day = dayKey;
-          cell.dataset.period = i;
-
-          const classSelect = document.createElement("select");
-          classSelect.dataset.type = "class";
-          classSelect.className = "w-full mb-1 border border-slate-300 rounded px-1 py-0.5 text-[10px] sm:text-xs focus:outline-none focus:ring-2 focus:ring-blue-400";
-          const subjectSelect = document.createElement("select");
-          subjectSelect.dataset.type = "subject";
-          subjectSelect.className = "w-full border border-slate-300 rounded px-1 py-0.5 text-[10px] sm:text-xs focus:outline-none focus:ring-2 focus:ring-green-400";
-
-          [classSelect, subjectSelect].forEach(select => {
-            const emptyOpt = document.createElement("option");
-            emptyOpt.value = "";
-            emptyOpt.textContent = "-";
-            select.appendChild(emptyOpt);
-          });
-
-          cell.appendChild(classSelect);
-          cell.appendChild(subjectSelect);
-          tr.appendChild(cell);
-        }
-
-        tableBody.appendChild(tr);
-      });
-
-      refreshDropdownOptions();
-      initMaintenancePeriodOptions();
-    }
-
-    function refreshDropdownOptions() {
-      const classStr = editClassOptions.value.trim();
-      const subjectStr = editSubjectOptions.value.trim();
-
-      const classOpts = classStr ? classStr.split(",").map(s => s.trim()).filter(Boolean) : [];
-      const subjectOpts = subjectStr ? subjectStr.split(",").map(s => s.trim()).filter(Boolean) : [];
-
-      tableBody.querySelectorAll("select[data-type='class']").forEach(select => {
-        const currentVal = select.value;
-        while (select.options.length > 1) select.remove(1);
-        classOpts.forEach(optVal => {
-          const opt = document.createElement("option");
-          opt.value = optVal;
-          opt.textContent = optVal;
-          select.appendChild(opt);
-        });
-        select.value = currentVal;
-      });
-
-      tableBody.querySelectorAll("select[data-type='subject']").forEach(select => {
-        const currentVal = select.value;
-        while (select.options.length > 1) select.remove(1);
-        subjectOpts.forEach(optVal => {
-          const opt = document.createElement("option");
-          opt.value = optVal;
-          opt.textContent = optVal;
-          select.appendChild(opt);
-        });
-        select.value = currentVal;
-      });
-    }
-
     function initMaintenancePeriodOptions() {
       maintenancePeriodSelect.innerHTML = "";
       for (let i = 1; i <= PERIODS_COUNT; i++) {
         const opt = document.createElement("option");
-        opt.value = i;
-        opt.textContent = `${i} (${PERIOD_TIMES[i - 1]})`;
+        opt.value = String(i);
+        opt.textContent = i + " (" + PERIOD_TIMES[i - 1] + ")";
         maintenancePeriodSelect.appendChild(opt);
       }
     }
 
-    function renderSchedule(scheduleObj, isArchiveView = false) {
-      Object.keys(DAYS_MAP).forEach(dayKey => {
+    // RENDER JADUAL
+    function renderSchedule(scheduleObj, isArchiveView) {
+      for (const dayKey in DAYS_MAP) {
         for (let i = 1; i <= PERIODS_COUNT; i++) {
-          const cell = tableBody.querySelector(`td[data-day='${dayKey}'][data-period='${i}']`);
+          const cell = scheduleBody.querySelector(
+            "td[data-day='" + dayKey + "'][data-period='" + i + "']"
+          );
           if (!cell) continue;
           const classSelect = cell.querySelector("select[data-type='class']");
-          const subjectSelect = cell.querySelector("select[data-type='subject']`);
-
-          const slot = scheduleObj[dayKey] && scheduleObj[dayKey][i]
-            ? scheduleObj[dayKey][i]
-            : { class: "", subject: "" };
-
+          const subjectSelect = cell.querySelector(
+            "select[data-type='subject']"
+          );
+          const slot =
+            scheduleObj[dayKey] && scheduleObj[dayKey][i]
+              ? scheduleObj[dayKey][i]
+              : { class: "", subject: "" };
           classSelect.value = slot.class || "";
           subjectSelect.value = slot.subject || "";
-
           applySelectColor(classSelect);
           applySelectColor(subjectSelect);
 
@@ -787,7 +927,7 @@
             subjectSelect.classList.remove("bg-slate-100");
           }
         }
-      });
+      }
 
       if (!isArchiveView) {
         applyMaintenanceToTable();
@@ -797,68 +937,58 @@
 
     function renderWeekDate() {
       if (!currentWeekStart) {
-        weekDateDisplay.textContent = "";
+        weekDateDisplay.textContent = "Minggu: -";
         return;
       }
       const start = currentWeekStart;
       const end = currentWeekStart.add(4, "day");
-      const label = `${start.format("DD MMM YYYY")} - ${end.format("DD MMM YYYY")}`;
-      weekDateDisplay.textContent = `Minggu: ${label}`;
+      const label =
+        start.format("DD MMM YYYY") + " - " + end.format("DD MMM YYYY");
+      weekDateDisplay.textContent = "Minggu: " + label;
       if (weekStartDisplay) {
         weekStartDisplay.value = start.format("YYYY-MM-DD");
       }
-      if (lastRolloverDate && lastRolloverInfo) {
-        lastRolloverInfo.textContent = `Tarikh rollover terakhir: ${lastRolloverDate.format("DD/MM/YYYY")}`;
-      } else if (lastRolloverInfo) {
-        lastRolloverInfo.textContent = "Tarikh rollover terakhir: -";
+      if (lastRolloverInfo) {
+        if (lastRolloverDate) {
+          lastRolloverInfo.textContent =
+            "Tarikh rollover terakhir: " +
+            lastRolloverDate.format("DD/MM/YYYY");
+        } else {
+          lastRolloverInfo.textContent = "Tarikh rollover terakhir: -";
+        }
       }
     }
 
-    // ===========================
     // ARKIB
-    // ===========================
     function renderArchiveList() {
-      archiveList.innerHTML = "";
       adminArchiveList.innerHTML = "";
-
       if (!weeklyArchive.length) {
-        archiveInfo.textContent = "Tiada arkib.";
+        const li = document.createElement("li");
+        li.textContent = "Tiada arkib.";
+        li.className = "text-slate-500";
+        adminArchiveList.appendChild(li);
         return;
       }
 
-      archiveInfo.textContent = `Jumlah arkib: ${weeklyArchive.length}`;
       weeklyArchive.forEach((item, index) => {
         const li = document.createElement("li");
-        li.className = "flex items-center justify-between gap-2";
         const btn = document.createElement("button");
-        btn.className = "text-left flex-1 px-2 py-1 rounded hover:bg-slate-200 text-[11px]";
-        btn.textContent = item.label || `(Arkib ${index + 1})`;
+        btn.className =
+          "w-full text-left px-2 py-1 rounded hover:bg-slate-200 text-[11px]";
+        const start = dayjs(item.startDate || item.id);
+        const rangeLabel =
+          start.isValid()
+            ? start.format("DD/MM") +
+              " - " +
+              start.add(4, "day").format("DD/MM/YYYY")
+            : "";
+        btn.textContent =
+          (item.label || item.weekLabel || "Arkib " + (index + 1)) +
+          (rangeLabel ? " (" + rangeLabel + ")" : "");
         btn.addEventListener("click", () => viewArchiveWeek(index));
         li.appendChild(btn);
-        archiveList.appendChild(li);
-
-        const liAdmin = document.createElement("li");
-        liAdmin.className = "flex items-center justify-between gap-2";
-        const spanAdmin = document.createElement("span");
-        spanAdmin.className = "flex-1 text-[11px]";
-        spanAdmin.textContent = item.label || `(Arkib ${index + 1})`;
-        liAdmin.appendChild(spanAdmin);
-        adminArchiveList.appendChild(liAdmin);
+        adminArchiveList.appendChild(li);
       });
-    }
-
-    function updateArchiveNav() {
-      if (!weeklyArchive.length) {
-        archivePrevBtn.disabled = true;
-        archiveNextBtn.disabled = true;
-        archivePrevBtn.classList.add("opacity-50", "cursor-not-allowed");
-        archiveNextBtn.classList.add("opacity-50", "cursor-not-allowed");
-        return;
-      }
-      archivePrevBtn.disabled = false;
-      archiveNextBtn.disabled = false;
-      archivePrevBtn.classList.remove("opacity-50", "cursor-not-allowed");
-      archiveNextBtn.classList.remove("opacity-50", "cursor-not-allowed");
     }
 
     function viewArchiveWeek(index) {
@@ -868,43 +998,24 @@
       const schedule = migrateScheduleData(entry.schedule);
       renderSchedule(schedule, true);
 
-      if (archiveCommentText) {
-        archiveCommentText.textContent = entry.weekLabel
-          ? `Label Minggu: ${entry.weekLabel}`
-          : "Tiada label mingguan direkod.";
-      }
-
-      if (weekDateDisplay) {
-        const start = dayjs(entry.startDate);
+      const start = dayjs(entry.startDate);
+      if (start.isValid()) {
         const end = start.add(4, "day");
-        weekDateDisplay.textContent = `Minggu Arkib: ${start.format("DD MMM YYYY")} - ${end.format("DD MMM YYYY")}`;
+        weekDateDisplay.textContent =
+          "Minggu Arkib: " +
+          start.format("DD MMM YYYY") +
+          " - " +
+          end.format("DD MMM YYYY");
       }
-    }
-
-    function navigateArchive(step) {
-      if (!weeklyArchive.length) return;
-      if (archiveViewIndex === -1) {
-        archiveViewIndex = 0;
-      } else {
-        archiveViewIndex += step;
-        if (archiveViewIndex < 0) archiveViewIndex = weeklyArchive.length - 1;
-        if (archiveViewIndex >= weeklyArchive.length) archiveViewIndex = 0;
-      }
-      viewArchiveWeek(archiveViewIndex);
     }
 
     function exitArchiveView() {
       archiveViewIndex = -1;
       renderSchedule(currentSchedule, false);
       renderWeekDate();
-      if (archiveCommentText) {
-        archiveCommentText.textContent = "Tiada arkib dipilih.";
-      }
     }
 
-    // ===========================
-    // KOMEN / CHAT MINGGUAN
-    // ===========================
+    // KOMEN / CHAT
     function renderWeekCommentsLog() {
       commentsLog.innerHTML = "";
       if (!currentWeekComments.length) {
@@ -915,125 +1026,106 @@
         return;
       }
 
-      currentWeekComments
+      const sorted = currentWeekComments
         .slice()
-        .sort((a, b) => (a.time || "").localeCompare(b.time || ""))
-        .forEach(msg => {
-          const div = document.createElement("div");
-          div.className = "border border-amber-100 bg-amber-50 rounded px-2 py-1";
-          const name = msg.name || "Guru";
-          const time = msg.time ? dayjs(msg.time).format("DD/MM HH:mm") : "";
-          const header = document.createElement("div");
-          header.className = "flex justify-between text-[11px] text-amber-900 mb-0.5";
-          const nameSpan = document.createElement("span");
-          nameSpan.textContent = name;
-          const timeSpan = document.createElement("span");
-          timeSpan.textContent = time;
-          header.appendChild(nameSpan);
-          header.appendChild(timeSpan);
+        .sort((a, b) => (a.time || "").localeCompare(b.time || ""));
 
-          const body = document.createElement("div");
-          body.className = "text-[11px] text-amber-900";
-          body.textContent = msg.text || "";
+      sorted.forEach((msg) => {
+        const div = document.createElement("div");
+        div.className =
+          "border border-amber-100 bg-amber-50 rounded px-2 py-1";
 
-          div.appendChild(header);
-          div.appendChild(body);
-          commentsLog.appendChild(div);
-        });
+        const header = document.createElement("div");
+        header.className =
+          "flex justify-between text-[11px] text-amber-900 mb-0.5";
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = msg.name || "Guru";
+        const timeSpan = document.createElement("span");
+        if (msg.time) {
+          timeSpan.textContent = dayjs(msg.time).format("DD/MM HH:mm");
+        } else {
+          timeSpan.textContent = "";
+        }
+        header.appendChild(nameSpan);
+        header.appendChild(timeSpan);
+
+        const body = document.createElement("div");
+        body.className = "text-[11px] text-amber-900";
+        body.textContent = msg.text || "";
+
+        div.appendChild(header);
+        div.appendChild(body);
+        commentsLog.appendChild(div);
+      });
 
       commentsLog.scrollTop = commentsLog.scrollHeight;
     }
 
-    // ===========================
-    // SIMPANAN KE SERVER
-    // ===========================
-    async function saveScheduleToServer(showToastMsg = true) {
-      await saveScheduleToDB(currentSchedule);
-      if (showToastMsg) {
-        showToast("Jadual disimpan.");
-      }
-    }
-
-    async function saveWeekLabel() {
-      currentWeekLabel = weekLabelInput.value.trim();
-      await saveWeekLabelToDB(currentWeekLabel);
-      showToast("Label minggu disimpan.");
-    }
-
-    async function saveOptions() {
-      const classStr = editClassOptions.value.trim();
-      const subjectStr = editSubjectOptions.value.trim();
-
-      const classOpts = classStr ? classStr.split(",").map(s => s.trim()).filter(Boolean) : [];
-      const subjectOpts = subjectStr ? subjectStr.split(",").map(s => s.trim()).filter(Boolean) : [];
-
-      await saveOptionsToDB(classOpts, subjectOpts);
-      refreshDropdownOptions();
-      showToast("Pilihan dropdown disimpan.");
-    }
-
-    async function saveMaintenanceToServer() {
-      await saveMaintenanceToDB(maintenance);
-    }
-
-    // ==== MAINTENANCE ====
+    // MAINTENANCE
     function applyMaintenanceToTable() {
-      if (!maintenance || !tableBody) return;
-
-      Object.keys(DAYS_MAP).forEach(dayKey => {
+      if (!maintenance) return;
+      for (const dayKey in DAYS_MAP) {
         for (let i = 1; i <= PERIODS_COUNT; i++) {
-          const cell = tableBody.querySelector(`td[data-day='${dayKey}'][data-period='${i}']`);
+          const cell = scheduleBody.querySelector(
+            "td[data-day='" + dayKey + "'][data-period='" + i + "']"
+          );
           if (!cell) continue;
           const classSelect = cell.querySelector("select[data-type='class']");
-          const subjectSelect = cell.querySelector("select[data-type='subject']");
-          const isDisabled = maintenance[dayKey] && maintenance[dayKey][i];
+          const subjectSelect = cell.querySelector(
+            "select[data-type='subject']"
+          );
+          const isDisabled =
+            maintenance[dayKey] && maintenance[dayKey][i] ? true : false;
 
           if (isDisabled) {
             cell.classList.add("bg-gray-200");
-            cell.classList.remove("bg-white");
             classSelect.disabled = true;
             subjectSelect.disabled = true;
           } else {
             cell.classList.remove("bg-gray-200");
-            cell.classList.add("bg-white");
-            classSelect.disabled = false;
-            subjectSelect.disabled = false;
+            if (archiveViewIndex === -1) {
+              classSelect.disabled = false;
+              subjectSelect.disabled = false;
+            }
           }
         }
-      });
-
-      updateMaintenanceStatusText();
-    }
-
-    async function saveMaintenanceAndRefresh() {
-      await saveMaintenanceToServer();
-      applyMaintenanceToTable();
+      }
       updateMaintenanceStatusText();
     }
 
     function updateMaintenanceStatusText() {
       if (!maintenanceStatusText) return;
       const lines = [];
-      Object.keys(DAYS_MAP).forEach(dayKey => {
-        const periods = maintenance[dayKey] ? Object.keys(maintenance[dayKey]).filter(p => maintenance[dayKey][p]) : [];
+      for (const dayKey in DAYS_MAP) {
+        const periods = maintenance[dayKey]
+          ? Object.keys(maintenance[dayKey]).filter(
+              (p) => maintenance[dayKey][p]
+            )
+          : [];
         if (periods.length) {
           const label = DAYS_MAP[dayKey];
-          const slots = periods.map(p => `${p} (${PERIOD_TIMES[p - 1]})`).join(", ");
-          lines.push(`${label}: ${slots}`);
+          const slots = periods
+            .map((p) => p + " (" + PERIOD_TIMES[p - 1] + ")")
+            .join(", ");
+          lines.push(label + ": " + slots);
         }
-      });
+      }
       maintenanceStatusText.textContent = lines.length
         ? "Slot maintenance:\n" + lines.join("\n")
         : "Tiada slot maintenance (semua aktif).";
     }
 
-    // ==== TEMPAHAN MAKMAL (BOOKINGS) ====
-    function applyBookingsToTable() {
-      if (!tableBody) return;
+    async function saveMaintenanceState() {
+      await saveMaintenanceToDB(maintenance);
+      applyMaintenanceToTable();
+      updateMaintenanceStatusText();
+    }
 
-      // Reset semua highlight hari
-      Object.keys(DAYS_MAP).forEach(dayKey => {
-        const headerCell = document.getElementById(`day-label-${dayKey}`);
+    // TEMPAHAN MAKMAL (BOOKINGS)
+    function applyBookingsToTable() {
+      // reset highlight
+      for (const dayKey in DAYS_MAP) {
+        const headerCell = document.getElementById("day-label-" + dayKey);
         if (headerCell) {
           headerCell.classList.remove(
             "bg-purple-50",
@@ -1044,18 +1136,21 @@
           const pill = headerCell.querySelector(".booking-day-pill");
           if (pill) pill.remove();
         }
-      });
-
-      // Bersihkan overlay & kunci lama
-      const allCells = tableBody.querySelectorAll("td");
-      allCells.forEach(cell => {
-        cell.classList.remove("booking-cell", "bg-purple-100", "border-purple-500", "border-4", "relative");
+      }
+      scheduleBody.querySelectorAll("td").forEach((cell) => {
+        cell.classList.remove(
+          "booking-cell",
+          "bg-purple-100",
+          "border-purple-500",
+          "border-4",
+          "relative"
+        );
         const overlay = cell.querySelector(".booking-overlay");
         if (overlay) overlay.remove();
 
         const classSelect = cell.querySelector("select[data-type='class']");
         const subjectSelect = cell.querySelector("select[data-type='subject']");
-        [classSelect, subjectSelect].forEach(sel => {
+        [classSelect, subjectSelect].forEach((sel) => {
           if (!sel) return;
           if (sel.dataset.bookingLocked === "1") {
             sel.disabled = sel.dataset.bookingOriginalDisabled === "true";
@@ -1067,56 +1162,75 @@
       });
 
       if (archiveViewIndex !== -1) return;
-      if (!futureBookings || futureBookings.length === 0) return;
+      if (!futureBookings || !futureBookings.length) return;
       if (!currentWeekStart) return;
 
+      // Peta tempahan approved ikut tarikh
       const bookingMap = {};
-      futureBookings.forEach(b => {
+      futureBookings.forEach((b) => {
         if (!b || b.status !== "approved" || !b.date) return;
         if (!bookingMap[b.date]) bookingMap[b.date] = [];
         bookingMap[b.date].push(b);
       });
-
-      if (Object.keys(bookingMap).length === 0) return;
+      const keys = Object.keys(bookingMap);
+      if (!keys.length) return;
 
       const offsets = { mo: 0, tu: 1, we: 2, th: 3, fr: 4 };
 
-      Object.keys(DAYS_MAP).forEach(dayKey => {
+      for (const dayKey in DAYS_MAP) {
         const offset = offsets[dayKey];
-        const dateStr = currentWeekStart.add(offset, "day").format("YYYY-MM-DD");
+        const dateStr = currentWeekStart
+          .add(offset, "day")
+          .format("YYYY-MM-DD");
         const bookingsForDate = bookingMap[dateStr];
-        if (!bookingsForDate || !bookingsForDate.length) return;
+        if (!bookingsForDate || !bookingsForDate.length) continue;
 
         const chosenBooking = bookingsForDate[0];
         const label = chosenBooking.reason || "Tempahan Makmal";
         const dateLabel = dayjs(dateStr).format("DD/MM/YYYY");
 
-        // Highlight header hari
-        const headerCell = document.getElementById(`day-label-${dayKey}`);
+        const headerCell = document.getElementById("day-label-" + dayKey);
         if (headerCell) {
-          headerCell.classList.add("bg-purple-50", "border-l-4", "border-purple-500", "shadow-inner");
+          headerCell.classList.add(
+            "bg-purple-50",
+            "border-l-4",
+            "border-purple-500",
+            "shadow-inner"
+          );
           let pill = headerCell.querySelector(".booking-day-pill");
           if (!pill) {
             pill = document.createElement("div");
-            pill.className = "booking-day-pill mt-1 inline-flex items-center px-2 py-0.5 rounded-full bg-purple-200 text-purple-900 text-[10px] font-semibold";
+            pill.className =
+              "booking-day-pill mt-1 inline-flex items-center px-2 py-0.5 rounded-full bg-purple-200 text-purple-900 text-[10px] font-semibold";
             pill.textContent = "Ditempah";
             headerCell.appendChild(pill);
           }
         }
 
         for (let i = 1; i <= PERIODS_COUNT; i++) {
-          const cell = tableBody.querySelector(`td[data-day='${dayKey}'][data-period='${i}']`);
+          const cell = scheduleBody.querySelector(
+            "td[data-day='" + dayKey + "'][data-period='" + i + "']"
+          );
           if (!cell) continue;
-
-          cell.classList.add("booking-cell", "bg-purple-100", "border-purple-500", "border-4", "relative");
+          cell.classList.add(
+            "booking-cell",
+            "bg-purple-100",
+            "border-purple-500",
+            "border-4",
+            "relative"
+          );
 
           const classSelect = cell.querySelector("select[data-type='class']");
-          const subjectSelect = cell.querySelector("select[data-type='subject']");
-          [classSelect, subjectSelect].forEach(sel => {
+          const subjectSelect = cell.querySelector(
+            "select[data-type='subject']"
+          );
+          [classSelect, subjectSelect].forEach((sel) => {
             if (!sel) return;
             if (!sel.dataset.bookingLocked) {
               sel.dataset.bookingLocked = "1";
-              sel.dataset.bookingOriginalDisabled = sel.disabled ? "true" : "false";
+              sel.dataset.bookingOriginalDisabled = sel.disabled
+                ? "true"
+                : "false";
             }
             sel.disabled = true;
             sel.classList.add("opacity-0", "pointer-events-none");
@@ -1125,29 +1239,30 @@
           let overlay = cell.querySelector(".booking-overlay");
           if (!overlay) {
             overlay = document.createElement("div");
-            overlay.className = "booking-overlay absolute inset-0 flex flex-col items-center justify-center text-center px-1 text-[10px] sm:text-xs font-semibold text-purple-900";
+            overlay.className =
+              "booking-overlay absolute inset-0 flex flex-col items-center justify-center text-center px-1 text-[10px] sm:text-xs font-semibold text-purple-900";
             cell.appendChild(overlay);
           }
-          overlay.innerHTML = `
-            <div class="uppercase tracking-wide text-[10px] sm:text-[11px]">MAKMAL DITEMPAH</div>
-            <div class="mt-1 text-[11px] sm:text-xs">${label}</div>
-            <div class="mt-1 text-[9px] sm:text-[10px] font-normal">${dateLabel}</div>
-          `;
+          overlay.innerHTML =
+            "<div class='uppercase tracking-wide text-[10px] sm:text-[11px]'>MAKMAL DITEMPAH</div>" +
+            "<div class='mt-1 text-[11px] sm:text-xs'>" +
+            label +
+            "</div>" +
+            "<div class='mt-1 text-[9px] sm:text-[10px] font-normal'>" +
+            dateLabel +
+            "</div>";
         }
-      });
+      }
     }
 
-    function renderBookingList() {
-      if (!bookingListContainer) return;
-
+    function renderBookingListAdmin() {
       bookingListContainer.innerHTML = "";
-
-      if (!futureBookings || futureBookings.length === 0) {
+      if (!futureBookings || !futureBookings.length) {
         const p = document.createElement("p");
-        p.className = "text-gray-500 text-sm";
+        p.className = "text-slate-500 text-sm";
         p.textContent = "Tiada permohonan tempahan.";
         bookingListContainer.appendChild(p);
-        renderPublicBookingList();
+        renderPublicBookingListModal();
         return;
       }
 
@@ -1158,25 +1273,31 @@
         return 0;
       });
 
-      sorted.forEach(booking => {
+      sorted.forEach((booking) => {
         const wrapper = document.createElement("div");
-        wrapper.className = "flex justify-between items-start p-2 rounded-lg bg-white border border-indigo-200";
+        wrapper.className =
+          "flex justify-between items-start p-2 rounded-lg bg-white border border-indigo-200";
 
         const left = document.createElement("div");
         left.className = "flex-1";
 
         const title = document.createElement("div");
-        title.className = "font-semibold text-sm text-gray-800";
-        title.textContent = booking.date ? dayjs(booking.date).format("DD MMM YYYY (ddd)") : "-";
+        title.className = "font-semibold text-sm text-slate-800";
+        title.textContent = booking.date
+          ? dayjs(booking.date).format("DD MMM YYYY (ddd)")
+          : "-";
 
         const reason = document.createElement("div");
-        reason.className = "text-sm text-gray-700";
+        reason.className = "text-sm text-slate-700";
         reason.textContent = booking.reason || "-";
 
         const meta = document.createElement("div");
-        meta.className = "mt-1 text-[11px] text-gray-500";
-        const createdText = booking.createdAt ? dayjs(booking.createdAt).format("DD/MM/YYYY HH:mm") : "-";
-        meta.textContent = `Oleh: ${booking.name || "Guru"} • Dibuat: ${createdText}`;
+        meta.className = "mt-1 text-[11px] text-slate-500";
+        const createdText = booking.createdAt
+          ? dayjs(booking.createdAt).format("DD/MM/YYYY HH:mm")
+          : "-";
+        meta.textContent =
+          "Oleh: " + (booking.name || "Guru") + " • Dibuat: " + createdText;
 
         left.appendChild(title);
         left.appendChild(reason);
@@ -1186,7 +1307,8 @@
         right.className = "flex flex-col items-end gap-1";
 
         const statusBadge = document.createElement("span");
-        statusBadge.className = "inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold";
+        statusBadge.className =
+          "inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold";
         if (booking.status === "approved") {
           statusBadge.classList.add("bg-emerald-100", "text-emerald-800");
           statusBadge.textContent = "Diluluskan";
@@ -1199,30 +1321,36 @@
         if (booking.status === "pending") {
           const approveBtn = document.createElement("button");
           approveBtn.textContent = "Lulus";
-          approveBtn.className = "mt-1 text-xs bg-emerald-600 text-white px-3 py-1 rounded hover:bg-emerald-700";
-          approveBtn.onclick = async () => {
+          approveBtn.className =
+            "mt-1 text-xs bg-emerald-600 text-white px-3 py-1 rounded hover:bg-emerald-700";
+          approveBtn.addEventListener("click", async () => {
             booking.status = "approved";
             await saveFutureBookingsToDB(futureBookings);
-            renderBookingList();
+            renderBookingListAdmin();
             applyBookingsToTable();
-            renderPublicBookingList();
+            renderPublicBookingListModal();
             showToast("Tempahan diluluskan!");
-          };
+          });
           right.appendChild(approveBtn);
         }
 
         const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = booking.status === "approved" ? "Batalkan" : "Padam";
-        deleteBtn.className = "mt-1 text-xs bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600";
-        deleteBtn.onclick = async () => {
-          if (!confirm("Anda pasti mahu batalkan/padam tempahan ini?")) return;
-          futureBookings = futureBookings.filter(b => b.id !== booking.id);
+        deleteBtn.textContent =
+          booking.status === "approved" ? "Batalkan" : "Padam";
+        deleteBtn.className =
+          "mt-1 text-xs bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600";
+        deleteBtn.addEventListener("click", async () => {
+          const ok = window.confirm(
+            "Anda pasti mahu batalkan / padam tempahan ini?"
+          );
+          if (!ok) return;
+          futureBookings = futureBookings.filter((b) => b.id !== booking.id);
           await saveFutureBookingsToDB(futureBookings);
-          renderBookingList();
+          renderBookingListAdmin();
           applyBookingsToTable();
-          renderPublicBookingList();
-          showToast("Tempahan dibatalkan/dipadam.", true);
-        };
+          renderPublicBookingListModal();
+          showToast("Tempahan dibatalkan / dipadam.", true);
+        });
         right.appendChild(deleteBtn);
 
         wrapper.appendChild(left);
@@ -1230,45 +1358,40 @@
         bookingListContainer.appendChild(wrapper);
       });
 
-      renderPublicBookingList();
+      renderPublicBookingListModal();
     }
 
-    // Kalendar ringkas (public)
-    function renderPublicBookingList() {
-      if (!publicBookingList) return;
-
-      publicBookingList.innerHTML = "";
-
-      if (!futureBookings || futureBookings.length === 0) {
+    function renderPublicBookingListModal() {
+      publicBookingListModal.innerHTML = "";
+      if (!futureBookings || !futureBookings.length) {
         const li = document.createElement("li");
         li.className = "text-slate-500";
         li.textContent = "Tiada tempahan direkodkan.";
-        publicBookingList.appendChild(li);
+        publicBookingListModal.appendChild(li);
         return;
       }
 
-      const today = dayjs().format("YYYY-MM-DD");
+      const sorted = futureBookings.slice().sort((a, b) => {
+        if (!a.date || !b.date) return 0;
+        if (a.date < b.date) return -1;
+        if (a.date > b.date) return 1;
+        return 0;
+      });
 
-      const sorted = futureBookings
-        .slice()
-        .sort((a, b) => {
-          if (!a.date || !b.date) return 0;
-          if (a.date < b.date) return -1;
-          if (a.date > b.date) return 1;
-          return 0;
-        });
-
-      sorted.forEach(booking => {
+      sorted.forEach((booking) => {
         const li = document.createElement("li");
-        li.className = "flex items-start justify-between gap-2 border-b border-slate-100 pb-1";
+        li.className =
+          "flex items-start justify-between gap-2 border-b border-slate-100 pb-1";
 
         const left = document.createElement("div");
         left.className = "flex-1";
 
         const dateText = document.createElement("div");
-        dateText.className = "font-semibold text-[11px] sm:text-xs text-slate-800";
-        const dateLabel = booking.date ? dayjs(booking.date).format("DD MMM YYYY (ddd)") : "-";
-        dateText.textContent = dateLabel;
+        dateText.className =
+          "font-semibold text-[11px] sm:text-xs text-slate-800";
+        dateText.textContent = booking.date
+          ? dayjs(booking.date).format("DD MMM YYYY (ddd)")
+          : "-";
 
         const reason = document.createElement("div");
         reason.className = "text-[11px] sm:text-xs text-slate-700";
@@ -1276,7 +1399,7 @@
 
         const meta = document.createElement("div");
         meta.className = "text-[10px] text-slate-500 mt-0.5";
-        meta.textContent = `Oleh: ${booking.name || "Guru"}`;
+        meta.textContent = "Oleh: " + (booking.name || "Guru");
 
         left.appendChild(dateText);
         left.appendChild(reason);
@@ -1286,7 +1409,8 @@
         right.className = "flex flex-col items-end";
 
         const badge = document.createElement("span");
-        badge.className = "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold";
+        badge.className =
+          "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold";
         if (booking.status === "approved") {
           badge.classList.add("bg-emerald-100", "text-emerald-800");
           badge.textContent = "Lulus";
@@ -1294,16 +1418,136 @@
           badge.classList.add("bg-yellow-100", "text-yellow-800");
           badge.textContent = "Pending";
         }
-
         right.appendChild(badge);
 
         li.appendChild(left);
         li.appendChild(right);
-        publicBookingList.appendChild(li);
+        publicBookingListModal.appendChild(li);
       });
     }
 
-    // ==== ADMIN MODAL ====
+    // UPDATE STATE JADUAL
+    function updateScheduleDataFromTable() {
+      const newSchedule = createEmptySchedule();
+      for (const dayKey in DAYS_MAP) {
+        for (let i = 1; i <= PERIODS_COUNT; i++) {
+          const cell = scheduleBody.querySelector(
+            "td[data-day='" + dayKey + "'][data-period='" + i + "']"
+          );
+          if (!cell) continue;
+          const classVal = cell.querySelector(
+            "select[data-type='class']"
+          ).value;
+          const subjectVal = cell.querySelector(
+            "select[data-type='subject']"
+          ).value;
+          newSchedule[dayKey][i] = { class: classVal, subject: subjectVal };
+        }
+      }
+      currentSchedule = newSchedule;
+    }
+
+    async function saveOptions() {
+      const classOptions = getClassOptionsArray();
+      const subjectOptions = getSubjectOptionsArray();
+      await saveOptionsToDB(classOptions, subjectOptions);
+      refreshDropdownOptions();
+      showToast("Pilihan dropdown disimpan.");
+    }
+
+    async function saveWeekLabel() {
+      currentWeekLabel = weekLabelInput.value.trim();
+      await saveWeekLabelToDB(currentWeekLabel);
+      showToast("Label minggu disimpan.");
+    }
+
+    async function saveScheduleToServer(showMsg) {
+      await saveScheduleToDB(currentSchedule);
+      if (showMsg) showToast("Jadual disimpan.");
+    }
+
+    function handlePrint() {
+      const originalTitle = document.title;
+      document.title =
+        "Jadual Makmal Komputer - " + (weekDateDisplay.textContent || "");
+      window.print();
+      document.title = originalTitle;
+    }
+
+    // ROLLOVER MINGGU
+    async function handleRollover(isManual) {
+      if (!currentWeekStart) {
+        currentWeekStart = getDefaultWeekStart();
+      }
+
+      const startLabel = currentWeekStart.format("D MMM");
+      const endLabel = currentWeekStart.add(4, "day").format("D MMM YYYY");
+      const archiveLabel = "Minggu " + startLabel + " - " + endLabel;
+
+      const archiveEntry = {
+        id: new Date().toISOString(),
+        label: archiveLabel,
+        weekLabel: currentWeekLabel || "",
+        startDate: currentWeekStart.format("YYYY-MM-DD"),
+        schedule: currentSchedule,
+        comments: Array.isArray(currentWeekComments)
+          ? currentWeekComments
+          : []
+      };
+
+      weeklyArchive.unshift(archiveEntry);
+      await saveArchiveToDB(weeklyArchive);
+
+      currentSchedule = createEmptySchedule();
+      await saveScheduleToServer(false);
+
+      currentWeekStart = currentWeekStart.add(7, "day");
+      await saveWeekStartToDB(currentWeekStart.format("YYYY-MM-DD"));
+
+      lastRolloverDate = dayjs();
+      await saveLastRolloverDateToDB(lastRolloverDate.format("YYYY-MM-DD"));
+
+      currentWeekLabel = "";
+      await saveWeekLabelToDB(currentWeekLabel);
+      if (weekLabelInput) weekLabelInput.value = "";
+
+      currentWeekComments = [];
+      await saveWeekCommentsToDB(currentWeekComments);
+      renderWeekCommentsLog();
+
+      archiveViewIndex = -1;
+      renderArchiveList();
+      renderWeekDate();
+      renderSchedule(currentSchedule, false);
+      applyBookingsToTable();
+      renderPublicBookingListModal();
+
+      if (isManual) {
+        showToast("Jadual telah diarkib & minggu baru dimulakan!");
+      }
+    }
+
+    async function checkWeeklyRollover(initialLastRolloverStr) {
+      const today = dayjs();
+      const dow = today.isoWeekday();
+
+      if (initialLastRolloverStr) {
+        lastRolloverDate = dayjs(initialLastRolloverStr);
+      }
+
+      if (dow === 6 || dow === 7) {
+        const baseWeekStart = currentWeekStart || getDefaultWeekStart();
+        const diff = today
+          .startOf("week")
+          .add(1, "day")
+          .diff(baseWeekStart, "day");
+        if (diff >= 7) {
+          await handleRollover(false);
+        }
+      }
+    }
+
+    // ADMIN
     function openAdminModal() {
       adminModal.style.display = "flex";
       loginView.style.display = "block";
@@ -1321,29 +1565,18 @@
       if (pwd === "sksaict") {
         loginView.style.display = "none";
         adminPanelView.style.display = "block";
-      } else {
-        alert("Kata laluan salah.");
-      }
-    }
-
-    // ===========================
-    // ADMIN PANEL INIT
-    // ===========================
-    function initAdminPanel() {
-      if (weekLabelInput) {
         weekLabelInput.value = currentWeekLabel || "";
+        renderArchiveList();
+        renderBookingListAdmin();
+      } else {
+        window.alert("Kata laluan salah.");
       }
-      renderArchiveList();
-      renderWeekDate();
-      renderBookingList();
     }
 
-    // ===========================
-    // EVENT LISTENERS
-    // ===========================
     function initEventListeners() {
-      tableBody.addEventListener("change", (event) => {
-        if (event.target && event.target.tagName === 'SELECT') {
+      // Jadual change
+      scheduleBody.addEventListener("change", (event) => {
+        if (event.target && event.target.tagName === "SELECT") {
           applySelectColor(event.target);
           clearTimeout(autoSaveTimer);
           updateScheduleDataFromTable();
@@ -1353,33 +1586,19 @@
         }
       });
 
-      adminLoginBtn.addEventListener("click", openAdminModal);
-      adminCancelBtn.addEventListener("click", closeAdminModal);
-      adminCloseBtn.addEventListener("click", closeAdminModal);
-      adminSubmitBtn.addEventListener("click", handleAdminLogin);
-
-      saveWeekLabelBtn.addEventListener("click", saveWeekLabel);
-      saveOptionsBtn.addEventListener("click", saveOptions);
-
-      archivePrevBtn.addEventListener("click", () => navigateArchive(1));
-      archiveNextBtn.addEventListener("click", () => navigateArchive(-1));
-
-      printBtn.addEventListener("click", handlePrint);
-
+      // Komen
       toggleCommentsBtn.addEventListener("click", () => {
         commentsPanel.classList.toggle("hidden");
       });
 
-      // Hantar chat komen
       sendCommentBtn.addEventListener("click", async () => {
-        const name = (weekCommentNameInput.value || '').trim() || 'Guru';
-        const text = (weekCommentTextInput.value || '').trim();
-
+        const name =
+          (weekCommentNameInput.value || "").trim() || "Guru";
+        const text = (weekCommentTextInput.value || "").trim();
         if (!text) {
-          alert("Sila tulis komen dahulu.");
+          window.alert("Sila tulis komen dahulu.");
           return;
         }
-
         const msg = {
           id: Date.now(),
           name,
@@ -1389,22 +1608,58 @@
         currentWeekComments.push(msg);
         await saveWeekCommentsToDB(currentWeekComments);
         renderWeekCommentsLog();
-        weekCommentTextInput.value = '';
+        weekCommentTextInput.value = "";
         showToast("Komen dihantar!");
       });
 
-      weekCommentTextInput.addEventListener("keydown", async (e) => {
-        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+      weekCommentTextInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
           e.preventDefault();
           sendCommentBtn.click();
         }
       });
 
-      // Maintenance toggle
+      // Print
+      printBtn.addEventListener("click", handlePrint);
+
+      // Admin modal
+      adminLoginBtn.addEventListener("click", openAdminModal);
+      adminCancelBtn.addEventListener("click", closeAdminModal);
+      adminCloseBtn.addEventListener("click", closeAdminModal);
+      adminSubmitBtn.addEventListener("click", handleAdminLogin);
+
+      // Minggu & label
+      manualWeekStartBtn.addEventListener("click", async () => {
+        const value = manualWeekStartInput.value;
+        if (!value) {
+          window.alert("Sila pilih tarikh terlebih dahulu.");
+          return;
+        }
+        const d = dayjs(value);
+        const monday = d.startOf("week").add(1, "day");
+        currentWeekStart = monday;
+        await saveWeekStartToDB(currentWeekStart.format("YYYY-MM-DD"));
+        renderWeekDate();
+        applyBookingsToTable();
+        showToast("Tarikh minggu dikemaskini.");
+      });
+
+      saveWeekLabelBtn.addEventListener("click", saveWeekLabel);
+      manualRolloverBtn.addEventListener("click", async () => {
+        const ok = window.confirm(
+          "Anda pasti mahu arkibkan minggu semasa dan mula minggu baru?"
+        );
+        if (!ok) return;
+        await handleRollover(true);
+      });
+
+      // Options
+      saveOptionsBtn.addEventListener("click", saveOptions);
+
+      // Maintenance
       maintenanceToggleBtn.addEventListener("click", async () => {
         const day = maintenanceDaySelect.value;
         const period = parseInt(maintenancePeriodSelect.value, 10);
-
         if (!maintenance[day]) maintenance[day] = {};
         const currentlyDisabled = !!maintenance[day][period];
         if (currentlyDisabled) {
@@ -1412,196 +1667,93 @@
         } else {
           maintenance[day][period] = true;
         }
-
-        applyMaintenanceToTable();
-        await saveMaintenanceToServer();
-        showToast(currentlyDisabled ? "Slot dibuka semula." : "Slot ditutup (maintenance).");
+        await saveMaintenanceState();
+        showToast(
+          currentlyDisabled ? "Slot dibuka semula." : "Slot ditutup (maintenance)."
+        );
       });
 
-      // Tempahan Makmal - buka modal
-      if (openBookingBtn && bookingModal) {
-        openBookingBtn.addEventListener("click", () => {
-          bookingModal.style.display = "flex";
-          const todayStr = dayjs().format("YYYY-MM-DD");
-          if (bookingDateInput) {
-            bookingDateInput.min = todayStr;
-            bookingDateInput.value = todayStr;
-          }
-        });
-      }
+      // Booking modal open/close
+      openBookingBtn.addEventListener("click", () => {
+        bookingModal.style.display = "flex";
+        const todayStr = dayjs().format("YYYY-MM-DD");
+        bookingDateInput.min = todayStr;
+        bookingDateInput.value = todayStr;
+        renderPublicBookingListModal();
+      });
 
-      // Tempahan Makmal - tutup modal
-      if (bookingCancelBtn && bookingModal) {
-        bookingCancelBtn.addEventListener("click", () => {
+      bookingCancelBtn.addEventListener("click", () => {
+        bookingModal.style.display = "none";
+      });
+      bookingModal.addEventListener("click", (e) => {
+        if (e.target === bookingModal) {
           bookingModal.style.display = "none";
-        });
-      }
-      if (bookingModal) {
-        bookingModal.addEventListener("click", (e) => {
-          if (e.target === bookingModal) {
-            bookingModal.style.display = "none";
-          }
-        });
-      }
-
-      // Tempahan Makmal - hantar permohonan
-      if (bookingSubmitBtn) {
-        bookingSubmitBtn.addEventListener("click", async () => {
-          const name = (bookingNameInput && bookingNameInput.value.trim()) || "Guru";
-          const date = bookingDateInput ? bookingDateInput.value : "";
-          const reason = (bookingReasonInput && bookingReasonInput.value.trim()) || "";
-
-          if (!date || !reason) {
-            alert("Sila pilih tarikh dan isi sebab tempahan.");
-            return;
-          }
-
-          const weekday = dayjs(date).isoWeekday();
-          if (weekday < 1 || weekday > 5) {
-            const proceed = confirm("Tarikh yang dipilih bukan Isnin-Jumaat. Teruskan juga?");
-            if (!proceed) return;
-          }
-
-          const exists = futureBookings.some(b => b.date === date && b.status !== "cancelled");
-          if (exists) {
-            alert("Tarikh ini sudah mempunyai tempahan. Sila pilih tarikh lain.");
-            return;
-          }
-
-          const booking = {
-            id: Date.now().toString(),
-            name,
-            date,
-            reason,
-            status: "pending",
-            createdAt: new Date().toISOString()
-          };
-
-          futureBookings.push(booking);
-          await saveFutureBookingsToDB(futureBookings);
-          renderBookingList();
-          applyBookingsToTable();
-          renderPublicBookingList();
-
-          if (bookingModal) bookingModal.style.display = "none";
-          if (bookingReasonInput) bookingReasonInput.value = "";
-          showToast("Permohonan tempahan dihantar. Menunggu kelulusan admin.");
-        });
-      }
-    }
-
-    function updateScheduleDataFromTable() {
-      const newSchedule = createEmptySchedule();
-      Object.keys(DAYS_MAP).forEach(dayKey => {
-        for (let i = 1; i <= PERIODS_COUNT; i++) {
-          const cell = tableBody.querySelector(`td[data-day='${dayKey}'][data-period='${i}']`);
-          if (!cell) continue;
-          const classVal = cell.querySelector("select[data-type='class']").value;
-          const subjectVal = cell.querySelector("select[data-type='subject']").value;
-          newSchedule[dayKey][i] = { class: classVal, subject: subjectVal };
         }
       });
-      currentSchedule = newSchedule;
-    }
 
-    // ===========================
-    // PRINTING
-    // ===========================
-    function handlePrint() {
-      const originalTitle = document.title;
-      document.title = "Jadual Makmal Komputer - " + (weekDateDisplay.textContent || "");
-      window.print();
-      document.title = originalTitle;
-    }
+      // Booking submit
+      bookingSubmitBtn.addEventListener("click", async () => {
+        const name =
+          (bookingNameInput.value || "").trim() || "Guru";
+        const date = bookingDateInput.value;
+        const reason = (bookingReasonInput.value || "").trim();
 
-    // ===========================
-    // ROLLOVER MINGGU
-    // ===========================
-    async function handleRollover(isManual) {
-      if (!currentWeekStart) {
-        currentWeekStart = getDefaultWeekStart();
-      }
-
-      const startDateLabel = currentWeekStart.format("D MMM");
-      const endDateLabel = currentWeekStart.add(4, 'day').format("D MMM YYYY");
-      const archiveLabel = `Minggu ${startDateLabel} - ${endDateLabel}`;
-
-      const archiveEntry = {
-        id: new Date().toISOString(),
-        label: archiveLabel,
-        weekLabel: currentWeekLabel || '',
-        startDate: currentWeekStart.format("YYYY-MM-DD"),
-        schedule: currentSchedule,
-        comments: Array.isArray(currentWeekComments) ? currentWeekComments : []
-      };
-
-      weeklyArchive.unshift(archiveEntry);
-      await saveArchiveToDB(weeklyArchive);
-
-      currentSchedule = createEmptySchedule();
-      await saveScheduleToServer(false);
-
-      currentWeekStart = currentWeekStart.add(7, 'day');
-      await saveWeekStartToDB(currentWeekStart.format("YYYY-MM-DD"));
-
-      lastRolloverDate = dayjs();
-      await saveLastRolloverDateToDB(lastRolloverDate.format("YYYY-MM-DD"));
-
-      currentWeekLabel = '';
-      await saveWeekLabelToDB(currentWeekLabel);
-
-      currentWeekComments = [];
-      await saveWeekCommentsToDB(currentWeekComments);
-      renderWeekCommentsLog();
-      if (weekCommentTextInput) weekCommentTextInput.value = '';
-
-      renderWeekDate();
-      renderSchedule(currentSchedule, false);
-      updateArchiveNav();
-      applyBookingsToTable();
-      renderPublicBookingList();
-
-      if (archiveCommentText) {
-        archiveCommentText.textContent = "Tiada arkib dipilih.";
-      }
-
-      if (isManual) {
-        showToast("Jadual telah diarkib & minggu baru dimulakan!");
-        closeAdminModal();
-      }
-    }
-
-    async function checkWeeklyRollover(initialLastRolloverStr) {
-      const today = dayjs();
-
-      const dow = today.isoWeekday();
-
-      let targetWeekStart = currentWeekStart || getDefaultWeekStart();
-      if (dow === 6 || dow === 7) {
-        const diff = today.startOf("week").add(1, "day").diff(targetWeekStart, "day");
-        if (diff >= 7) {
-          await handleRollover(false);
+        if (!date || !reason) {
+          window.alert("Sila pilih tarikh dan isi sebab tempahan.");
+          return;
         }
-      }
 
-      if (initialLastRolloverStr) {
-        lastRolloverDate = dayjs(initialLastRolloverStr);
-      }
+        const weekday = dayjs(date).isoWeekday();
+        if (weekday < 1 || weekday > 5) {
+          const proceed = window.confirm(
+            "Tarikh yang dipilih bukan Isnin-Jumaat. Teruskan juga?"
+          );
+          if (!proceed) return;
+        }
+
+        const exists = futureBookings.some(
+          (b) => b.date === date && b.status !== "cancelled"
+        );
+        if (exists) {
+          window.alert("Tarikh ini telah mempunyai tempahan. Sila pilih tarikh lain.");
+          return;
+        }
+
+        const booking = {
+          id: String(Date.now()),
+          name,
+          date,
+          reason,
+          status: "pending",
+          createdAt: new Date().toISOString()
+        };
+
+        futureBookings.push(booking);
+        await saveFutureBookingsToDB(futureBookings);
+        renderBookingListAdmin();
+        applyBookingsToTable();
+        renderPublicBookingListModal();
+
+        bookingReasonInput.value = "";
+        bookingModal.style.display = "none";
+        showToast(
+          "Permohonan tempahan dihantar. Menunggu kelulusan admin."
+        );
+      });
     }
 
-    // ===========================
     // INIT
-    // ===========================
     async function init() {
       showLoading("Memuatkan data jadual...");
       try {
         const initial = await loadInitialData();
 
         loadOptionsFromData(initial.classOptions, initial.subjectOptions);
-        initTableStructure();
+        buildTableStructure();
 
-        weeklyArchive = Array.isArray(initial.archive) ? initial.archive : [];
-        renderArchiveList();
+        weeklyArchive = Array.isArray(initial.archive)
+          ? initial.archive
+          : [];
 
         if (initial.weekStart) {
           currentWeekStart = dayjs(initial.weekStart);
@@ -1610,7 +1762,9 @@
           await saveWeekStartToDB(currentWeekStart.format("YYYY-MM-DD"));
         }
 
-        currentWeekLabel = initial.weekLabel || '';
+        currentWeekLabel = initial.weekLabel || "";
+        if (weekLabelInput) weekLabelInput.value = currentWeekLabel;
+
         if (initial.lastRolloverDate) {
           lastRolloverDate = dayjs(initial.lastRolloverDate);
         }
@@ -1618,33 +1772,29 @@
         currentSchedule = migrateScheduleData(initial.schedule);
         renderWeekDate();
         renderSchedule(currentSchedule, false);
-        updateArchiveNav();
 
-        maintenance = initial.maintenance && typeof initial.maintenance === 'object'
-          ? initial.maintenance
-          : createEmptyMaintenance();
+        maintenance =
+          initial.maintenance && typeof initial.maintenance === "object"
+            ? initial.maintenance
+            : createEmptyMaintenance();
         applyMaintenanceToTable();
-        updateMaintenanceStatusText();
 
-        // Tempahan makmal (futureBookings)
-        futureBookings = Array.isArray(initial.futureBookings) ? initial.futureBookings : [];
-        renderBookingList();
-        renderPublicBookingList();
-
-        // Chat minggu semasa
-        currentWeekComments = Array.isArray(initial.weekComments) ? initial.weekComments : [];
+        currentWeekComments = Array.isArray(initial.weekComments)
+          ? initial.weekComments
+          : [];
         renderWeekCommentsLog();
 
-        if (archiveCommentText) {
-          archiveCommentText.textContent = "Tiada arkib dipilih.";
-        }
+        futureBookings = Array.isArray(initial.futureBookings)
+          ? initial.futureBookings
+          : [];
+        renderBookingListAdmin();
+        renderPublicBookingListModal();
 
+        renderArchiveList();
         initEventListeners();
-        initAdminPanel();
 
         await checkWeeklyRollover(initial.lastRolloverDate);
         applyBookingsToTable();
-        renderPublicBookingList();
       } catch (e) {
         console.error(e);
         showToast("Ralat memuatkan data dari server.", true);
@@ -1652,6 +1802,14 @@
         hideLoading();
       }
     }
+
+    // Butang "kembali ke minggu semasa" bila keluar arkib – guna double-click pada tajuk minggu
+    weekDateDisplay.addEventListener("dblclick", () => {
+      if (archiveViewIndex !== -1) {
+        exitArchiveView();
+        showToast("Kembali ke minggu semasa.");
+      }
+    });
 
     init();
   </script>
