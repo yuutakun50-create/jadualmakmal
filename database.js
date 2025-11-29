@@ -26,7 +26,9 @@ const firebaseConfig = {
 
 // Init Firebase
 const app = initializeApp(firebaseConfig);
-// PENTING: pass databaseURL terus
+
+// 👇 INI BARIS PALING PENTING
+// Jangan ada getDatabase() lain dalam file ni.
 const db = getDatabase(app, firebaseConfig.databaseURL);
 
 // ==============================
