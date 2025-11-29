@@ -12,25 +12,22 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
 
 // ==============================
-// FIREBASE CONFIG — ISI DENGAN CONFIG CIKGU
-// (ambil daripada projek Firebase sedia ada)
+// FIREBASE CONFIG — MILIK CIKGU
 // ==============================
 const firebaseConfig = {
-  // CONTOH SAHAJA:
-  // apiKey: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-  // authDomain: "xxxxxxxxxx.firebaseapp.com",
-  // databaseURL: "https://xxxxxxxxxx-default-rtdb.asia-southeast1.firebasedatabase.app",
-  // projectId: "xxxxxxxxxx",
-  // storageBucket: "xxxxxxxxxx.appspot.com",
-  // messagingSenderId: "xxxxxxxxxxxx",
-  // appId: "1:xxxxxxxxxxxx:web:xxxxxxxxxxxxxxxx"
+  apiKey: "AIzaSyAJ-eGCASGs7ZWoHtFgzcfcc2Y30jt_CWo",
+  authDomain: "jadual-makmal-sksa.firebaseapp.com",
+  databaseURL: "https://jadual-makmal-sksa-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "jadual-makmal-sksa",
+  storageBucket: "jadual-makmal-sksa.firebasestorage.app",
+  messagingSenderId: "660473497546",
+  appId: "1:660473497546:web:97fc1bf2b25e6e6b583133"
 };
-
-// >>> JANGAN LUPA: tampal nilai sebenar config di atas sebelum guna <<<
 
 // Init Firebase
 const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+// PENTING: pass databaseURL terus
+const db = getDatabase(app, firebaseConfig.databaseURL);
 
 // ==============================
 // Laluan (path) dalam Realtime DB
