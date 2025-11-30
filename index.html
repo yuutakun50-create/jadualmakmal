@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="ms">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Jadual Makmal Komputer SK Sri Aman</title>
 
-  <!-- Tailwind CSS -->
+  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- Day.js -->
@@ -13,16 +13,16 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/plugin/isoWeek.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/plugin/customParseFormat.min.js"></script>
 
-  <!-- Sheet.js untuk eksport Excel -->
+  <!-- SheetJS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-  <!-- Google Font: Inter -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-  <!-- Optional favicon supaya tiada 404 di console -->
-  <link rel="icon" type="image/png" href="https://i.imgur.com/AfsVtVG.jpeg">
+  <!-- Favicon (supaya tak keluar 404 di console) -->
+  <link rel="icon" type="image/png" href="https://i.imgur.com/AfsVtVG.jpeg" />
 
   <style>
     input[type='number']::-webkit-inner-spin-button,
@@ -74,11 +74,11 @@
         font-weight: bold;
       }
 
-      .day-mo { background-color: #FFFF00 !important; }
-      .day-tu { background-color: #92D050 !important; }
-      .day-we { background-color: #00B0F0 !important; }
-      .day-th { background-color: #FFC000 !important; }
-      .day-fr { background-color: #FF00FF !important; }
+      .day-mo { background-color: #ffff00 !important; }
+      .day-tu { background-color: #92d050 !important; }
+      .day-we { background-color: #00b0f0 !important; }
+      .day-th { background-color: #ffc000 !important; }
+      .day-fr { background-color: #ff00ff !important; }
 
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
@@ -89,29 +89,17 @@
     }
 
     @media (max-width: 480px) {
-      table {
-        font-size: 11px !important;
-      }
-      th {
-        font-size: 10px !important;
-        padding: 4px !important;
-      }
-      td {
-        padding: 2px !important;
-        height: 55px !important;
-        min-width: 60px !important;
-      }
-      td select {
-        font-size: 11px !important;
-        padding: 3px !important;
-      }
+      table { font-size: 11px !important; }
+      th { font-size: 10px !important; padding: 4px !important; }
+      td { padding: 2px !important; height: 55px !important; min-width: 60px !important; }
+      td select { font-size: 11px !important; padding: 3px !important; }
       .overflow-x-auto {
         overflow-x: scroll !important;
         -webkit-overflow-scrolling: touch;
       }
     }
 
-    /* Label tempahan pada sel jadual */
+    /* label tempahan dalam sel */
     .booking-label {
       font-size: 10px;
       font-weight: 600;
@@ -124,14 +112,13 @@
   </style>
 </head>
 
-<body class="bg-gray-100 p-4 sm:p-6 md:p-8" style="font-family: 'Inter', sans-serif;">
-
+<body class="bg-gray-100 p-4 sm:p-6 md:p-8" style="font-family:'Inter',sans-serif;">
   <div class="max-w-full mx-auto bg-white rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 print-container">
 
     <!-- HEADER -->
     <header class="flex flex-col sm:flex-row items-center justify-between mb-2 sm:mb-4 pb-4 border-b-2 border-gray-200">
       <div class="flex items-center mb-3 sm:mb-0">
-        <img src="https://i.imgur.com/AfsVtVG.jpeg" alt="Logo Sekolah" class="h-16 w-16 sm:h-20 sm:w-20 mr-4 rounded-md border-2 border-gray-300 no-print">
+        <img src="https://i.imgur.com/AfsVtVG.jpeg" class="h-16 w-16 sm:h-20 sm:w-20 mr-4 rounded-md border-2 border-gray-300 no-print" />
         <div>
           <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800">
             JADUAL MAKMAL KOMPUTER SK SRI AMAN 2025
@@ -142,25 +129,27 @@
         </div>
       </div>
       <div class="flex flex-col items-stretch gap-2 no-print">
-        <!-- Panel Admin + badge notifikasi -->
+        <!-- Panel admin + badge -->
         <button id="admin-login-btn"
           class="relative bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 font-medium">
           Panel Admin
           <span id="admin-notification-badge"
-                class="hidden absolute -top-1 -right-1 w-3 h-3 rounded-full bg-red-500 border-2 border-white"></span>
+            class="hidden absolute -top-1 -right-1 w-3 h-3 rounded-full bg-red-500 border-2 border-white"></span>
         </button>
-        <!-- Butang tempahan guru -->
-        <button id="booking-open-btn" class="bg-emerald-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-emerald-700 transition duration-300 font-medium text-sm">
+
+        <button id="booking-open-btn"
+          class="bg-emerald-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-emerald-700 transition duration-300 font-medium text-sm">
           Tempahan
         </button>
-        <!-- Butang komen guru -->
-        <button id="toggle-comments-btn" class="bg-amber-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-amber-600 transition duration-300 font-medium text-sm">
+
+        <button id="toggle-comments-btn"
+          class="bg-amber-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-amber-600 transition duration-300 font-medium text-sm">
           Komen Guru
         </button>
       </div>
     </header>
 
-    <!-- KOMEN GURU (CHAT) -->
+    <!-- PANEL KOMEN -->
     <div id="comments-panel" class="no-print hidden mb-4">
       <div class="border border-amber-300 bg-amber-50 rounded-xl p-3 sm:p-4">
         <div class="flex justify-between items-center mb-2">
@@ -171,31 +160,19 @@
             Chat ini reset bila minggu baru, tetapi disimpan dalam Arkib.
           </span>
         </div>
-
-        <!-- LOG CHAT -->
         <div id="week-comments-log" class="bg-white border border-amber-200 rounded-lg p-2 max-h-48 overflow-y-auto text-sm space-y-1">
           <p class="text-gray-400 text-sm">Tiada komen lagi untuk minggu ini.</p>
         </div>
-
-        <!-- INPUT CHAT -->
         <div class="mt-3 space-y-2">
-          <input
-            id="week-comment-name"
-            type="text"
+          <input id="week-comment-name" type="text"
             class="w-full border border-amber-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white"
-            placeholder="Nama guru (cth: Cikgu Sufian)"
-          >
+            placeholder="Nama guru (cth: Cikgu Sufian)" />
           <div class="flex gap-2 items-stretch">
-            <textarea
-              id="week-comment-input"
-              rows="2"
+            <textarea id="week-comment-input" rows="2"
               class="flex-1 border border-amber-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white"
-              placeholder="Tulis komen di sini..."
-            ></textarea>
-            <button
-              id="send-comment-btn"
-              class="bg-amber-600 text-white px-4 py-2 rounded-lg shadow hover:bg-amber-700 text-sm self-end"
-            >
+              placeholder="Tulis komen di sini..."></textarea>
+            <button id="send-comment-btn"
+              class="bg-amber-600 text-white px-4 py-2 rounded-lg shadow hover:bg-amber-700 text-sm self-end">
               Hantar
             </button>
           </div>
@@ -203,18 +180,22 @@
       </div>
     </div>
 
-    <!-- TOOLBAR / NAV -->
+    <!-- NAV ARKIB -->
     <div class="mb-4 flex flex-wrap gap-2 justify-between items-center no-print">
       <div class="flex items-center gap-2">
-        <button id="archive-prev" class="bg-white border border-gray-300 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-100 transition shadow-sm" title="Minggu Sebelumnya">&lt;</button>
+        <button id="archive-prev"
+          class="bg-white border border-gray-300 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-100 transition shadow-sm">&lt;</button>
         <span id="archive-status" class="text-sm font-medium text-gray-700 w-40 text-center">Minggu Semasa</span>
-        <button id="archive-next" class="bg-white border border-gray-300 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-100 transition shadow-sm" title="Minggu Seterusnya">&gt;</button>
+        <button id="archive-next"
+          class="bg-white border border-gray-300 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-100 transition shadow-sm">&gt;</button>
       </div>
     </div>
 
-    <!-- TABLE -->
+    <!-- JADUAL -->
     <div class="overflow-x-auto w-full relative no-print rounded-xl shadow-inner border border-gray-200">
-      <div id="loading-overlay" class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-20 rounded-xl" style="display: none;">
+      <div id="loading-overlay"
+        class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-20 rounded-xl"
+        style="display:none;">
         <span class="text-xl font-medium text-gray-700">Memuatkan...</span>
       </div>
       <table id="schedule-table" class="min-w-full border-2 border-black print-table">
@@ -227,125 +208,178 @@
       </table>
     </div>
 
-    <!-- PRINT-ONLY TABLE (clone) -->
+    <!-- PRINT VIEW (unused – untuk masa hadapan kalau perlu) -->
     <div id="print-view" class="hidden">
       <table id="print-table" class="min-w-full border-2 border-black print-table"></table>
     </div>
 
-    <!-- INFO BOX -->
+    <!-- TATACARA -->
     <div class="mt-6 sm:mt-8 p-4 sm:p-5 bg-yellow-100 border-l-4 border-yellow-500 rounded-lg shadow-md no-print">
       <h3 class="text-lg sm:text-xl font-bold text-yellow-800 mb-3">TATACARA PENGGUNAAN LAPTOP</h3>
       <ol class="list-decimal list-inside text-sm sm:text-base text-gray-700 space-y-2">
         <li>Guru meminta murid mengambil laptop di rak besi.</li>
         <li>Pastikan murid mencabut wayar "charger" dengan tertib sebelum mengambil keluar laptop.</li>
-        <li>Buka laptop dan masukkan password: <strong class="font-bold text-red-600">123456</strong>. Jika perlu, murid boleh menggunakan "Mouse" yang ada di dalam meja.</li>
-        <li>Setelah selesai guna, guru perlu memastikan murid mengembalikan laptop di rak besi (charge semula sekiranya murid mampu).</li>
-        <li>Kegagalan berbuat demikian akan membatalkan tempahan guru pada masa akan datang. Terima kasih.</li>
+        <li>Buka laptop dan masukkan password: <strong class="font-bold text-red-600">123456</strong>.</li>
+        <li>Setelah selesai guna, guru perlu memastikan murid mengembalikan laptop di rak besi.</li>
+        <li>Kegagalan berbuat demikian akan membatalkan tempahan pada masa akan datang.</li>
       </ol>
     </div>
   </div>
 
   <!-- MODAL TEMPAHAN GURU -->
-  <div id="booking-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40 p-4 no-print" style="display:none;">
+  <div id="booking-modal"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40 p-4 no-print"
+    style="display:none;">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-5 sm:p-6">
       <h2 class="text-xl font-bold text-gray-800 mb-4">Borang Tempahan Makmal</h2>
       <p class="text-xs text-gray-600 mb-3">
-        Sila pilih <strong>tarikh</strong> yang ingin ditempah dan nyatakan <strong>tujuan</strong> (contoh: Pertandingan Robotik, Bengkel, Ujian, dll).
-        Tempahan hanya sah selepas <strong>admin meluluskan</strong>.
+        Pilih <strong>tarikh</strong> dan nyatakan <strong>tujuan</strong>. Tempahan hanya sah selepas
+        <strong>admin meluluskan</strong>.
       </p>
       <div class="space-y-3">
         <div>
           <label for="booking-date" class="block text-sm font-medium text-gray-700 mb-1">Tarikh Tempahan</label>
-          <input type="date" id="booking-date" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+          <input type="date" id="booking-date"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" />
         </div>
         <div>
           <label for="booking-reason" class="block text-sm font-medium text-gray-700 mb-1">Tujuan / Sebab Tempahan</label>
-          <textarea id="booking-reason" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Contoh: Pertandingan Robotik, Bengkel Google Classroom, Ujian LINUS, dsb."></textarea>
+          <textarea id="booking-reason" rows="3"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            placeholder="Contoh: Pertandingan Robotik, Bengkel, Ujian, dll."></textarea>
         </div>
       </div>
       <div class="mt-5 flex justify-end gap-3">
-        <button id="booking-cancel-btn" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 transition text-sm">Batal</button>
-        <button id="booking-submit-btn" class="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition text-sm">Hantar Permohonan</button>
+        <button id="booking-cancel-btn" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 text-sm">
+          Batal
+        </button>
+        <button id="booking-submit-btn"
+          class="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 text-sm">
+          Hantar Permohonan
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- ADMIN MODAL -->
-  <div id="admin-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" style="display: none;">
+  <!-- MODAL ADMIN -->
+  <div id="admin-modal"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+    style="display:none;">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto p-5 sm:p-8">
-      <!-- Login View -->
+
+      <!-- LOGIN -->
       <div id="login-view">
         <h2 class="text-2xl font-bold text-gray-800 mb-6">Log Masuk Admin</h2>
         <div class="mb-4">
           <label for="admin-password" class="block text-sm font-medium text-gray-700 mb-1">Kata Laluan</label>
-          <input type="password" id="admin-password" class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <input type="password" id="admin-password"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
-        <p id="login-error" class="text-red-500 text-sm mb-4" style="display: none;">Kata laluan salah.</p>
+        <p id="login-error" class="text-red-500 text-sm mb-4" style="display:none;">Kata laluan salah.</p>
         <div class="flex justify-end gap-3">
-          <button id="admin-cancel-btn" class="bg-gray-300 text-gray-800 px-5 py-2 rounded-lg hover:bg-gray-400 transition">Batal</button>
-          <button id="admin-submit-btn" class="bg-blue-600 text-white px-5 py-2 rounded-lg shadow hover:bg-blue-700 transition">Log Masuk</button>
+          <button id="admin-cancel-btn"
+            class="bg-gray-300 text-gray-800 px-5 py-2 rounded-lg hover:bg-gray-400 transition">
+            Batal
+          </button>
+          <button id="admin-submit-btn"
+            class="bg-blue-600 text-white px-5 py-2 rounded-lg shadow hover:bg-blue-700 transition">
+            Log Masuk
+          </button>
         </div>
       </div>
 
-      <!-- Admin Panel View -->
-      <div id="admin-panel-view" style="display: none;">
+      <!-- PANEL ADMIN -->
+      <div id="admin-panel-view" style="display:none;">
         <h2 class="text-2xl font-bold text-gray-800 mb-6">Panel Admin</h2>
 
-        <!-- Edit Dropdown Options -->
+        <!-- EDIT DROPDOWN -->
         <div class="mb-6 p-4 border border-gray-300 rounded-lg bg-gray-50">
           <h3 class="text-xl font-semibold text-gray-700 mb-4">Edit Pilihan Dropdown</h3>
-          <p class="text-sm text-gray-600 mb-3">Masukkan pilihan dipisahkan dengan koma (cth: 1B,1C,2B,2C)</p>
+          <p class="text-sm text-gray-600 mb-3">Masukkan pilihan dipisahkan dengan koma (cth: 1B,1C,2B,...)</p>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label for="edit-class-options" class="block text-sm font-medium text-gray-700 mb-1">Pilihan Kelas</label>
-              <textarea id="edit-class-options" rows="4" class="w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Pilihan Kelas</label>
+              <textarea id="edit-class-options" rows="4"
+                class="w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
             </div>
             <div>
-              <label for="edit-subject-options" class="block text-sm font-medium text-gray-700 mb-1">Pilihan Subjek</label>
-              <textarea id="edit-subject-options" rows="4" class="w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Pilihan Subjek</label>
+              <textarea id="edit-subject-options" rows="4"
+                class="w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
             </div>
           </div>
-          <button id="save-options-btn" class="mt-4 bg-blue-600 text-white px-5 py-2 rounded-lg shadow hover:bg-blue-700 transition">Simpan Pilihan</button>
+          <button id="save-options-btn"
+            class="mt-4 bg-blue-600 text-white px-5 py-2 rounded-lg shadow hover:bg-blue-700 transition">
+            Simpan Pilihan
+          </button>
         </div>
 
-        <!-- Admin Actions -->
+        <!-- TINDAKAN ADMIN -->
         <div class="mb-6 p-4 border border-gray-300 rounded-lg bg-gray-50">
           <h3 class="text-xl font-semibold text-gray-700 mb-4">Tindakan Admin</h3>
 
           <div class="flex flex-wrap gap-3 mb-4">
-            <button id="save-schedule-btn" class="bg-blue-500 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-600 transition">Simpan Jadual</button>
-            <button id="print-schedule-btn" class="bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 transition">Cetak Jadual</button>
-            <button id="download-csv-btn" class="bg-green-500 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600 transition">Muat Turun CSV</button>
-            <button id="download-excel-btn" class="bg-green-700 text-white px-4 py-2 rounded-lg shadow hover:bg-green-800 transition">Muat Turun Excel</button>
-            <button id="copy-table-btn" class="bg-gray-700 text-white px-4 py-2 rounded-lg shadow hover:bg-gray-800 transition">Copy Jadual</button>
+            <button id="save-schedule-btn"
+              class="bg-blue-500 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-600">
+              Simpan Jadual
+            </button>
+            <button id="print-schedule-btn"
+              class="bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700">
+              Cetak Jadual
+            </button>
+            <button id="download-csv-btn"
+              class="bg-green-500 text-white px-4 py-2 rounded-lg shadow hover:bg-green-600">
+              Muat Turun CSV
+            </button>
+            <button id="download-excel-btn"
+              class="bg-green-700 text-white px-4 py-2 rounded-lg shadow hover:bg-green-800">
+              Muat Turun Excel
+            </button>
+            <button id="copy-table-btn"
+              class="bg-gray-700 text-white px-4 py-2 rounded-lg shadow hover:bg-gray-800">
+              Copy Jadual
+            </button>
           </div>
 
           <div class="flex flex-wrap gap-3 border-t pt-4">
-            <button id="admin-clear-btn" class="bg-red-600 text-white px-5 py-2 rounded-lg shadow hover:bg-red-700 transition">Kosongkan Jadual Minggu Ini</button>
-            <button id="admin-rollover-btn" class="bg-purple-600 text-white px-5 py-2 rounded-lg shadow hover:bg-purple-700 transition">Simpan &amp; Mulakan Minggu Baru (Manual)</button>
+            <button id="admin-clear-btn"
+              class="bg-red-600 text-white px-5 py-2 rounded-lg shadow hover:bg-red-700">
+              Kosongkan Jadual Minggu Ini
+            </button>
+            <button id="admin-rollover-btn"
+              class="bg-purple-600 text-white px-5 py-2 rounded-lg shadow hover:bg-purple-700">
+              Simpan &amp; Mulakan Minggu Baru (Manual)
+            </button>
           </div>
 
           <div class="mt-4">
-            <label for="manual-date-input" class="block text-sm font-medium text-gray-700 mb-1">Tukar Tarikh Mula Minggu Semasa (Isnin)</label>
-            <input type="date" id="manual-date-input" class="p-2 border border-gray-300 rounded-lg shadow-sm">
-            <button id="manual-date-btn" class="ml-2 bg-gray-600 text-white px-5 py-2 rounded-lg shadow hover:bg-gray-700 transition">Tetapkan Tarikh</button>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tukar Tarikh Mula Minggu (Isnin)</label>
+            <input type="date" id="manual-date-input"
+              class="p-2 border border-gray-300 rounded-lg shadow-sm" />
+            <button id="manual-date-btn"
+              class="ml-2 bg-gray-600 text-white px-5 py-2 rounded-lg shadow hover:bg-gray-700">
+              Tetapkan Tarikh
+            </button>
           </div>
 
-          <!-- Label Minggu Semasa -->
           <div class="mt-4">
-            <label for="week-label-input" class="block text-sm font-medium text-gray-700 mb-1">Label Minggu Semasa (cth: M32 / Minggu 2)</label>
-            <input type="text" id="week-label-input" class="p-2 border border-gray-300 rounded-lg shadow-sm w-full md:w-64">
-            <button id="week-label-save-btn" class="ml-0 md:ml-2 mt-2 md:mt-0 bg-indigo-600 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-700 transition">Simpan Label</button>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Label Minggu Semasa</label>
+            <input type="text" id="week-label-input"
+              class="p-2 border border-gray-300 rounded-lg shadow-sm w-full md:w-64" />
+            <button id="week-label-save-btn"
+              class="ml-0 md:ml-2 mt-2 md:mt-0 bg-indigo-600 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-700">
+              Simpan Label
+            </button>
           </div>
 
-          <!-- MAINTENANCE SLOT -->
+          <!-- MAINTENANCE -->
           <div class="mt-6 p-4 border border-red-300 rounded-lg bg-red-50">
             <h3 class="text-lg font-semibold text-red-700 mb-2">Maintenance Slot</h3>
             <p class="text-xs text-red-700 mb-3">
-              Slot yang ditandakan sebagai <strong>maintenance</strong> akan dikunci dan berwarna kelabu (tidak boleh ditempah).
+              Slot yang ditandakan sebagai <strong>maintenance</strong> akan dikunci dan berwarna kelabu.
             </p>
             <div class="flex flex-wrap items-center gap-2 mb-2">
-              <label class="text-sm text-gray-700">Hari:</label>
+              <label class="text-sm">Hari:</label>
               <select id="maintenance-day-select" class="border border-gray-300 rounded-md p-1 text-sm">
                 <option value="mo">Isnin (Mo)</option>
                 <option value="tu">Selasa (Tu)</option>
@@ -354,12 +388,11 @@
                 <option value="fr">Jumaat (Fr)</option>
               </select>
 
-              <label class="text-sm text-gray-700 ml-2">Waktu:</label>
-              <select id="maintenance-period-select" class="border border-gray-300 rounded-md p-1 text-sm">
-                <!-- Diisi melalui JS: W1..W12 -->
-              </select>
+              <label class="text-sm ml-2">Waktu:</label>
+              <select id="maintenance-period-select" class="border border-gray-300 rounded-md p-1 text-sm"></select>
 
-              <button id="maintenance-toggle-btn" class="ml-2 bg-red-600 text-white px-4 py-1.5 rounded-lg text-sm shadow hover:bg-red-700">
+              <button id="maintenance-toggle-btn"
+                class="ml-2 bg-red-600 text-white px-4 py-1.5 rounded-lg text-sm shadow hover:bg-red-700">
                 Tutup / Buka Slot
               </button>
             </div>
@@ -368,45 +401,52 @@
             </p>
           </div>
 
-          <!-- PERMOHONAN TEMPAHAN MAKMAL AKAN DATANG -->
+          <!-- PERMOHONAN TEMPAHAN -->
           <div class="mt-6 p-4 border border-emerald-300 rounded-lg bg-emerald-50">
-            <h3 class="text-lg font-semibold text-emerald-700 mb-2">Permohonan Tempahan Makmal (Akan Datang)</h3>
+            <h3 class="text-lg font-semibold text-emerald-700 mb-2">
+              Permohonan Tempahan Makmal (Akan Datang)
+            </h3>
             <p class="text-xs text-emerald-700 mb-3">
-              Tempahan yang <strong>telah diluluskan</strong> akan mengunci semua slot pada tarikh tersebut dan memaparkan label sebab tempahan di jadual minggu berkenaan.
+              Tempahan yang <strong>telah diluluskan</strong> akan mengunci semua slot pada tarikh tersebut dan memaparkan label pada jadual.
             </p>
-            <div id="booking-requests-list" class="max-h-64 overflow-y-auto border border-emerald-200 rounded-lg bg-white p-3 space-y-2 text-sm">
+            <div id="booking-requests-list"
+              class="max-h-64 overflow-y-auto border border-emerald-200 rounded-lg bg-white p-3 space-y-2 text-sm">
               <p class="text-gray-500 text-sm">Tiada permohonan tempahan direkodkan.</p>
             </div>
           </div>
         </div>
 
-        <!-- Weekly Archive -->
+        <!-- ARKIB -->
         <div class="mb-6 p-4 border border-gray-300 rounded-lg bg-gray-50">
           <h3 class="text-xl font-semibold text-gray-700 mb-4">Arkib Mingguan</h3>
-          <div id="archive-list" class="max-h-60 overflow-y-auto border border-gray-200 rounded-lg p-3 space-y-2">
+          <div id="archive-list"
+            class="max-h-60 overflow-y-auto border border-gray-200 rounded-lg p-3 space-y-2">
             <p class="text-gray-500">Tiada arkib ditemui.</p>
           </div>
-
-          <!-- Paparan komen arkib -->
-          <div id="archive-comment-box" class="mt-4 p-3 border border-dashed border-gray-300 rounded-lg bg-white">
+          <div id="archive-comment-box"
+            class="mt-4 p-3 border border-dashed border-gray-300 rounded-lg bg-white">
             <p class="font-semibold text-sm text-gray-700 mb-1">Chat Komen Minggu Dipilih:</p>
-            <pre id="archive-comment-text" class="whitespace-pre-wrap text-xs sm:text-sm text-gray-800">Tiada arkib dipilih.</pre>
+            <pre id="archive-comment-text"
+              class="whitespace-pre-wrap text-xs sm:text-sm text-gray-800">Tiada arkib dipilih.</pre>
           </div>
         </div>
 
         <div class="flex justify-end">
-          <button id="admin-close-btn" class="bg-gray-300 text-gray-800 px-5 py-2 rounded-lg hover:bg-gray-400 transition">Tutup</button>
+          <button id="admin-close-btn"
+            class="bg-gray-300 text-gray-800 px-5 py-2 rounded-lg hover:bg-gray-400 transition">
+            Tutup
+          </button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- TOAST -->
-  <div id="toast" class="fixed bottom-5 right-5 bg-green-600 text-white px-6 py-3 rounded-lg shadow-xl transition-transform transform translate-x-full"
-       style="display: none; transition: transform 0.3s ease-in-out;">
-  </div>
+  <div id="toast"
+    class="fixed bottom-5 right-5 bg-green-600 text-white px-6 py-3 rounded-lg shadow-xl transition-transform transform translate-x-full"
+    style="display:none;transition:transform 0.3s ease-in-out;"></div>
 
-  <!-- JAVASCRIPT UTAMA -->
+  <!-- SCRIPT -->
   <script type="module">
     import {
       loadInitialData,
@@ -419,12 +459,11 @@
       saveWeekCommentsToDB,
       saveMaintenanceToDB,
       saveFutureBookingsToDB
-    } from './database.js';
+    } from "./database.js";
 
     dayjs.extend(dayjs_plugin_isoWeek);
     dayjs.extend(dayjs_plugin_customParseFormat);
 
-    // === KONFIGURASI ===
     const PERIODS_COUNT = 12;
     const PERIOD_TIMES = [
       "7.40-8.10", "8.10-8.40", "8.40-9.15", "9.15-9.40", "9.40-10.10",
@@ -433,46 +472,44 @@
     ];
 
     const DAYS_MAP = {
-      'mo': { name: 'Monday', label: 'Mo', bg: 'bg-yellow-300 day-mo' },
-      'tu': { name: 'Tuesday', label: 'Tu', bg: 'bg-green-300 day-tu' },
-      'we': { name: 'Wednesday', label: 'We', bg: 'bg-blue-300 day-we' },
-      'th': { name: 'Thursday', label: 'Th', bg: 'bg-orange-300 day-th' },
-      'fr': { name: 'Friday', label: 'Fr', bg: 'bg-pink-300 day-fr' }
+      mo: { label: "Mo", bg: "bg-yellow-300 day-mo" },
+      tu: { label: "Tu", bg: "bg-green-300 day-tu" },
+      we: { label: "We", bg: "bg-blue-300 day-we" },
+      th: { label: "Th", bg: "bg-orange-300 day-th" },
+      fr: { label: "Fr", bg: "bg-pink-300 day-fr" }
     };
 
-    let CLASS_OPTIONS = ['', '1B', '1C', '2B', '2C', '3B', '3C', '4B', '4C', '5B', '5C', '6B', '6C', 'Other'];
-    let SUBJECT_OPTIONS = ['', 'SJ', 'MT', 'BM', 'BI', 'RBT', 'TMK', 'PI', 'PJPK', 'PSV', 'MZ', 'Other'];
+    let CLASS_OPTIONS = ["", "1B", "1C", "2B", "2C", "3B", "3C", "4B", "4C", "5B", "5C", "6B", "6C", "Other"];
+    let SUBJECT_OPTIONS = ["", "SJ", "MT", "BM", "BI", "RBT", "TMK", "PI", "PJPK", "PSV", "MZ", "Other"];
 
     const CLASS_COLORS = {
-      '1B': '#fed7d7', '1C': '#feebc8',
-      '2B': '#fefcbf', '2C': '#c6f6d5',
-      '3B': '#bee3f8', '3C': '#c3dafe',
-      '4B': '#e9d8fd', '4C': '#fbb6ce',
-      '5B': '#fed7d7', '5C': '#feebc8',
-      '6B': '#fefcbf', '6C': '#c6f6d5',
-      'Other': '#e2e8f0'
+      "1B": "#fed7d7", "1C": "#feebc8",
+      "2B": "#fefcbf", "2C": "#c6f6d5",
+      "3B": "#bee3f8", "3C": "#c3dafe",
+      "4B": "#e9d8fd", "4C": "#fbb6ce",
+      "5B": "#fed7d7", "5C": "#feebc8",
+      "6B": "#fefcbf", "6C": "#c6f6d5",
+      Other: "#e2e8f0"
     };
     const SUBJECT_COLORS = {
-      'SJ': '#fbcfe8', 'MT': '#fde68a', 'BM': '#bbf7d0', 'BI': '#bae6fd',
-      'RBT': '#a5b4fc', 'TMK': '#d8b4fe', 'PI': '#6ee7b7', 'PJPK': '#fda4af',
-      'PSV': '#fca5a5', 'MZ': '#fdba74', 'Other': '#e2e8f0'
+      SJ: "#fbcfe8", MT: "#fde68a", BM: "#bbf7d0", BI: "#bae6fd",
+      RBT: "#a5b4fc", TMK: "#d8b4fe", PI: "#6ee7b7", PJPK: "#fda4af",
+      PSV: "#fca5a5", MZ: "#fdba74", Other: "#e2e8f0"
     };
-    const DEFAULT_BG = '#FFFFFF';
-    const ADMIN_PASS = 'admin123';
+    const DEFAULT_BG = "#ffffff";
+    const ADMIN_PASS = "admin123";
 
-    // === STATE ===
     let currentSchedule = {};
     let weeklyArchive = [];
     let currentWeekStart = null;
-    let currentWeekLabel = '';
+    let currentWeekLabel = "";
     let lastRolloverDate = null;
     let archiveViewIndex = -1;
     let autoSaveTimer = null;
-    let currentWeekComments = [];  // CHAT minggu semasa (array mesej)
+    let currentWeekComments = [];
     let maintenance = {};
-    let futureBookings = [];       // TEMPAHAN TARIKH AKAN DATANG
+    let futureBookings = [];
 
-    // DOM refs
     const tableHeader = document.querySelector("#schedule-table thead tr");
     const tableBody = document.getElementById("schedule-body");
     const weekDateDisplay = document.getElementById("week-date-display");
@@ -509,8 +546,6 @@
     const archivePrevBtn = document.getElementById("archive-prev");
     const archiveNextBtn = document.getElementById("archive-next");
 
-    const printTable = document.getElementById("print-table");
-
     const toggleCommentsBtn = document.getElementById("toggle-comments-btn");
     const commentsPanel = document.getElementById("comments-panel");
     const weekCommentsLog = document.getElementById("week-comments-log");
@@ -525,7 +560,6 @@
 
     const archiveCommentText = document.getElementById("archive-comment-text");
 
-    // Booking modal DOM
     const bookingOpenBtn = document.getElementById("booking-open-btn");
     const bookingModal = document.getElementById("booking-modal");
     const bookingDateInput = document.getElementById("booking-date");
@@ -536,35 +570,30 @@
 
     const adminNotificationBadge = document.getElementById("admin-notification-badge");
 
-    // ==== HELPER ====
-    function showToast(message, isError = false) {
-      toast.textContent = message;
-      toast.className = `fixed bottom-5 right-5 px-6 py-3 rounded-lg shadow-xl transition-transform transform ${isError ? 'bg-red-600' : 'bg-green-600'} text-white`;
-      toast.style.display = 'block';
-      toast.style.transform = 'translateX(0)';
-      setTimeout(() => {
-        toast.style.transform = 'translateX(120%)';
-      }, 3000);
+    function showToast(msg, isError = false) {
+      toast.textContent = msg;
+      toast.className = `fixed bottom-5 right-5 px-6 py-3 rounded-lg shadow-xl transition-transform transform ${isError ? "bg-red-600" : "bg-green-600"} text-white`;
+      toast.style.display = "block";
+      toast.style.transform = "translateX(0)";
+      setTimeout(() => (toast.style.transform = "translateX(120%)"), 3000);
     }
 
-    function showLoading(message = "Memuatkan...") {
-      loadingOverlay.querySelector('span').textContent = message;
-      loadingOverlay.style.display = 'flex';
+    function showLoading(msg = "Memuatkan...") {
+      loadingOverlay.querySelector("span").textContent = msg;
+      loadingOverlay.style.display = "flex";
     }
     function hideLoading() {
-      loadingOverlay.style.display = 'none';
+      loadingOverlay.style.display = "none";
     }
 
-    function getDefaultWeekStart() {
-      return dayjs().isoWeekday(1);
-    }
+    function getDefaultWeekStart() { return dayjs().isoWeekday(1); }
 
     function createEmptySchedule() {
       const data = {};
-      Object.keys(DAYS_MAP).forEach(dayKey => {
-        data[dayKey] = {};
+      Object.keys(DAYS_MAP).forEach(d => {
+        data[d] = {};
         for (let i = 1; i <= PERIODS_COUNT; i++) {
-          data[dayKey][i] = { class: '', subject: '' };
+          data[d][i] = { class: "", subject: "" };
         }
       });
       return data;
@@ -572,133 +601,91 @@
 
     function createEmptyMaintenance() {
       const m = {};
-      Object.keys(DAYS_MAP).forEach(dayKey => {
-        m[dayKey] = {};
-      });
+      Object.keys(DAYS_MAP).forEach(d => (m[d] = {}));
       return m;
     }
 
-    function applySelectColor(selectElement) {
-      const value = selectElement.value;
-      const type = selectElement.dataset.type;
-      let color = DEFAULT_BG;
-      if (value) {
-        const colors = type === 'class' ? CLASS_COLORS : SUBJECT_COLORS;
-        color = colors[value] || DEFAULT_BG;
-      }
-      selectElement.style.backgroundColor = color;
+    function applySelectColor(sel) {
+      const val = sel.value;
+      const type = sel.dataset.type;
+      const colors = type === "class" ? CLASS_COLORS : SUBJECT_COLORS;
+      sel.style.backgroundColor = val ? (colors[val] || DEFAULT_BG) : DEFAULT_BG;
     }
 
-    // Badge notifikasi admin
     function updateAdminNotificationBadge() {
       if (!adminNotificationBadge) return;
       const hasPending = Array.isArray(futureBookings) &&
         futureBookings.some(b => b.status === "pending");
-      if (hasPending) {
-        adminNotificationBadge.classList.remove("hidden");
-      } else {
-        adminNotificationBadge.classList.add("hidden");
-      }
+      if (hasPending) adminNotificationBadge.classList.remove("hidden");
+      else adminNotificationBadge.classList.add("hidden");
     }
 
-    // ==== CHAT RENDERING ====
+    // ---------- Chat ----------
     function renderWeekCommentsLog() {
-      if (!weekCommentsLog) return;
-      weekCommentsLog.innerHTML = '';
-
+      weekCommentsLog.innerHTML = "";
       if (!currentWeekComments || currentWeekComments.length === 0) {
-        const p = document.createElement('p');
-        p.className = 'text-gray-400 text-sm';
-        p.textContent = 'Tiada komen lagi untuk minggu ini.';
+        const p = document.createElement("p");
+        p.className = "text-gray-400 text-sm";
+        p.textContent = "Tiada komen lagi untuk minggu ini.";
         weekCommentsLog.appendChild(p);
         return;
       }
-
       currentWeekComments.forEach(msg => {
-        const row = document.createElement('div');
-        row.className = 'flex flex-col bg-amber-100 rounded-lg px-2 py-1 text-sm';
-
-        const header = document.createElement('div');
-        header.className = 'flex justify-between items-center';
-        const nameSpan = document.createElement('span');
-        nameSpan.className = 'font-semibold text-amber-900';
-        nameSpan.textContent = msg.name || 'Guru';
-
-        const timeSpan = document.createElement('span');
-        timeSpan.className = 'text-[10px] text-amber-700 ml-2';
-        if (msg.time) {
-          timeSpan.textContent = dayjs(msg.time).format('DD/MM HH:mm');
-        } else {
-          timeSpan.textContent = '';
-        }
-
+        const row = document.createElement("div");
+        row.className = "flex flex-col bg-amber-100 rounded-lg px-2 py-1 text-sm";
+        const header = document.createElement("div");
+        header.className = "flex justify-between items-center";
+        const nameSpan = document.createElement("span");
+        nameSpan.className = "font-semibold text-amber-900";
+        nameSpan.textContent = msg.name || "Guru";
+        const timeSpan = document.createElement("span");
+        timeSpan.className = "text-[10px] text-amber-700 ml-2";
+        timeSpan.textContent = msg.time ? dayjs(msg.time).format("DD/MM HH:mm") : "";
         header.appendChild(nameSpan);
         header.appendChild(timeSpan);
-
-        const textP = document.createElement('p');
-        textP.className = 'text-amber-900 text-xs sm:text-sm whitespace-pre-wrap';
-        textP.textContent = msg.text || '';
-
+        const body = document.createElement("p");
+        body.className = "text-amber-900 text-xs sm:text-sm whitespace-pre-wrap";
+        body.textContent = msg.text || "";
         row.appendChild(header);
-        row.appendChild(textP);
-
+        row.appendChild(body);
         weekCommentsLog.appendChild(row);
       });
-
       weekCommentsLog.scrollTop = weekCommentsLog.scrollHeight;
     }
 
     function formatArchiveComments(entry) {
       if (!entry || !entry.comments) return "Tiada komen untuk minggu ini.";
-
       const c = entry.comments;
-      if (typeof c === 'string') {
-        return c.trim() ? c : "Tiada komen untuk minggu ini.";
+      if (typeof c === "string") return c.trim() || "Tiada komen untuk minggu ini.";
+      if (Array.isArray(c) && c.length) {
+        return c.map(msg => {
+          const name = msg.name || "Guru";
+          const text = msg.text || "";
+          const t = msg.time ? dayjs(msg.time).format("DD/MM HH:mm") + " - " : "";
+          return `${t}${name}: ${text}`;
+        }).join("\n");
       }
-
-      if (Array.isArray(c) && c.length > 0) {
-        const lines = c.map(msg => {
-          const name = msg.name || 'Guru';
-          const text = msg.text || '';
-          let timeStr = '';
-          if (msg.time) {
-            timeStr = dayjs(msg.time).format('DD/MM HH:mm') + ' - ';
-          }
-          return `${timeStr}${name}: ${text}`;
-        });
-        return lines.join('\n');
-      }
-
       return "Tiada komen untuk minggu ini.";
     }
 
-    // ==== OPTIONS (CLASS/SUBJECT) ====
-    function loadOptionsFromData(classOptsFromDB, subjectOptsFromDB) {
-      if (Array.isArray(classOptsFromDB) && classOptsFromDB.length) {
-        CLASS_OPTIONS = classOptsFromDB;
-      }
-      if (Array.isArray(subjectOptsFromDB) && subjectOptsFromDB.length) {
-        SUBJECT_OPTIONS = subjectOptsFromDB;
-      }
-      if (CLASS_OPTIONS[0] !== '') CLASS_OPTIONS.unshift('');
-      if (SUBJECT_OPTIONS[0] !== '') SUBJECT_OPTIONS.unshift('');
+    // ---------- Options ----------
+    function loadOptionsFromData(cOpt, sOpt) {
+      if (Array.isArray(cOpt) && cOpt.length) CLASS_OPTIONS = cOpt;
+      if (Array.isArray(sOpt) && sOpt.length) SUBJECT_OPTIONS = sOpt;
+      if (CLASS_OPTIONS[0] !== "") CLASS_OPTIONS.unshift("");
+      if (SUBJECT_OPTIONS[0] !== "") SUBJECT_OPTIONS.unshift("");
     }
 
     async function saveOptionsToServer() {
-      let classOpts = editClassOptions.value.split(',').map(s => s.trim()).filter(Boolean);
-      let subjectOpts = editSubjectOptions.value.split(',').map(s => s.trim()).filter(Boolean);
-      classOpts.unshift('');
-      subjectOpts.unshift('');
-      CLASS_OPTIONS = classOpts;
-      SUBJECT_OPTIONS = subjectOpts;
-
+      let c = editClassOptions.value.split(",").map(s => s.trim()).filter(Boolean);
+      let s = editSubjectOptions.value.split(",").map(s => s.trim()).filter(Boolean);
+      c.unshift(""); s.unshift("");
+      CLASS_OPTIONS = c; SUBJECT_OPTIONS = s;
       await saveOptionsToDB(CLASS_OPTIONS, SUBJECT_OPTIONS);
-
       showToast("Pilihan dropdown telah disimpan!");
-
       showLoading("Menjana semula jadual...");
       tableHeader.innerHTML = '<th class="w-28 p-2 text-sm font-bold border-2 border-black uppercase">HARI / WAKTU</th>';
-      tableBody.innerHTML = '';
+      tableBody.innerHTML = "";
       initTableStructure();
       renderSchedule(currentSchedule, archiveViewIndex !== -1);
       applyMaintenanceToTable();
@@ -707,52 +694,46 @@
     }
 
     function initDropdownEditors() {
-      editClassOptions.value = CLASS_OPTIONS.filter(opt => opt !== '').join(',');
-      editSubjectOptions.value = SUBJECT_OPTIONS.filter(opt => opt !== '').join(',');
-      weekLabelInput.value = currentWeekLabel || '';
+      editClassOptions.value = CLASS_OPTIONS.filter(o => o !== "").join(",");
+      editSubjectOptions.value = SUBJECT_OPTIONS.filter(o => o !== "").join(",");
+      weekLabelInput.value = currentWeekLabel || "";
     }
 
-    // ==== TABLE STRUCTURE ====
+    // ---------- Table structure ----------
     function createDropdown(type, day, period) {
-      const select = document.createElement("select");
-      select.className = "w-full p-1 border-0 rounded-md shadow-sm focus:ring-1 focus:ring-blue-500 transition-all duration-200 mb-1";
-      select.dataset.type = type;
-      select.dataset.day = day;
-      select.dataset.period = period;
+      const sel = document.createElement("select");
+      sel.className = "w-full p-1 border-0 rounded-md shadow-sm focus:ring-1 focus:ring-blue-500 transition-all duration-200 mb-1";
+      sel.dataset.type = type;
+      sel.dataset.day = day;
+      sel.dataset.period = period;
 
-      const options = type === 'class' ? CLASS_OPTIONS : SUBJECT_OPTIONS;
-      const colors = type === 'class' ? CLASS_COLORS : SUBJECT_COLORS;
-
-      options.forEach(opt => {
-        const option = document.createElement('option');
-        option.value = opt;
-        option.textContent = opt;
-        if (opt && colors[opt]) {
-          option.style.backgroundColor = colors[opt];
-        } else if (!opt) {
-          option.style.backgroundColor = DEFAULT_BG;
-        }
-        select.appendChild(option);
+      const opts = type === "class" ? CLASS_OPTIONS : SUBJECT_OPTIONS;
+      const colors = type === "class" ? CLASS_COLORS : SUBJECT_COLORS;
+      opts.forEach(o => {
+        const opt = document.createElement("option");
+        opt.value = o;
+        opt.textContent = o;
+        opt.style.backgroundColor = o ? (colors[o] || DEFAULT_BG) : DEFAULT_BG;
+        sel.appendChild(opt);
       });
-
-      return select;
+      return sel;
     }
 
     function initTableStructure() {
-      PERIOD_TIMES.forEach((time, index) => {
+      PERIOD_TIMES.forEach((t, i) => {
         const th = document.createElement("th");
         th.className = "p-2 text-xs font-semibold border-2 border-black tracking-wider bg-teal-600";
-        th.innerHTML = `<div class="font-bold text-white">W${index + 1}</div><div class="font-normal text-teal-100">${time}</div>`;
+        th.innerHTML = `<div class="font-bold text-white">W${i + 1}</div><div class="font-normal text-teal-100">${t}</div>`;
         tableHeader.appendChild(th);
       });
 
       if (maintenancePeriodSelect) {
         maintenancePeriodSelect.innerHTML = "";
         for (let i = 1; i <= PERIODS_COUNT; i++) {
-          const opt = document.createElement("option");
-          opt.value = String(i);
-          opt.textContent = `W${i}`;
-          maintenancePeriodSelect.appendChild(opt);
+          const op = document.createElement("option");
+          op.value = String(i);
+          op.textContent = `W${i}`;
+          maintenancePeriodSelect.appendChild(op);
         }
       }
 
@@ -762,7 +743,7 @@
         tr.className = day.bg;
 
         const th = document.createElement("th");
-        th.className = "p-2 text-lg sm:text-xl font-bold border-2 border-black text-gray-800 print-day-header";
+        th.className = "p-2 text-lg sm:text-xl font-bold border-2 border-black text-gray-800";
         th.textContent = day.label;
         tr.appendChild(th);
 
@@ -772,19 +753,18 @@
           td.dataset.day = dayKey;
           td.dataset.period = i;
 
-          const classSelect = createDropdown('class', dayKey, i);
-          const subjectSelect = createDropdown('subject', dayKey, i);
+          const classSel = createDropdown("class", dayKey, i);
+          const subjSel = createDropdown("subject", dayKey, i);
 
-          const printValueClass = document.createElement("span");
-          printValueClass.className = "print-value print-class-value";
+          const pvC = document.createElement("span");
+          pvC.className = "print-value print-class-value";
+          const pvS = document.createElement("span");
+          pvS.className = "print-value print-subject-value";
 
-          const printValueSubject = document.createElement("span");
-          printValueSubject.className = "print-value print-subject-value";
-
-          td.appendChild(classSelect);
-          td.appendChild(subjectSelect);
-          td.appendChild(printValueClass);
-          td.appendChild(printValueSubject);
+          td.appendChild(classSel);
+          td.appendChild(subjSel);
+          td.appendChild(pvC);
+          td.appendChild(pvS);
 
           tr.appendChild(td);
         }
@@ -792,92 +772,66 @@
       });
     }
 
-    // ==== RENDERING ====
+    // ---------- Render ----------
     function renderWeekDate() {
-      if (!currentWeekStart) {
-        currentWeekStart = getDefaultWeekStart();
-      }
-      const startDate = currentWeekStart.format("D");
-      const endDate = currentWeekStart.add(4, 'day').format("D MMM YYYY").toUpperCase();
-      weekDateDisplay.textContent = `TARIKH: ${startDate} - ${endDate}`;
+      if (!currentWeekStart) currentWeekStart = getDefaultWeekStart();
+      const s = currentWeekStart.format("D");
+      const e = currentWeekStart.add(4, "day").format("D MMM YYYY").toUpperCase();
+      weekDateDisplay.textContent = `TARIKH: ${s} - ${e}`;
     }
 
-    function migrateScheduleData(data) {
-      if (!data) return createEmptySchedule();
-      const firstDayKey = Object.keys(DAYS_MAP)[0];
-      const firstCellData = data[firstDayKey] ? data[firstDayKey]['1'] : null;
-
-      if (firstCellData && typeof firstCellData === 'string') {
-        const newSchedule = createEmptySchedule();
-        Object.keys(DAYS_MAP).forEach(dayKey => {
+    function migrateScheduleData(d) {
+      if (!d) return createEmptySchedule();
+      const firstDay = Object.keys(DAYS_MAP)[0];
+      const firstCell = d[firstDay] ? d[firstDay][1] : null;
+      if (typeof firstCell === "string") {
+        const ns = createEmptySchedule();
+        Object.keys(DAYS_MAP).forEach(k => {
           for (let i = 1; i <= PERIODS_COUNT; i++) {
-            const oldVal = data[dayKey]?.[i] || '';
-            if (CLASS_OPTIONS.includes(oldVal)) {
-              newSchedule[dayKey][i] = { class: oldVal, subject: '' };
-            } else if (SUBJECT_OPTIONS.includes(oldVal)) {
-              newSchedule[dayKey][i] = { class: '', subject: oldVal };
-            } else if (oldVal) {
-              newSchedule[dayKey][i] = { class: 'Other', subject: 'Other' };
-            } else {
-              newSchedule[dayKey][i] = { class: '', subject: '' };
-            }
+            const v = d[k]?.[i] || "";
+            if (CLASS_OPTIONS.includes(v)) ns[k][i] = { class: v, subject: "" };
+            else if (SUBJECT_OPTIONS.includes(v)) ns[k][i] = { class: "", subject: v };
+            else ns[k][i] = { class: "", subject: "" };
           }
         });
-        return newSchedule;
+        return ns;
       }
-      return data || createEmptySchedule();
+      return d || createEmptySchedule();
     }
 
     function renderSchedule(data, isArchive = false) {
       const schedule = data || createEmptySchedule();
-
       Object.keys(DAYS_MAP).forEach(dayKey => {
         for (let i = 1; i <= PERIODS_COUNT; i++) {
           const cell = tableBody.querySelector(`td[data-day='${dayKey}'][data-period='${i}']`);
           if (!cell) continue;
+          const classSel = cell.querySelector("select[data-type='class']");
+          const subjSel = cell.querySelector("select[data-type='subject']");
+          const pvc = cell.querySelector(".print-class-value");
+          const pvs = cell.querySelector(".print-subject-value");
 
-          const classSelect = cell.querySelector("select[data-type='class']");
-          const subjectSelect = cell.querySelector("select[data-type='subject']");
-          const printClassVal = cell.querySelector(".print-class-value");
-          const printSubjectVal = cell.querySelector(".print-subject-value");
+          let cellData = schedule[dayKey]?.[i];
+          if (!cellData || typeof cellData !== "object") cellData = { class: "", subject: "" };
 
-          let cellData = schedule[dayKey] ? schedule[dayKey][i] : null;
+          classSel.value = cellData.class || "";
+          subjSel.value = cellData.subject || "";
+          pvc.textContent = cellData.class || "";
+          pvs.textContent = cellData.subject || "";
 
-          if (typeof cellData === 'string') {
-            if (CLASS_OPTIONS.includes(cellData)) {
-              cellData = { class: cellData, subject: '' };
-            } else if (SUBJECT_OPTIONS.includes(cellData)) {
-              cellData = { class: '', subject: cellData };
-            } else {
-              cellData = { class: '', subject: '' };
-            }
-          } else if (!cellData || typeof cellData.class === 'undefined') {
-            cellData = { class: '', subject: '' };
-          }
+          applySelectColor(classSel);
+          applySelectColor(subjSel);
 
-          classSelect.value = cellData.class || '';
-          subjectSelect.value = cellData.subject || '';
-
-          printClassVal.textContent = cellData.class || '';
-          printSubjectVal.textContent = cellData.subject || '';
-
-          applySelectColor(classSelect);
-          applySelectColor(subjectSelect);
-
-          classSelect.disabled = isArchive;
-          subjectSelect.disabled = isArchive;
-          if (isArchive) {
-            classSelect.classList.add("cursor-not-allowed");
-            subjectSelect.classList.add("cursor-not-allowed");
-          } else {
-            classSelect.classList.remove("cursor-not-allowed");
-            subjectSelect.classList.remove("cursor-not-allowed");
-          }
+          classSel.disabled = isArchive;
+          subjSel.disabled = isArchive;
+          classSel.classList.toggle("cursor-not-allowed", isArchive);
+          subjSel.classList.toggle("cursor-not-allowed", isArchive);
 
           const oldLabel = cell.querySelector(".booking-label");
           if (oldLabel) oldLabel.remove();
           cell.classList.remove("bg-purple-100");
           cell.dataset.booking = "";
+          classSel.style.display = "";
+          subjSel.style.display = "";
         }
       });
 
@@ -885,49 +839,40 @@
       applyBookingsToTable();
     }
 
-    async function saveScheduleToServer(showMessage = true) {
+    async function saveScheduleToServer(showMsg = true) {
       try {
         await saveScheduleToDB(currentSchedule);
-        if (showMessage) showToast("Jadual disimpan!");
+        if (showMsg) showToast("Jadual disimpan!");
       } catch (e) {
         console.error(e);
-        showToast("Gagal menyimpan jadual ke server.", true);
+        showToast("Gagal menyimpan jadual.", true);
       }
     }
 
-    // ==== MAINTENANCE ====
+    // ---------- Maintenance ----------
     function applyMaintenanceToTable() {
-      if (!maintenance || !tableBody) return;
-
+      if (!maintenance) return;
       Object.keys(DAYS_MAP).forEach(dayKey => {
         for (let i = 1; i <= PERIODS_COUNT; i++) {
           const cell = tableBody.querySelector(`td[data-day='${dayKey}'][data-period='${i}']`);
           if (!cell) continue;
-          const classSelect = cell.querySelector("select[data-type='class']");
-          const subjectSelect = cell.querySelector("select[data-type='subject']");
-          const isDisabled = maintenance[dayKey] && maintenance[dayKey][i];
+          const classSel = cell.querySelector("select[data-type='class']");
+          const subjSel = cell.querySelector("select[data-type='subject']");
+          const isDisabled = !!(maintenance[dayKey] && maintenance[dayKey][i]);
 
           if (isDisabled) {
             cell.classList.add("bg-gray-300", "opacity-70");
-            if (classSelect) {
-              classSelect.disabled = true;
-              classSelect.classList.add("cursor-not-allowed");
-            }
-            if (subjectSelect) {
-              subjectSelect.disabled = true;
-              subjectSelect.classList.add("cursor-not-allowed");
-            }
+            classSel.disabled = true;
+            subjSel.disabled = true;
+            classSel.classList.add("cursor-not-allowed");
+            subjSel.classList.add("cursor-not-allowed");
           } else {
             cell.classList.remove("bg-gray-300", "opacity-70");
-            if (archiveViewIndex === -1) {
-              if (classSelect) {
-                classSelect.disabled = false;
-                classSelect.classList.remove("cursor-not-allowed");
-              }
-              if (subjectSelect) {
-                subjectSelect.disabled = false;
-                subjectSelect.classList.remove("cursor-not-allowed");
-              }
+            if (archiveViewIndex === -1 && cell.dataset.booking !== "1") {
+              classSel.disabled = false;
+              subjSel.disabled = false;
+              classSel.classList.remove("cursor-not-allowed");
+              subjSel.classList.remove("cursor-not-allowed");
             }
           }
         }
@@ -939,145 +884,108 @@
     }
 
     function updateMaintenanceStatusText() {
-      if (!maintenanceStatusText) return;
       const lines = [];
       Object.keys(DAYS_MAP).forEach(dayKey => {
-        const periods = maintenance[dayKey] ? Object.keys(maintenance[dayKey]).filter(p => maintenance[dayKey][p]) : [];
-        if (periods.length > 0) {
-          const label = DAYS_MAP[dayKey].label;
-          const list = periods.map(p => `W${p}`).join(", ");
-          lines.push(`${label}: ${list}`);
-        }
+        const p = maintenance[dayKey]
+          ? Object.keys(maintenance[dayKey]).filter(pp => maintenance[dayKey][pp])
+          : [];
+        if (p.length) lines.push(`${DAYS_MAP[dayKey].label}: ${p.map(x => "W" + x).join(", ")}`);
       });
-      if (lines.length === 0) {
-        maintenanceStatusText.textContent = "Tiada slot maintenance (semua aktif).";
-      } else {
-        maintenanceStatusText.textContent = "Slot dalam maintenance:\n" + lines.join("\n");
-      }
+      maintenanceStatusText.textContent = lines.length
+        ? "Slot dalam maintenance:\n" + lines.join("\n")
+        : "Tiada slot maintenance (semua aktif).";
     }
 
-    // ==== ADMIN MODAL ====
+    // ---------- Admin modal ----------
     function openAdminModal() {
-      adminModal.style.display = 'flex';
-      adminPassword.value = '';
-      loginError.style.display = 'none';
-      loginView.style.display = 'block';
-      adminPanelView.style.display = 'none';
+      adminModal.style.display = "flex";
+      adminPassword.value = "";
+      loginError.style.display = "none";
+      loginView.style.display = "block";
+      adminPanelView.style.display = "none";
       adminPassword.focus();
     }
-
-    function closeAdminModal() {
-      adminModal.style.display = 'none';
-    }
+    function closeAdminModal() { adminModal.style.display = "none"; }
 
     function handleAdminLogin() {
       if (adminPassword.value === ADMIN_PASS) {
-        loginView.style.display = 'none';
-        adminPanelView.style.display = 'block';
+        loginView.style.display = "none";
+        adminPanelView.style.display = "block";
         renderArchiveList();
         initDropdownEditors();
         updateMaintenanceStatusText();
         renderBookingRequestsList();
-        if (archiveCommentText) {
-          archiveCommentText.textContent = "Tiada arkib dipilih.";
-        }
+        archiveCommentText.textContent = "Tiada arkib dipilih.";
       } else {
-        loginError.style.display = 'block';
+        loginError.style.display = "block";
       }
     }
 
-    // ==== ARKIB ====
+    // ---------- Arkib ----------
     function renderArchiveList() {
-      if (!weeklyArchive || weeklyArchive.length === 0) {
+      if (!weeklyArchive || !weeklyArchive.length) {
         archiveListContainer.innerHTML = '<p class="text-gray-500">Tiada arkib ditemui.</p>';
-        if (archiveCommentText) {
-          archiveCommentText.textContent = "Tiada arkib dipilih.";
-        }
+        archiveCommentText.textContent = "Tiada arkib dipilih.";
         return;
       }
-      archiveListContainer.innerHTML = '';
-      weeklyArchive.forEach((entry, index) => {
+      archiveListContainer.innerHTML = "";
+      weeklyArchive.forEach((e, i) => {
         const div = document.createElement("div");
         div.className = "flex justify-between items-center p-2 rounded-lg hover:bg-gray-100";
-
         const label = document.createElement("span");
-        const weekLabel = entry.weekLabel ? ` (${entry.weekLabel})` : '';
-        label.textContent = `${entry.label}${weekLabel}`;
         label.className = "font-medium text-gray-700";
+        label.textContent = `${e.label}${e.weekLabel ? " (" + e.weekLabel + ")" : ""}`;
         div.appendChild(label);
-
-        const btnGroup = document.createElement("div");
-        btnGroup.className = "flex gap-2";
-
+        const btns = document.createElement("div");
+        btns.className = "flex gap-2";
         const viewBtn = document.createElement("button");
         viewBtn.textContent = "Lihat";
         viewBtn.className = "text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600";
-        viewBtn.onclick = () => viewArchiveWeek(index);
-        btnGroup.appendChild(viewBtn);
-
-        const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "Padam";
-        deleteBtn.className = "text-xs bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600";
-        deleteBtn.onclick = () => deleteArchiveEntry(index);
-        btnGroup.appendChild(deleteBtn);
-
-        div.appendChild(btnGroup);
+        viewBtn.onclick = () => viewArchiveWeek(i);
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "Padam";
+        delBtn.className = "text-xs bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600";
+        delBtn.onclick = () => deleteArchiveEntry(i);
+        btns.appendChild(viewBtn);
+        btns.appendChild(delBtn);
+        div.appendChild(btns);
         archiveListContainer.appendChild(div);
       });
     }
 
-    async function deleteArchiveEntry(index) {
-      if (!weeklyArchive[index]) return;
-      if (confirm(`Anda pasti mahu padam arkib "${weeklyArchive[index].label}"?`)) {
-        weeklyArchive.splice(index, 1);
-        await saveArchiveToDB(weeklyArchive);
-        renderArchiveList();
-        showToast("Arkib telah dipadam.", true);
-        updateArchiveNav();
-      }
-    }
-
-    function viewArchiveWeek(index) {
-      archiveViewIndex = index;
-      const entry = weeklyArchive[index];
-      renderSchedule(entry.schedule, true);
-
-      const startDate = dayjs(entry.startDate).format("D");
-      const endDate = dayjs(entry.startDate).add(4, 'day').format("D MMM YYYY").toUpperCase();
-      weekDateDisplay.textContent = `ARKIB: ${startDate} - ${endDate}`;
-
-      if (archiveCommentText) {
-        archiveCommentText.textContent = formatArchiveComments(entry);
-      }
-
+    async function deleteArchiveEntry(i) {
+      if (!weeklyArchive[i]) return;
+      if (!confirm(`Padam arkib "${weeklyArchive[i].label}"?`)) return;
+      weeklyArchive.splice(i, 1);
+      await saveArchiveToDB(weeklyArchive);
+      renderArchiveList();
+      showToast("Arkib telah dipadam.", true);
       updateArchiveNav();
     }
 
-    function navigateArchive(direction) {
-      let newIndex = archiveViewIndex + direction;
+    function viewArchiveWeek(i) {
+      archiveViewIndex = i;
+      const e = weeklyArchive[i];
+      renderSchedule(e.schedule, true);
+      const s = dayjs(e.startDate).format("D");
+      const ee = dayjs(e.startDate).add(4, "day").format("D MMM YYYY").toUpperCase();
+      weekDateDisplay.textContent = `ARKIB: ${s} - ${ee}`;
+      archiveCommentText.textContent = formatArchiveComments(e);
+      updateArchiveNav();
+    }
 
-      if (newIndex > weeklyArchive.length - 1) newIndex = weeklyArchive.length - 1;
-      if (newIndex < -1) newIndex = -1;
-
-      if (newIndex === archiveViewIndex) return;
-
-      archiveViewIndex = newIndex;
-
+    function navigateArchive(dir) {
+      let ni = archiveViewIndex + dir;
+      if (ni > weeklyArchive.length - 1) ni = weeklyArchive.length - 1;
+      if (ni < -1) ni = -1;
+      if (ni === archiveViewIndex) return;
+      archiveViewIndex = ni;
       if (archiveViewIndex === -1) {
         renderSchedule(currentSchedule, false);
         renderWeekDate();
-        if (archiveCommentText) {
-          archiveCommentText.textContent = "Tiada arkib dipilih.";
-        }
+        archiveCommentText.textContent = "Tiada arkib dipilih.";
       } else {
-        const entry = weeklyArchive[archiveViewIndex];
-        renderSchedule(entry.schedule, true);
-        const startDate = dayjs(entry.startDate).format("D");
-        const endDate = dayjs(entry.startDate).add(4, 'day').format("D MMM YYYY").toUpperCase();
-        weekDateDisplay.textContent = `ARKIB: ${startDate} - ${endDate}`;
-        if (archiveCommentText) {
-          archiveCommentText.textContent = formatArchiveComments(entry);
-        }
+        viewArchiveWeek(archiveViewIndex);
       }
       updateArchiveNav();
     }
@@ -1090,7 +998,6 @@
         archiveNextBtn.disabled = false;
         archiveNextBtn.classList.remove("opacity-50", "cursor-not-allowed");
       }
-
       if (archiveViewIndex >= weeklyArchive.length - 1) {
         archivePrevBtn.disabled = true;
         archivePrevBtn.classList.add("opacity-50", "cursor-not-allowed");
@@ -1098,7 +1005,6 @@
         archivePrevBtn.disabled = false;
         archivePrevBtn.classList.remove("opacity-50", "cursor-not-allowed");
       }
-
       if (archiveViewIndex === -1) {
         archiveStatus.textContent = currentWeekLabel || "Minggu Semasa";
       } else if (weeklyArchive[archiveViewIndex]) {
@@ -1110,49 +1016,40 @@
       }
     }
 
-    // ==== ROLLOVER (Sabtu + manual) ====
+    // ---------- Rollover ----------
     async function handleRollover(isManual) {
-      if (!currentWeekStart) {
-        currentWeekStart = getDefaultWeekStart();
-      }
-
-      const startDateLabel = currentWeekStart.format("D MMM");
-      const endDateLabel = currentWeekStart.add(4, 'day').format("D MMM YYYY");
-      const archiveLabel = `Minggu ${startDateLabel} - ${endDateLabel}`;
-
-      const archiveEntry = {
+      if (!currentWeekStart) currentWeekStart = getDefaultWeekStart();
+      const sLabel = currentWeekStart.format("D MMM");
+      const eLabel = currentWeekStart.add(4, "day").format("D MMM YYYY");
+      const archiveLabel = `Minggu ${sLabel} - ${eLabel}`;
+      const entry = {
         id: new Date().toISOString(),
         label: archiveLabel,
-        weekLabel: currentWeekLabel || '',
+        weekLabel: currentWeekLabel || "",
         startDate: currentWeekStart.format("YYYY-MM-DD"),
         schedule: currentSchedule,
         comments: Array.isArray(currentWeekComments) ? currentWeekComments : []
       };
-
-      weeklyArchive.unshift(archiveEntry);
+      weeklyArchive.unshift(entry);
       await saveArchiveToDB(weeklyArchive);
 
       currentSchedule = createEmptySchedule();
       await saveScheduleToServer(false);
 
-      currentWeekStart = currentWeekStart.add(7, 'days');
+      currentWeekStart = currentWeekStart.add(7, "days");
       await saveWeekStartToDB(currentWeekStart.format("YYYY-MM-DD"));
 
-      currentWeekLabel = '';
+      currentWeekLabel = "";
       await saveWeekLabelToDB(currentWeekLabel);
 
       currentWeekComments = [];
       await saveWeekCommentsToDB(currentWeekComments);
       renderWeekCommentsLog();
-      if (weekCommentTextInput) weekCommentTextInput.value = '';
 
       renderWeekDate();
       renderSchedule(currentSchedule, false);
       updateArchiveNav();
-
-      if (archiveCommentText) {
-        archiveCommentText.textContent = "Tiada arkib dipilih.";
-      }
+      archiveCommentText.textContent = "Tiada arkib dipilih.";
 
       if (isManual) {
         showToast("Jadual telah diarkib & minggu baru dimulakan!");
@@ -1160,67 +1057,44 @@
       }
     }
 
-    async function checkWeeklyRollover(initialLastRolloverStr) {
+    async function checkWeeklyRollover(lastStr) {
       const today = dayjs();
       const dow = today.isoWeekday();
-      let targetWeekStart = today.isoWeekday(1);
-
-      if (dow >= 6) {
-        targetWeekStart = targetWeekStart.add(1, "week");
-      }
-
-      if (!currentWeekStart) {
-        currentWeekStart = getDefaultWeekStart();
-      }
-
-      const weeksDiff = targetWeekStart.diff(currentWeekStart, "week");
-
-      if (weeksDiff <= 0) return;
-
+      let target = today.isoWeekday(1);
+      if (dow >= 6) target = target.add(1, "week");
+      if (!currentWeekStart) currentWeekStart = getDefaultWeekStart();
+      const diff = target.diff(currentWeekStart, "week");
+      if (diff <= 0) return;
       showLoading("Memulakan minggu baru...");
-
-      for (let i = 0; i < weeksDiff; i++) {
-        await handleRollover(false);
-      }
-
+      for (let i = 0; i < diff; i++) await handleRollover(false);
       await saveLastRolloverDateToDB(today.format("YYYY-MM-DD"));
-
       hideLoading();
-      showToast("Minggu baru telah dimulakan (auto berdasarkan minggu Sabtu).");
+      showToast("Minggu baru telah dimulakan (auto).");
     }
 
-    // ==== EKSPORT, COPY & CETAK ====
+    // ---------- Export / Copy ----------
     function getDisplayedScheduleData() {
-      if (archiveViewIndex === -1) {
-        return currentSchedule;
-      }
+      if (archiveViewIndex === -1) return currentSchedule;
       return weeklyArchive[archiveViewIndex]?.schedule || currentSchedule;
     }
 
     function exportCSV() {
-      const data = getDisplayedScheduleData();
-      if (!data) {
-        showToast("Tiada data untuk dieksport.", true);
-        return;
-      }
-      let csvContent = "data:text/csv;charset=utf-8,";
-      csvContent += "Hari/Waktu," + PERIOD_TIMES.map((time, i) => `W${i + 1} (${time})`).join(",") + "\r\n";
-
+      const d = getDisplayedScheduleData();
+      if (!d) return showToast("Tiada data.", true);
+      let csv = "data:text/csv;charset=utf-8,";
+      csv += "Hari/Waktu," + PERIOD_TIMES.map((t, i) => `W${i + 1} (${t})`).join(",") + "\r\n";
       Object.keys(DAYS_MAP).forEach(dayKey => {
-        const dayLabel = DAYS_MAP[dayKey].label;
-        const row = [dayLabel];
+        const row = [DAYS_MAP[dayKey].label];
         for (let i = 1; i <= PERIODS_COUNT; i++) {
-          const cellData = data[dayKey]?.[i] || { class: '', subject: '' };
-          const cellValue = `${cellData.class || ''} / ${cellData.subject || ''}`;
-          row.push(`"${cellValue.replace(/"/g, '""')}"`);
+          const c = d[dayKey]?.[i] || { class: "", subject: "" };
+          const v = `${c.class || ""} / ${c.subject || ""}`;
+          row.push(`"${v.replace(/"/g, '""')}"`);
         }
-        csvContent += row.join(",") + "\r\n";
+        csv += row.join(",") + "\r\n";
       });
-
-      const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `jadual_makmal_${dayjs().format("YYYYMMDD")}.csv`);
+      link.href = encodeURI(csv);
+      link.download = `jadual_makmal_${dayjs().format("YYYYMMDD")}.csv`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -1228,192 +1102,152 @@
     }
 
     function exportXLSX() {
-      const data = getDisplayedScheduleData();
-      if (!data) {
-        showToast("Tiada data untuk dieksport.", true);
-        return;
-      }
+      const d = getDisplayedScheduleData();
+      if (!d) return showToast("Tiada data.", true);
       const wb = XLSX.utils.book_new();
       const ws_data = [];
-
       const header = ["Hari/Waktu"];
-      PERIOD_TIMES.forEach((time, i) => {
-        header.push(`W${i + 1} (${time})`);
-      });
+      PERIOD_TIMES.forEach((t, i) => header.push(`W${i + 1} (${t})`));
       ws_data.push(header);
-
       Object.keys(DAYS_MAP).forEach(dayKey => {
-        const dayLabel = DAYS_MAP[dayKey].label;
-        const row = [dayLabel];
+        const row = [DAYS_MAP[dayKey].label];
         for (let i = 1; i <= PERIODS_COUNT; i++) {
-          const cellData = data[dayKey]?.[i] || { class: '', subject: '' };
-          const cellValue = `${cellData.class || ''}\n${cellData.subject || ''}`.trim();
-          row.push(cellValue);
+          const c = d[dayKey]?.[i] || { class: "", subject: "" };
+          row.push(`${c.class || ""}\n${c.subject || ""}`.trim());
         }
         ws_data.push(row);
       });
-
       const ws = XLSX.utils.aoa_to_sheet(ws_data);
-      const cols = [{ wch: 15 }];
-      for (let i = 1; i <= PERIODS_COUNT; i++) cols.push({ wch: 15 });
-      ws['!cols'] = cols;
-
-      XLSX.utils.book_append_sheet(wb, ws, "Jadual Makmal");
+      ws["!cols"] = Array(PERIODS_COUNT + 1).fill({ wch: 15 });
+      XLSX.utils.book_append_sheet(wb, ws, "Jadual");
       XLSX.writeFile(wb, `jadual_makmal_${dayjs().format("YYYYMMDD")}.xlsx`);
       showToast("Excel dimuat turun!");
     }
 
     async function copyTableToClipboard() {
-      const data = getDisplayedScheduleData();
-      if (!data) {
-        showToast("Tiada data untuk disalin.", true);
-        return;
-      }
-
+      const d = getDisplayedScheduleData();
+      if (!d) return showToast("Tiada data.", true);
       const lines = [];
-      const header = ["Hari/Waktu"].concat(
-        PERIOD_TIMES.map((time, i) => `W${i + 1} (${time})`)
-      );
+      const header = ["Hari/Waktu"].concat(PERIOD_TIMES.map((t, i) => `W${i + 1} (${t})`));
       lines.push(header.join(" | "));
-
       Object.keys(DAYS_MAP).forEach(dayKey => {
-        const dayLabel = DAYS_MAP[dayKey].label;
-        const row = [dayLabel];
+        const row = [DAYS_MAP[dayKey].label];
         for (let i = 1; i <= PERIODS_COUNT; i++) {
-          const cellData = data[dayKey]?.[i] || { class: '', subject: '' };
-          const cellValue = `${cellData.class || ''}${cellData.subject ? '/' + cellData.subject : ''}`;
-          row.push(cellValue || "-");
+          const c = d[dayKey]?.[i] || { class: "", subject: "" };
+          const v = `${c.class || ""}${c.subject ? "/" + c.subject : ""}`;
+          row.push(v || "-");
         }
         lines.push(row.join(" | "));
       });
-
       const text = lines.join("\n");
-
       try {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          await navigator.clipboard.writeText(text);
-        } else {
-          const textarea = document.createElement("textarea");
-          textarea.value = text;
-          textarea.style.position = "fixed";
-          textarea.style.top = "-1000px";
-          textarea.style.left = "-1000px";
-          document.body.appendChild(textarea);
-          textarea.focus();
-          textarea.select();
+        if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(text);
+        else {
+          const ta = document.createElement("textarea");
+          ta.value = text;
+          ta.style.position = "fixed";
+          ta.style.top = "-1000px";
+          document.body.appendChild(ta);
+          ta.focus(); ta.select();
           document.execCommand("copy");
-          document.body.removeChild(textarea);
+          document.body.removeChild(ta);
         }
-        showToast("Jadual telah disalin ke clipboard!");
-      } catch (err) {
-        console.error(err);
-        showToast("Gagal menyalin jadual.", true);
+        showToast("Jadual telah disalin!");
+      } catch (e) {
+        console.error(e);
+        showToast("Gagal salin jadual.", true);
       }
     }
 
-    // ==== TEMPAHAN ====
+    // ---------- Tempahan ----------
     async function saveFutureBookingsToServer() {
       await saveFutureBookingsToDB(futureBookings);
     }
 
     function openBookingModal() {
-      bookingModal.style.display = 'flex';
-      bookingDateInput.value = '';
-      bookingReasonInput.value = '';
+      bookingModal.style.display = "flex";
+      bookingDateInput.value = "";
+      bookingReasonInput.value = "";
     }
-
-    function closeBookingModal() {
-      bookingModal.style.display = 'none';
-    }
+    function closeBookingModal() { bookingModal.style.display = "none"; }
 
     function renderBookingRequestsList() {
       if (!bookingRequestsList) return;
-
-      if (!futureBookings || futureBookings.length === 0) {
+      if (!futureBookings || !futureBookings.length) {
         bookingRequestsList.innerHTML =
           '<p class="text-gray-500 text-sm">Tiada permohonan tempahan direkodkan.</p>';
         return;
       }
-
-      bookingRequestsList.innerHTML = '';
-
+      bookingRequestsList.innerHTML = "";
       futureBookings
         .slice()
-        .sort((a, b) => (a.date || '').localeCompare(b.date || ''))
-        .forEach(booking => {
-          const row = document.createElement('div');
+        .sort((a, b) => (a.date || "").localeCompare(b.date || ""))
+        .forEach(b => {
+          const row = document.createElement("div");
           row.className =
-            'border border-emerald-100 rounded-lg px-3 py-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1';
+            "border border-emerald-100 rounded-lg px-3 py-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1";
+          const left = document.createElement("div");
+          left.className = "text-xs sm:text-sm";
+          const date = dayjs(b.date).isValid()
+            ? dayjs(b.date).format("DD/MM/YYYY (ddd)")
+            : b.date;
+          const t = document.createElement("div");
+          t.className = "font-semibold text-emerald-800";
+          t.textContent = date || "-";
+          const r = document.createElement("div");
+          r.className = "text-gray-700";
+          r.textContent = b.reason || "-";
+          left.appendChild(t);
+          left.appendChild(r);
 
-          const left = document.createElement('div');
-          left.className = 'text-xs sm:text-sm';
+          const right = document.createElement("div");
+          right.className = "flex flex-wrap gap-2 items-center";
 
-          const date = dayjs(booking.date).isValid()
-            ? dayjs(booking.date).format('DD/MM/YYYY (ddd)')
-            : booking.date;
-
-          const title = document.createElement('div');
-          title.className = 'font-semibold text-emerald-800';
-          title.textContent = date || '-';
-
-          const reason = document.createElement('div');
-          reason.className = 'text-gray-700';
-          reason.textContent = booking.reason || '-';
-
-          left.appendChild(title);
-          left.appendChild(reason);
-
-          const right = document.createElement('div');
-          right.className = 'flex flex-wrap gap-2 items-center';
-
-          const statusChip = document.createElement('span');
-          statusChip.className = 'px-2 py-1 rounded-full text-[11px] font-semibold';
-
-          if (booking.status === 'approved') {
-            statusChip.classList.add('bg-emerald-600', 'text-white');
-            statusChip.textContent = 'DILULUSKAN';
-          } else if (booking.status === 'rejected') {
-            statusChip.classList.add('bg-red-500', 'text-white');
-            statusChip.textContent = 'DITOLAK';
-          } else if (booking.status === 'cancelled') {
-            statusChip.classList.add('bg-gray-500', 'text-white');
-            statusChip.textContent = 'DIBATALKAN';
+          const chip = document.createElement("span");
+          chip.className = "px-2 py-1 rounded-full text-[11px] font-semibold";
+          if (b.status === "approved") {
+            chip.classList.add("bg-emerald-600", "text-white");
+            chip.textContent = "DILULUSKAN";
+          } else if (b.status === "rejected") {
+            chip.classList.add("bg-red-500", "text-white");
+            chip.textContent = "DITOLAK";
+          } else if (b.status === "cancelled") {
+            chip.classList.add("bg-gray-500", "text-white");
+            chip.textContent = "DIBATALKAN";
           } else {
-            statusChip.classList.add('bg-yellow-400', 'text-gray-900');
-            statusChip.textContent = 'PENDING';
+            chip.classList.add("bg-yellow-400", "text-gray-900");
+            chip.textContent = "PENDING";
           }
-          right.appendChild(statusChip);
+          right.appendChild(chip);
 
-          if (booking.status === 'pending') {
-            const approveBtn = document.createElement('button');
-            approveBtn.className =
-              'text-[11px] bg-emerald-600 text-white px-2 py-1 rounded hover:bg-emerald-700';
-            approveBtn.textContent = 'Lulus';
-            approveBtn.onclick = () => handleBookingStatusChange(booking.id, 'approved');
-            right.appendChild(approveBtn);
-
-            const rejectBtn = document.createElement('button');
-            rejectBtn.className =
-              'text-[11px] bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600';
-            rejectBtn.textContent = 'Tolak';
-            rejectBtn.onclick = () => handleBookingStatusChange(booking.id, 'rejected');
-            right.appendChild(rejectBtn);
-          } else if (booking.status === 'approved') {
-            const cancelBtn = document.createElement('button');
+          if (b.status === "pending") {
+            const okBtn = document.createElement("button");
+            okBtn.className =
+              "text-[11px] bg-emerald-600 text-white px-2 py-1 rounded hover:bg-emerald-700";
+            okBtn.textContent = "Lulus";
+            okBtn.onclick = () => handleBookingStatusChange(b.id, "approved");
+            const rejBtn = document.createElement("button");
+            rejBtn.className =
+              "text-[11px] bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600";
+            rejBtn.textContent = "Tolak";
+            rejBtn.onclick = () => handleBookingStatusChange(b.id, "rejected");
+            right.appendChild(okBtn);
+            right.appendChild(rejBtn);
+          } else if (b.status === "approved") {
+            const cancelBtn = document.createElement("button");
             cancelBtn.className =
-              'text-[11px] bg-gray-200 text-gray-800 px-2 py-1 rounded hover:bg-gray-300';
-            cancelBtn.textContent = 'Batal Tempahan';
-            cancelBtn.onclick = () =>
-              handleBookingStatusChange(booking.id, 'cancelled');
+              "text-[11px] bg-gray-200 text-gray-800 px-2 py-1 rounded hover:bg-gray-300";
+            cancelBtn.textContent = "Batal Tempahan";
+            cancelBtn.onclick = () => handleBookingStatusChange(b.id, "cancelled");
             right.appendChild(cancelBtn);
           }
 
-          const deleteBtn = document.createElement('button');
-          deleteBtn.className =
-            'text-[11px] bg-gray-200 text-gray-700 px-2 py-1 rounded hover:bg-gray-300';
-          deleteBtn.textContent = 'Padam';
-          deleteBtn.onclick = () => deleteBooking(booking.id);
-          right.appendChild(deleteBtn);
+          const delBtn = document.createElement("button");
+          delBtn.className =
+            "text-[11px] bg-gray-200 text-gray-700 px-2 py-1 rounded hover:bg-gray-300";
+          delBtn.textContent = "Padam";
+          delBtn.onclick = () => deleteBooking(b.id);
+          right.appendChild(delBtn);
 
           row.appendChild(left);
           row.appendChild(right);
@@ -1422,335 +1256,297 @@
     }
 
     async function handleBookingStatusChange(id, newStatus) {
-      const booking = futureBookings.find(b => b.id === id);
-      if (!booking) return;
-
-      if (newStatus === 'cancelled') {
-        const ok = confirm(
-          'Batalkan tempahan ini? Semua slot pada tarikh tersebut akan dibuka semula.'
-        );
-        if (!ok) return;
+      const b = futureBookings.find(x => x.id === id);
+      if (!b) return;
+      if (newStatus === "cancelled") {
+        if (!confirm("Batalkan tempahan ini? Semua slot pada tarikh tersebut akan dibuka semula.")) return;
       }
-
-      booking.status = newStatus;
+      b.status = newStatus;
       await saveFutureBookingsToServer();
       renderBookingRequestsList();
       applyBookingsToTable();
       updateAdminNotificationBadge();
-
-      if (newStatus === 'approved') {
-        showToast('Tempahan diluluskan & akan dikunci pada jadual.');
-      } else if (newStatus === 'rejected') {
-        showToast('Tempahan telah ditolak.', true);
-      } else if (newStatus === 'cancelled') {
-        showToast('Tempahan dibatalkan & slot dibuka semula.', true);
-      }
+      if (newStatus === "approved") showToast("Tempahan diluluskan & akan dikunci.");
+      else if (newStatus === "rejected") showToast("Tempahan telah ditolak.", true);
+      else if (newStatus === "cancelled") showToast("Tempahan dibatalkan & slot dibuka semula.", true);
     }
 
     async function deleteBooking(id) {
       const idx = futureBookings.findIndex(b => b.id === id);
       if (idx === -1) return;
-      if (!confirm('Padam permohonan tempahan ini?')) return;
+      if (!confirm("Padam permohonan tempahan ini?")) return;
       futureBookings.splice(idx, 1);
       await saveFutureBookingsToServer();
       renderBookingRequestsList();
       applyBookingsToTable();
       updateAdminNotificationBadge();
-      showToast('Permohonan tempahan dipadam.', true);
+      showToast("Permohonan tempahan dipadam.", true);
     }
 
+    // === FUNGSI PENTING DI SINI: hide dropdown bila tempahan ===
     function applyBookingsToTable() {
-      if (!futureBookings || futureBookings.length === 0 || !currentWeekStart) return;
+      if (!futureBookings || !futureBookings.length || !currentWeekStart) return;
 
+      // buang efek tempahan lama
       Object.keys(DAYS_MAP).forEach(dayKey => {
         for (let i = 1; i <= PERIODS_COUNT; i++) {
           const cell = tableBody.querySelector(`td[data-day='${dayKey}'][data-period='${i}']`);
           if (!cell) continue;
-          if (cell.dataset.booking === '1') {
-            const label = cell.querySelector('.booking-label');
+          if (cell.dataset.booking === "1") {
+            const label = cell.querySelector(".booking-label");
             if (label) label.remove();
-            cell.dataset.booking = '';
-            cell.classList.remove('bg-purple-100');
-            if (archiveViewIndex === -1 && (!maintenance[dayKey] || !maintenance[dayKey][i])) {
-              const classSelect = cell.querySelector("select[data-type='class']");
-              const subjectSelect = cell.querySelector("select[data-type='subject']");
-              if (classSelect) {
-                classSelect.disabled = false;
-                classSelect.classList.remove('cursor-not-allowed');
-              }
-              if (subjectSelect) {
-                subjectSelect.disabled = false;
-                subjectSelect.classList.remove('cursor-not-allowed');
+            cell.dataset.booking = "";
+            cell.classList.remove("bg-purple-100");
+
+            const classSel = cell.querySelector("select[data-type='class']");
+            const subjSel = cell.querySelector("select[data-type='subject']");
+            const pvc = cell.querySelector(".print-class-value");
+            const pvs = cell.querySelector(".print-subject-value");
+
+            if (classSel) {
+              classSel.style.display = "";
+              if (archiveViewIndex === -1 && !(maintenance[dayKey] && maintenance[dayKey][i])) {
+                classSel.disabled = false;
+                classSel.classList.remove("cursor-not-allowed");
+              } else {
+                classSel.disabled = true;
+                classSel.classList.add("cursor-not-allowed");
               }
             }
+            if (subjSel) {
+              subjSel.style.display = "";
+              if (archiveViewIndex === -1 && !(maintenance[dayKey] && maintenance[dayKey][i])) {
+                subjSel.disabled = false;
+                subjSel.classList.remove("cursor-not-allowed");
+              } else {
+                subjSel.disabled = true;
+                subjSel.classList.add("cursor-not-allowed");
+              }
+            }
+
+            if (pvc && classSel) pvc.textContent = classSel.value || "";
+            if (pvs && subjSel) pvs.textContent = subjSel.value || "";
           }
         }
       });
 
-      const weekStart = currentWeekStart.startOf('day');
-      const weekEnd = weekStart.add(4, 'day');
+      const weekStart = currentWeekStart.startOf("day");
+      const weekEnd = weekStart.add(4, "day");
 
       futureBookings
-        .filter(b => b.status === 'approved' && b.date)
-        .forEach(booking => {
-          const date = dayjs(booking.date);
-          if (!date.isValid()) return;
-          if (date.isBefore(weekStart) || date.isAfter(weekEnd)) return;
-
-          const dow = date.isoWeekday();
+        .filter(b => b.status === "approved" && b.date)
+        .forEach(b => {
+          const d = dayjs(b.date);
+          if (!d.isValid() || d.isBefore(weekStart) || d.isAfter(weekEnd)) return;
+          const dow = d.isoWeekday();
           let dayKey = null;
-          if (dow === 1) dayKey = 'mo';
-          else if (dow === 2) dayKey = 'tu';
-          else if (dow === 3) dayKey = 'we';
-          else if (dow === 4) dayKey = 'th';
-          else if (dow === 5) dayKey = 'fr';
+          if (dow === 1) dayKey = "mo";
+          else if (dow === 2) dayKey = "tu";
+          else if (dow === 3) dayKey = "we";
+          else if (dow === 4) dayKey = "th";
+          else if (dow === 5) dayKey = "fr";
           else return;
 
-          const reasonShort = (booking.reason || '').trim();
-          const labelText = reasonShort || 'Tempahan Khas';
+          const labelText = (b.reason || "").trim() || "Tempahan Khas";
 
           for (let i = 1; i <= PERIODS_COUNT; i++) {
             const cell = tableBody.querySelector(`td[data-day='${dayKey}'][data-period='${i}']`);
             if (!cell) continue;
-            const classSelect = cell.querySelector("select[data-type='class']");
-            const subjectSelect = cell.querySelector("select[data-type='subject']");
+            const classSel = cell.querySelector("select[data-type='class']");
+            const subjSel = cell.querySelector("select[data-type='subject']");
+            const pvc = cell.querySelector(".print-class-value");
+            const pvs = cell.querySelector(".print-subject-value");
 
-            if (classSelect) {
-              classSelect.disabled = true;
-              classSelect.classList.add('cursor-not-allowed');
+            if (classSel) {
+              classSel.disabled = true;
+              classSel.classList.add("cursor-not-allowed");
+              classSel.style.display = "none"; // HIDE dropdown kelas
             }
-            if (subjectSelect) {
-              subjectSelect.disabled = true;
-              subjectSelect.classList.add('cursor-not-allowed');
+            if (subjSel) {
+              subjSel.disabled = true;
+              subjSel.classList.add("cursor-not-allowed");
+              subjSel.style.display = "none"; // HIDE dropdown subjek
             }
 
-            cell.classList.add('bg-purple-100');
-            cell.dataset.booking = '1';
+            if (pvc) pvc.textContent = "";
+            if (pvs) pvs.textContent = "";
 
-            const label = document.createElement('span');
-            label.className = 'booking-label';
+            cell.classList.add("bg-purple-100");
+            cell.dataset.booking = "1";
+
+            const label = document.createElement("span");
+            label.className = "booking-label";
             label.textContent = labelText;
             cell.appendChild(label);
           }
         });
     }
 
-    // ==== EVENT LISTENERS ====
+    // ---------- Event listeners ----------
+    function updateScheduleDataFromTable() {
+      const ns = createEmptySchedule();
+      Object.keys(DAYS_MAP).forEach(d => {
+        for (let i = 1; i <= PERIODS_COUNT; i++) {
+          const cell = tableBody.querySelector(`td[data-day='${d}'][data-period='${i}']`);
+          const cs = cell.querySelector("select[data-type='class']");
+          const ss = cell.querySelector("select[data-type='subject']");
+          ns[d][i] = { class: cs.value, subject: ss.value };
+        }
+      });
+      currentSchedule = ns;
+    }
+
     function initEventListeners() {
-      tableBody.addEventListener("change", (event) => {
-        if (event.target && event.target.tagName === 'SELECT') {
-          applySelectColor(event.target);
+      tableBody.addEventListener("change", e => {
+        if (e.target.tagName === "SELECT") {
+          applySelectColor(e.target);
           clearTimeout(autoSaveTimer);
           updateScheduleDataFromTable();
-          autoSaveTimer = setTimeout(() => {
-            saveScheduleToServer(false);
-          }, 500);
+          autoSaveTimer = setTimeout(() => saveScheduleToServer(false), 500);
         }
       });
 
-      adminLoginBtn.addEventListener("click", openAdminModal);
-      adminCancelBtn.addEventListener("click", closeAdminModal);
-      adminCloseBtn.addEventListener("click", closeAdminModal);
-      adminSubmitBtn.addEventListener("click", handleAdminLogin);
+      adminLoginBtn.onclick = openAdminModal;
+      adminCancelBtn.onclick = closeAdminModal;
+      adminCloseBtn.onclick = closeAdminModal;
+      adminSubmitBtn.onclick = handleAdminLogin;
 
-      archivePrevBtn.addEventListener("click", () => navigateArchive(1));
-      archiveNextBtn.addEventListener("click", () => navigateArchive(-1));
+      archivePrevBtn.onclick = () => navigateArchive(1);
+      archiveNextBtn.onclick = () => navigateArchive(-1);
 
-      toggleCommentsBtn.addEventListener("click", () => {
-        commentsPanel.classList.toggle("hidden");
-      });
+      toggleCommentsBtn.onclick = () => commentsPanel.classList.toggle("hidden");
 
-      sendCommentBtn.addEventListener("click", async () => {
-        const name = (weekCommentNameInput.value || '').trim() || 'Guru';
-        const text = (weekCommentTextInput.value || '').trim();
-
-        if (!text) {
-          alert("Sila tulis komen dahulu.");
-          return;
-        }
-
-        const msg = {
-          id: Date.now(),
-          name,
-          text,
-          time: new Date().toISOString()
-        };
+      sendCommentBtn.onclick = async () => {
+        const name = (weekCommentNameInput.value || "").trim() || "Guru";
+        const text = (weekCommentTextInput.value || "").trim();
+        if (!text) return alert("Sila tulis komen dahulu.");
+        const msg = { id: Date.now(), name, text, time: new Date().toISOString() };
         currentWeekComments.push(msg);
         await saveWeekCommentsToDB(currentWeekComments);
         renderWeekCommentsLog();
-        weekCommentTextInput.value = '';
+        weekCommentTextInput.value = "";
         showToast("Komen dihantar!");
-      });
+      };
 
-      weekCommentTextInput.addEventListener("keydown", async (e) => {
-        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+      weekCommentTextInput.addEventListener("keydown", e => {
+        if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
           e.preventDefault();
           sendCommentBtn.click();
         }
       });
 
-      maintenanceToggleBtn.addEventListener("click", async () => {
+      maintenanceToggleBtn.onclick = async () => {
         const day = maintenanceDaySelect.value;
-        const period = parseInt(maintenancePeriodSelect.value, 10);
-
+        const p = parseInt(maintenancePeriodSelect.value, 10);
         if (!maintenance[day]) maintenance[day] = {};
-        const currentlyDisabled = !!maintenance[day][period];
-        if (currentlyDisabled) {
-          delete maintenance[day][period];
-        } else {
-          maintenance[day][period] = true;
-        }
-
+        maintenance[day][p] = !maintenance[day][p];
         applyMaintenanceToTable();
         updateMaintenanceStatusText();
         await saveMaintenanceToServer();
-        showToast(currentlyDisabled ? "Slot dibuka semula." : "Slot ditutup (maintenance).");
-      });
+        showToast(maintenance[day][p] ? "Slot ditutup (maintenance)." : "Slot dibuka semula.");
+      };
 
-      bookingOpenBtn.addEventListener("click", openBookingModal);
-      bookingCancelBtn.addEventListener("click", closeBookingModal);
-      bookingModal.addEventListener("click", (e) => {
+      bookingOpenBtn.onclick = openBookingModal;
+      bookingCancelBtn.onclick = closeBookingModal;
+      bookingModal.addEventListener("click", e => {
         if (e.target === bookingModal) closeBookingModal();
       });
 
-      bookingSubmitBtn.addEventListener("click", async () => {
+      bookingSubmitBtn.onclick = async () => {
         const date = bookingDateInput.value;
         const reason = bookingReasonInput.value.trim();
+        if (!date) return alert("Sila pilih tarikh tempahan.");
+        if (!reason) return alert("Sila nyatakan tujuan tempahan.");
 
-        if (!date) {
-          alert('Sila pilih tarikh tempahan.');
-          return;
-        }
-        if (!reason) {
-          alert('Sila nyatakan tujuan tempahan.');
-          return;
-        }
-
-        const today = dayjs().startOf('day');
-        const selected = dayjs(date);
-        if (!selected.isValid()) {
-          alert('Tarikh tidak sah.');
-          return;
-        }
-        if (selected.isBefore(today)) {
-          if (!confirm('Tarikh yang dipilih adalah tarikh lepas. Teruskan juga?')) {
-            return;
-          }
+        const today = dayjs().startOf("day");
+        const sel = dayjs(date);
+        if (!sel.isValid()) return alert("Tarikh tidak sah.");
+        if (sel.isBefore(today)) {
+          if (!confirm("Tarikh ini sudah lepas. Teruskan juga?")) return;
         }
 
         const booking = {
           id: Date.now().toString(),
           date,
           reason,
-          status: 'pending',
+          status: "pending",
           createdAt: new Date().toISOString()
         };
-
         futureBookings.push(booking);
         await saveFutureBookingsToServer();
         renderBookingRequestsList();
         updateAdminNotificationBadge();
         closeBookingModal();
-        showToast('Permohonan tempahan dihantar. Menunggu kelulusan admin.');
-      });
-    }
-
-    function updateScheduleDataFromTable() {
-      const newSchedule = createEmptySchedule();
-      Object.keys(DAYS_MAP).forEach(dayKey => {
-        for (let i = 1; i <= PERIODS_COUNT; i++) {
-          const cell = tableBody.querySelector(`td[data-day='${dayKey}'][data-period='${i}']`);
-          if (!cell) continue;
-          const classVal = cell.querySelector("select[data-type='class']").value;
-          const subjectVal = cell.querySelector("select[data-type='subject']").value;
-          newSchedule[dayKey][i] = { class: classVal, subject: subjectVal };
-        }
-      });
-      currentSchedule = newSchedule;
+        showToast("Permohonan tempahan dihantar. Menunggu kelulusan admin.");
+      };
     }
 
     function initAdminPanel() {
-      saveBtn.addEventListener("click", () => {
+      saveBtn.onclick = () => {
         updateScheduleDataFromTable();
         saveScheduleToServer(true);
-      });
+      };
+      printBtn.onclick = printSchedule;
+      csvBtn.onclick = exportCSV;
+      excelBtn.onclick = exportXLSX;
+      copyTableBtn.onclick = copyTableToClipboard;
 
-      printBtn.addEventListener("click", printSchedule);
-      csvBtn.addEventListener("click", exportCSV);
-      excelBtn.addEventListener("click", exportXLSX);
-      copyTableBtn.addEventListener("click", copyTableToClipboard);
+      adminClearBtn.onclick = async () => {
+        if (!confirm("Kosongkan semua data jadual minggu ini?")) return;
+        currentSchedule = createEmptySchedule();
+        await saveScheduleToServer(false);
+        renderSchedule(currentSchedule, false);
+        showToast("Jadual minggu ini telah dikosongkan.", true);
+      };
 
-      adminClearBtn.addEventListener("click", async () => {
-        if (confirm("Anda pasti mahu kosongkan semua data jadual minggu ini? Tindakan ini tidak boleh diundur.")) {
-          currentSchedule = createEmptySchedule();
-          await saveScheduleToServer(false);
-          renderSchedule(currentSchedule, false);
-          showToast("Jadual minggu ini telah dikosongkan.", true);
+      adminRolloverBtn.onclick = async () => {
+        if (!confirm("Simpan jadual ke arkib dan mulakan minggu baru?")) return;
+        await handleRollover(true);
+      };
+
+      manualDateBtn.onclick = async () => {
+        const d = manualDateInput.value;
+        if (!d) return;
+        let ns = dayjs(d);
+        if (ns.day() !== 1) {
+          ns = ns.isoWeekday(1);
+          alert("Tarikh diubah ke hari Isnin minggu tersebut.");
         }
-      });
+        currentWeekStart = ns;
+        await saveWeekStartToDB(currentWeekStart.format("YYYY-MM-DD"));
+        renderWeekDate();
+        applyBookingsToTable();
+        showToast("Tarikh minggu semasa telah ditukar.");
+        closeAdminModal();
+      };
 
-      adminRolloverBtn.addEventListener("click", async () => {
-        if (confirm("Anda pasti mahu simpan jadual ini ke arkib dan mulakan minggu baru?")) {
-          await handleRollover(true);
-        }
-      });
+      saveOptionsBtn.onclick = async () => {
+        if (!confirm("Menjana semula jadual dengan pilihan baru?")) return;
+        await saveOptionsToServer();
+      };
 
-      manualDateBtn.addEventListener("click", async () => {
-        const newDate = manualDateInput.value;
-        if (newDate) {
-          let newStartDate = dayjs(newDate);
-          if (newStartDate.day() !== 1) {
-            newStartDate = newStartDate.isoWeekday(1);
-            alert("Tarikh telah ditetapkan ke hari Isnin minggu tersebut.");
-          }
-          currentWeekStart = newStartDate;
-          await saveWeekStartToDB(currentWeekStart.format("YYYY-MM-DD"));
-          renderWeekDate();
-          applyBookingsToTable();
-          showToast("Tarikh minggu semasa telah ditukar.");
-          closeAdminModal();
-        }
-      });
-
-      saveOptionsBtn.addEventListener("click", async () => {
-        if (confirm("Menyimpan pilihan baru akan menjana semula jadual. Anda pasti?")) {
-          await saveOptionsToServer();
-        }
-      });
-
-      weekLabelSaveBtn.addEventListener("click", async () => {
+      weekLabelSaveBtn.onclick = async () => {
         currentWeekLabel = weekLabelInput.value.trim();
         await saveWeekLabelToDB(currentWeekLabel);
         updateArchiveNav();
         showToast("Label minggu telah disimpan!");
-      });
+      };
     }
 
-    // Print ringkas
     function printSchedule() {
-      const printContainer = document.createElement('div');
-      const table = document.querySelector('#schedule-table').cloneNode(true);
-      printContainer.appendChild(table);
-
-      const printWindow = window.open('', '_blank');
+      const printWindow = window.open("", "_blank");
+      const tableHTML = document.querySelector("#schedule-table").outerHTML;
       printWindow.document.write(`
         <html>
           <head>
             <title>Cetak Jadual Makmal</title>
             <style>
-              table { width: 100%; border-collapse: collapse; }
-              th, td {
-                border: 1px solid black;
-                padding: 6px;
-                text-align: center;
-                font-size: 12px;
-              }
-              body { font-family: Arial, sans-serif; padding: 20px; }
+              table{width:100%;border-collapse:collapse;}
+              th,td{border:1px solid #000;padding:6px;text-align:center;font-size:12px;}
+              body{font-family:Arial,sans-serif;padding:20px;}
             </style>
           </head>
-          <body>
-            ${printContainer.innerHTML}
-          </body>
+          <body>${tableHTML}</body>
         </html>
       `);
       printWindow.document.close();
@@ -1759,36 +1555,25 @@
       printWindow.close();
     }
 
-    // ==== INIT APP ====
+    // ---------- INIT ----------
     async function init() {
       showLoading("Memuatkan data...");
       try {
         const initial = await loadInitialData();
-
         loadOptionsFromData(initial.classOptions, initial.subjectOptions);
         initTableStructure();
-
         weeklyArchive = Array.isArray(initial.archive) ? initial.archive : [];
         renderArchiveList();
-
-        if (initial.weekStart) {
-          currentWeekStart = dayjs(initial.weekStart);
-        } else {
-          currentWeekStart = getDefaultWeekStart();
-          await saveWeekStartToDB(currentWeekStart.format("YYYY-MM-DD"));
-        }
-
-        currentWeekLabel = initial.weekLabel || '';
-        if (initial.lastRolloverDate) {
-          lastRolloverDate = dayjs(initial.lastRolloverDate);
-        }
-
+        currentWeekStart = initial.weekStart ? dayjs(initial.weekStart) : getDefaultWeekStart();
+        if (!initial.weekStart) await saveWeekStartToDB(currentWeekStart.format("YYYY-MM-DD"));
+        currentWeekLabel = initial.weekLabel || "";
+        lastRolloverDate = initial.lastRolloverDate ? dayjs(initial.lastRolloverDate) : null;
         currentSchedule = migrateScheduleData(initial.schedule);
         renderWeekDate();
         renderSchedule(currentSchedule, false);
         updateArchiveNav();
 
-        maintenance = initial.maintenance && typeof initial.maintenance === 'object'
+        maintenance = initial.maintenance && typeof initial.maintenance === "object"
           ? initial.maintenance
           : createEmptyMaintenance();
         applyMaintenanceToTable();
@@ -1801,9 +1586,7 @@
         applyBookingsToTable();
         updateAdminNotificationBadge();
 
-        if (archiveCommentText) {
-          archiveCommentText.textContent = "Tiada arkib dipilih.";
-        }
+        archiveCommentText.textContent = "Tiada arkib dipilih.";
 
         initEventListeners();
         initAdminPanel();
