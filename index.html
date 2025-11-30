@@ -21,6 +21,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+  <!-- Optional favicon supaya tiada 404 di console -->
+  <link rel="icon" type="image/png" href="https://i.imgur.com/AfsVtVG.jpeg">
+
   <style>
     input[type='number']::-webkit-inner-spin-button,
     input[type='number']::-webkit-outer-spin-button {
@@ -139,13 +142,18 @@
         </div>
       </div>
       <div class="flex flex-col items-stretch gap-2 no-print">
-        <button id="admin-login-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 font-medium">
+        <!-- Panel Admin + badge notifikasi -->
+        <button id="admin-login-btn"
+          class="relative bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 font-medium">
           Panel Admin
+          <span id="admin-notification-badge"
+                class="hidden absolute -top-1 -right-1 w-3 h-3 rounded-full bg-red-500 border-2 border-white"></span>
         </button>
-        <!-- BUTANG TEMPAHAN BARU -->
+        <!-- Butang tempahan guru -->
         <button id="booking-open-btn" class="bg-emerald-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-emerald-700 transition duration-300 font-medium text-sm">
           Tempahan
         </button>
+        <!-- Butang komen guru -->
         <button id="toggle-comments-btn" class="bg-amber-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-amber-600 transition duration-300 font-medium text-sm">
           Komen Guru
         </button>
@@ -419,7 +427,7 @@
     // === KONFIGURASI ===
     const PERIODS_COUNT = 12;
     const PERIOD_TIMES = [
-      "7.45-8.15", "8.15-8.45", "8.45-9.15", "9.15-9.40", "9.40-10.10",
+      "7.40-8.10", "8.10-8.40", "8.40-9.15", "9.15-9.40", "9.40-10.10",
       "10.10-10.40", "10.40-11.10", "11.10-11.40", "11.40-12.10",
       "12.10-12.40", "12.40-1.10", "1.10-1.40"
     ];
@@ -526,6 +534,8 @@
     const bookingCancelBtn = document.getElementById("booking-cancel-btn");
     const bookingRequestsList = document.getElementById("booking-requests-list");
 
+    const adminNotificationBadge = document.getElementById("admin-notification-badge");
+
     // ==== HELPER ====
     function showToast(message, isError = false) {
       toast.textContent = message;
@@ -579,6 +589,18 @@
       selectElement.style.backgroundColor = color;
     }
 
+    // Badge notifikasi admin
+    function updateAdminNotificationBadge() {
+      if (!adminNotificationBadge) return;
+      const hasPending = Array.isArray(futureBookings) &&
+        futureBookings.some(b => b.status === "pending");
+      if (hasPending) {
+        adminNotificationBadge.classList.remove("hidden");
+      } else {
+        adminNotificationBadge.classList.add("hidden");
+      }
+    }
+
     // ==== CHAT RENDERING ====
     function renderWeekCommentsLog() {
       if (!weekCommentsLog) return;
@@ -623,7 +645,6 @@
         weekCommentsLog.appendChild(row);
       });
 
-      // scroll ke bawah
       weekCommentsLog.scrollTop = weekCommentsLog.scrollHeight;
     }
 
@@ -631,7 +652,6 @@
       if (!entry || !entry.comments) return "Tiada komen untuk minggu ini.";
 
       const c = entry.comments;
-      // Jika data lama: string
       if (typeof c === 'string') {
         return c.trim() ? c : "Tiada komen untuk minggu ini.";
       }
@@ -726,7 +746,6 @@
         tableHeader.appendChild(th);
       });
 
-      // Isi pilihan W1..W12 untuk maintenance
       if (maintenancePeriodSelect) {
         maintenancePeriodSelect.innerHTML = "";
         for (let i = 1; i <= PERIODS_COUNT; i++) {
@@ -855,7 +874,6 @@
             subjectSelect.classList.remove("cursor-not-allowed");
           }
 
-          // buang label tempahan lama
           const oldLabel = cell.querySelector(".booking-label");
           if (oldLabel) oldLabel.remove();
           cell.classList.remove("bg-purple-100");
@@ -1144,15 +1162,9 @@
 
     async function checkWeeklyRollover(initialLastRolloverStr) {
       const today = dayjs();
-
-      // 1 = Isnin, ... 7 = Ahad
       const dow = today.isoWeekday();
-
-      // Asas: Isnin minggu "sekarang"
       let targetWeekStart = today.isoWeekday(1);
 
-      // Jika hari ini Sabtu (6) atau Ahad (7),
-      // kita anggap minggu tempahan yang patut aktif ialah Isnin minggu DEPAN.
       if (dow >= 6) {
         targetWeekStart = targetWeekStart.add(1, "week");
       }
@@ -1299,7 +1311,7 @@
       }
     }
 
-    // ==== TEMPAHAN: FUNGSI BANTUAN ====
+    // ==== TEMPAHAN ====
     async function saveFutureBookingsToServer() {
       await saveFutureBookingsToDB(futureBookings);
     }
@@ -1318,17 +1330,20 @@
       if (!bookingRequestsList) return;
 
       if (!futureBookings || futureBookings.length === 0) {
-        bookingRequestsList.innerHTML = '<p class="text-gray-500 text-sm">Tiada permohonan tempahan direkodkan.</p>';
+        bookingRequestsList.innerHTML =
+          '<p class="text-gray-500 text-sm">Tiada permohonan tempahan direkodkan.</p>';
         return;
       }
 
       bookingRequestsList.innerHTML = '';
+
       futureBookings
         .slice()
         .sort((a, b) => (a.date || '').localeCompare(b.date || ''))
         .forEach(booking => {
           const row = document.createElement('div');
-          row.className = 'border border-emerald-100 rounded-lg px-3 py-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1';
+          row.className =
+            'border border-emerald-100 rounded-lg px-3 py-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1';
 
           const left = document.createElement('div');
           left.className = 'text-xs sm:text-sm';
@@ -1353,12 +1368,16 @@
 
           const statusChip = document.createElement('span');
           statusChip.className = 'px-2 py-1 rounded-full text-[11px] font-semibold';
+
           if (booking.status === 'approved') {
             statusChip.classList.add('bg-emerald-600', 'text-white');
             statusChip.textContent = 'DILULUSKAN';
           } else if (booking.status === 'rejected') {
             statusChip.classList.add('bg-red-500', 'text-white');
             statusChip.textContent = 'DITOLAK';
+          } else if (booking.status === 'cancelled') {
+            statusChip.classList.add('bg-gray-500', 'text-white');
+            statusChip.textContent = 'DIBATALKAN';
           } else {
             statusChip.classList.add('bg-yellow-400', 'text-gray-900');
             statusChip.textContent = 'PENDING';
@@ -1367,20 +1386,31 @@
 
           if (booking.status === 'pending') {
             const approveBtn = document.createElement('button');
-            approveBtn.className = 'text-[11px] bg-emerald-600 text-white px-2 py-1 rounded hover:bg-emerald-700';
+            approveBtn.className =
+              'text-[11px] bg-emerald-600 text-white px-2 py-1 rounded hover:bg-emerald-700';
             approveBtn.textContent = 'Lulus';
             approveBtn.onclick = () => handleBookingStatusChange(booking.id, 'approved');
             right.appendChild(approveBtn);
 
             const rejectBtn = document.createElement('button');
-            rejectBtn.className = 'text-[11px] bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600';
+            rejectBtn.className =
+              'text-[11px] bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600';
             rejectBtn.textContent = 'Tolak';
             rejectBtn.onclick = () => handleBookingStatusChange(booking.id, 'rejected');
             right.appendChild(rejectBtn);
+          } else if (booking.status === 'approved') {
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className =
+              'text-[11px] bg-gray-200 text-gray-800 px-2 py-1 rounded hover:bg-gray-300';
+            cancelBtn.textContent = 'Batal Tempahan';
+            cancelBtn.onclick = () =>
+              handleBookingStatusChange(booking.id, 'cancelled');
+            right.appendChild(cancelBtn);
           }
 
           const deleteBtn = document.createElement('button');
-          deleteBtn.className = 'text-[11px] bg-gray-200 text-gray-700 px-2 py-1 rounded hover:bg-gray-300';
+          deleteBtn.className =
+            'text-[11px] bg-gray-200 text-gray-700 px-2 py-1 rounded hover:bg-gray-300';
           deleteBtn.textContent = 'Padam';
           deleteBtn.onclick = () => deleteBooking(booking.id);
           right.appendChild(deleteBtn);
@@ -1395,15 +1425,25 @@
       const booking = futureBookings.find(b => b.id === id);
       if (!booking) return;
 
+      if (newStatus === 'cancelled') {
+        const ok = confirm(
+          'Batalkan tempahan ini? Semua slot pada tarikh tersebut akan dibuka semula.'
+        );
+        if (!ok) return;
+      }
+
       booking.status = newStatus;
       await saveFutureBookingsToServer();
       renderBookingRequestsList();
       applyBookingsToTable();
+      updateAdminNotificationBadge();
 
       if (newStatus === 'approved') {
         showToast('Tempahan diluluskan & akan dikunci pada jadual.');
       } else if (newStatus === 'rejected') {
         showToast('Tempahan telah ditolak.', true);
+      } else if (newStatus === 'cancelled') {
+        showToast('Tempahan dibatalkan & slot dibuka semula.', true);
       }
     }
 
@@ -1415,14 +1455,13 @@
       await saveFutureBookingsToServer();
       renderBookingRequestsList();
       applyBookingsToTable();
+      updateAdminNotificationBadge();
       showToast('Permohonan tempahan dipadam.', true);
     }
 
-    // Sapukan tempahan diluluskan ke jadual minggu semasa
     function applyBookingsToTable() {
       if (!futureBookings || futureBookings.length === 0 || !currentWeekStart) return;
 
-      // buang label lama
       Object.keys(DAYS_MAP).forEach(dayKey => {
         for (let i = 1; i <= PERIODS_COUNT; i++) {
           const cell = tableBody.querySelector(`td[data-day='${dayKey}'][data-period='${i}']`);
@@ -1432,7 +1471,6 @@
             if (label) label.remove();
             cell.dataset.booking = '';
             cell.classList.remove('bg-purple-100');
-            // re-enable kalau bukan maintenance & bukan arkib
             if (archiveViewIndex === -1 && (!maintenance[dayKey] || !maintenance[dayKey][i])) {
               const classSelect = cell.querySelector("select[data-type='class']");
               const subjectSelect = cell.querySelector("select[data-type='subject']");
@@ -1459,14 +1497,14 @@
           if (!date.isValid()) return;
           if (date.isBefore(weekStart) || date.isAfter(weekEnd)) return;
 
-          const dow = date.isoWeekday(); // 1-7
+          const dow = date.isoWeekday();
           let dayKey = null;
           if (dow === 1) dayKey = 'mo';
           else if (dow === 2) dayKey = 'tu';
           else if (dow === 3) dayKey = 'we';
           else if (dow === 4) dayKey = 'th';
           else if (dow === 5) dayKey = 'fr';
-          else return; // Sabtu/Ahad abaikan
+          else return;
 
           const reasonShort = (booking.reason || '').trim();
           const labelText = reasonShort || 'Tempahan Khas';
@@ -1477,7 +1515,6 @@
             const classSelect = cell.querySelector("select[data-type='class']");
             const subjectSelect = cell.querySelector("select[data-type='subject']");
 
-            // disable
             if (classSelect) {
               classSelect.disabled = true;
               classSelect.classList.add('cursor-not-allowed');
@@ -1519,12 +1556,10 @@
       archivePrevBtn.addEventListener("click", () => navigateArchive(1));
       archiveNextBtn.addEventListener("click", () => navigateArchive(-1));
 
-      // Toggle panel komen
       toggleCommentsBtn.addEventListener("click", () => {
         commentsPanel.classList.toggle("hidden");
       });
 
-      // Hantar chat komen
       sendCommentBtn.addEventListener("click", async () => {
         const name = (weekCommentNameInput.value || '').trim() || 'Guru';
         const text = (weekCommentTextInput.value || '').trim();
@@ -1547,7 +1582,6 @@
         showToast("Komen dihantar!");
       });
 
-      // Enter + Ctrl+Enter untuk hantar
       weekCommentTextInput.addEventListener("keydown", async (e) => {
         if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
           e.preventDefault();
@@ -1555,7 +1589,6 @@
         }
       });
 
-      // Maintenance toggle
       maintenanceToggleBtn.addEventListener("click", async () => {
         const day = maintenanceDaySelect.value;
         const period = parseInt(maintenancePeriodSelect.value, 10);
@@ -1574,14 +1607,12 @@
         showToast(currentlyDisabled ? "Slot dibuka semula." : "Slot ditutup (maintenance).");
       });
 
-      // Buka/Tutup modal tempahan
       bookingOpenBtn.addEventListener("click", openBookingModal);
       bookingCancelBtn.addEventListener("click", closeBookingModal);
       bookingModal.addEventListener("click", (e) => {
         if (e.target === bookingModal) closeBookingModal();
       });
 
-      // Hantar permohonan tempahan
       bookingSubmitBtn.addEventListener("click", async () => {
         const date = bookingDateInput.value;
         const reason = bookingReasonInput.value.trim();
@@ -1618,6 +1649,7 @@
         futureBookings.push(booking);
         await saveFutureBookingsToServer();
         renderBookingRequestsList();
+        updateAdminNotificationBadge();
         closeBookingModal();
         showToast('Permohonan tempahan dihantar. Menunggu kelulusan admin.');
       });
@@ -1694,7 +1726,7 @@
       });
     }
 
-    // ==== FIX: Print Function (Diperlukan oleh Admin Panel) ====
+    // Print ringkas
     function printSchedule() {
       const printContainer = document.createElement('div');
       const table = document.querySelector('#schedule-table').cloneNode(true);
@@ -1762,13 +1794,12 @@
         applyMaintenanceToTable();
         updateMaintenanceStatusText();
 
-        // Chat minggu semasa
         currentWeekComments = Array.isArray(initial.weekComments) ? initial.weekComments : [];
         renderWeekCommentsLog();
 
-        // Tempahan akan datang
         futureBookings = Array.isArray(initial.futureBookings) ? initial.futureBookings : [];
         applyBookingsToTable();
+        updateAdminNotificationBadge();
 
         if (archiveCommentText) {
           archiveCommentText.textContent = "Tiada arkib dipilih.";
