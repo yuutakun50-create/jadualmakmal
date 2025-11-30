@@ -107,6 +107,17 @@
         -webkit-overflow-scrolling: touch;
       }
     }
+
+    /* Label tempahan pada sel jadual */
+    .booking-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: #4c1d95;
+      margin-top: 2px;
+      display: block;
+      text-align: center;
+      line-height: 1.2;
+    }
   </style>
 </head>
 
@@ -130,6 +141,10 @@
       <div class="flex flex-col items-stretch gap-2 no-print">
         <button id="admin-login-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 font-medium">
           Panel Admin
+        </button>
+        <!-- BUTANG TEMPAHAN BARU -->
+        <button id="booking-open-btn" class="bg-emerald-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-emerald-700 transition duration-300 font-medium text-sm">
+          Tempahan
         </button>
         <button id="toggle-comments-btn" class="bg-amber-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-amber-600 transition duration-300 font-medium text-sm">
           Komen Guru
@@ -219,6 +234,31 @@
         <li>Setelah selesai guna, guru perlu memastikan murid mengembalikan laptop di rak besi (charge semula sekiranya murid mampu).</li>
         <li>Kegagalan berbuat demikian akan membatalkan tempahan guru pada masa akan datang. Terima kasih.</li>
       </ol>
+    </div>
+  </div>
+
+  <!-- MODAL TEMPAHAN GURU -->
+  <div id="booking-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40 p-4 no-print" style="display:none;">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-5 sm:p-6">
+      <h2 class="text-xl font-bold text-gray-800 mb-4">Borang Tempahan Makmal</h2>
+      <p class="text-xs text-gray-600 mb-3">
+        Sila pilih <strong>tarikh</strong> yang ingin ditempah dan nyatakan <strong>tujuan</strong> (contoh: Pertandingan Robotik, Bengkel, Ujian, dll).
+        Tempahan hanya sah selepas <strong>admin meluluskan</strong>.
+      </p>
+      <div class="space-y-3">
+        <div>
+          <label for="booking-date" class="block text-sm font-medium text-gray-700 mb-1">Tarikh Tempahan</label>
+          <input type="date" id="booking-date" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+        </div>
+        <div>
+          <label for="booking-reason" class="block text-sm font-medium text-gray-700 mb-1">Tujuan / Sebab Tempahan</label>
+          <textarea id="booking-reason" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500" placeholder="Contoh: Pertandingan Robotik, Bengkel Google Classroom, Ujian LINUS, dsb."></textarea>
+        </div>
+      </div>
+      <div class="mt-5 flex justify-end gap-3">
+        <button id="booking-cancel-btn" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 transition text-sm">Batal</button>
+        <button id="booking-submit-btn" class="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition text-sm">Hantar Permohonan</button>
+      </div>
     </div>
   </div>
 
@@ -319,6 +359,17 @@
               Tiada slot maintenance (semua aktif).
             </p>
           </div>
+
+          <!-- PERMOHONAN TEMPAHAN MAKMAL AKAN DATANG -->
+          <div class="mt-6 p-4 border border-emerald-300 rounded-lg bg-emerald-50">
+            <h3 class="text-lg font-semibold text-emerald-700 mb-2">Permohonan Tempahan Makmal (Akan Datang)</h3>
+            <p class="text-xs text-emerald-700 mb-3">
+              Tempahan yang <strong>telah diluluskan</strong> akan mengunci semua slot pada tarikh tersebut dan memaparkan label sebab tempahan di jadual minggu berkenaan.
+            </p>
+            <div id="booking-requests-list" class="max-h-64 overflow-y-auto border border-emerald-200 rounded-lg bg-white p-3 space-y-2 text-sm">
+              <p class="text-gray-500 text-sm">Tiada permohonan tempahan direkodkan.</p>
+            </div>
+          </div>
         </div>
 
         <!-- Weekly Archive -->
@@ -358,7 +409,8 @@
       saveOptionsToDB,
       saveLastRolloverDateToDB,
       saveWeekCommentsToDB,
-      saveMaintenanceToDB
+      saveMaintenanceToDB,
+      saveFutureBookingsToDB
     } from './database.js';
 
     dayjs.extend(dayjs_plugin_isoWeek);
@@ -410,6 +462,7 @@
     let autoSaveTimer = null;
     let currentWeekComments = [];  // CHAT minggu semasa (array mesej)
     let maintenance = {};
+    let futureBookings = [];       // TEMPAHAN TARIKH AKAN DATANG
 
     // DOM refs
     const tableHeader = document.querySelector("#schedule-table thead tr");
@@ -463,6 +516,15 @@
     const maintenanceStatusText = document.getElementById("maintenance-status-text");
 
     const archiveCommentText = document.getElementById("archive-comment-text");
+
+    // Booking modal DOM
+    const bookingOpenBtn = document.getElementById("booking-open-btn");
+    const bookingModal = document.getElementById("booking-modal");
+    const bookingDateInput = document.getElementById("booking-date");
+    const bookingReasonInput = document.getElementById("booking-reason");
+    const bookingSubmitBtn = document.getElementById("booking-submit-btn");
+    const bookingCancelBtn = document.getElementById("booking-cancel-btn");
+    const bookingRequestsList = document.getElementById("booking-requests-list");
 
     // ==== HELPER ====
     function showToast(message, isError = false) {
@@ -620,6 +682,7 @@
       initTableStructure();
       renderSchedule(currentSchedule, archiveViewIndex !== -1);
       applyMaintenanceToTable();
+      applyBookingsToTable();
       hideLoading();
     }
 
@@ -791,10 +854,17 @@
             classSelect.classList.remove("cursor-not-allowed");
             subjectSelect.classList.remove("cursor-not-allowed");
           }
+
+          // buang label tempahan lama
+          const oldLabel = cell.querySelector(".booking-label");
+          if (oldLabel) oldLabel.remove();
+          cell.classList.remove("bg-purple-100");
+          cell.dataset.booking = "";
         }
       });
 
       applyMaintenanceToTable();
+      applyBookingsToTable();
     }
 
     async function saveScheduleToServer(showMessage = true) {
@@ -889,6 +959,7 @@
         renderArchiveList();
         initDropdownEditors();
         updateMaintenanceStatusText();
+        renderBookingRequestsList();
         if (archiveCommentText) {
           archiveCommentText.textContent = "Tiada arkib dipilih.";
         }
@@ -1082,31 +1153,24 @@
 
       // Jika hari ini Sabtu (6) atau Ahad (7),
       // kita anggap minggu tempahan yang patut aktif ialah Isnin minggu DEPAN.
-      // Maksudnya: bila masuk sahaja hujung minggu, jadual akan beralih ke minggu seterusnya.
       if (dow >= 6) {
         targetWeekStart = targetWeekStart.add(1, "week");
       }
 
-      // Jika currentWeekStart belum ada (first time), guna default
       if (!currentWeekStart) {
         currentWeekStart = getDefaultWeekStart();
       }
 
-      // Bezakan berapa minggu jarak antara minggu dalam DB
-      // dengan minggu yang sepatutnya aktif (targetWeekStart)
       const weeksDiff = targetWeekStart.diff(currentWeekStart, "week");
 
-      // Jika minggu dalam DB sudah sama / mendahului, tak perlu buat apa-apa
       if (weeksDiff <= 0) return;
 
       showLoading("Memulakan minggu baru...");
 
-      // Jalankan rollover sebanyak minggu yang tertinggal
       for (let i = 0; i < weeksDiff; i++) {
         await handleRollover(false);
       }
 
-      // Simpan tarikh auto-rollover (pilihan, untuk rujukan di laporan)
       await saveLastRolloverDateToDB(today.format("YYYY-MM-DD"));
 
       hideLoading();
@@ -1235,6 +1299,205 @@
       }
     }
 
+    // ==== TEMPAHAN: FUNGSI BANTUAN ====
+    async function saveFutureBookingsToServer() {
+      await saveFutureBookingsToDB(futureBookings);
+    }
+
+    function openBookingModal() {
+      bookingModal.style.display = 'flex';
+      bookingDateInput.value = '';
+      bookingReasonInput.value = '';
+    }
+
+    function closeBookingModal() {
+      bookingModal.style.display = 'none';
+    }
+
+    function renderBookingRequestsList() {
+      if (!bookingRequestsList) return;
+
+      if (!futureBookings || futureBookings.length === 0) {
+        bookingRequestsList.innerHTML = '<p class="text-gray-500 text-sm">Tiada permohonan tempahan direkodkan.</p>';
+        return;
+      }
+
+      bookingRequestsList.innerHTML = '';
+      futureBookings
+        .slice()
+        .sort((a, b) => (a.date || '').localeCompare(b.date || ''))
+        .forEach(booking => {
+          const row = document.createElement('div');
+          row.className = 'border border-emerald-100 rounded-lg px-3 py-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1';
+
+          const left = document.createElement('div');
+          left.className = 'text-xs sm:text-sm';
+
+          const date = dayjs(booking.date).isValid()
+            ? dayjs(booking.date).format('DD/MM/YYYY (ddd)')
+            : booking.date;
+
+          const title = document.createElement('div');
+          title.className = 'font-semibold text-emerald-800';
+          title.textContent = date || '-';
+
+          const reason = document.createElement('div');
+          reason.className = 'text-gray-700';
+          reason.textContent = booking.reason || '-';
+
+          left.appendChild(title);
+          left.appendChild(reason);
+
+          const right = document.createElement('div');
+          right.className = 'flex flex-wrap gap-2 items-center';
+
+          const statusChip = document.createElement('span');
+          statusChip.className = 'px-2 py-1 rounded-full text-[11px] font-semibold';
+          if (booking.status === 'approved') {
+            statusChip.classList.add('bg-emerald-600', 'text-white');
+            statusChip.textContent = 'DILULUSKAN';
+          } else if (booking.status === 'rejected') {
+            statusChip.classList.add('bg-red-500', 'text-white');
+            statusChip.textContent = 'DITOLAK';
+          } else {
+            statusChip.classList.add('bg-yellow-400', 'text-gray-900');
+            statusChip.textContent = 'PENDING';
+          }
+          right.appendChild(statusChip);
+
+          if (booking.status === 'pending') {
+            const approveBtn = document.createElement('button');
+            approveBtn.className = 'text-[11px] bg-emerald-600 text-white px-2 py-1 rounded hover:bg-emerald-700';
+            approveBtn.textContent = 'Lulus';
+            approveBtn.onclick = () => handleBookingStatusChange(booking.id, 'approved');
+            right.appendChild(approveBtn);
+
+            const rejectBtn = document.createElement('button');
+            rejectBtn.className = 'text-[11px] bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600';
+            rejectBtn.textContent = 'Tolak';
+            rejectBtn.onclick = () => handleBookingStatusChange(booking.id, 'rejected');
+            right.appendChild(rejectBtn);
+          }
+
+          const deleteBtn = document.createElement('button');
+          deleteBtn.className = 'text-[11px] bg-gray-200 text-gray-700 px-2 py-1 rounded hover:bg-gray-300';
+          deleteBtn.textContent = 'Padam';
+          deleteBtn.onclick = () => deleteBooking(booking.id);
+          right.appendChild(deleteBtn);
+
+          row.appendChild(left);
+          row.appendChild(right);
+          bookingRequestsList.appendChild(row);
+        });
+    }
+
+    async function handleBookingStatusChange(id, newStatus) {
+      const booking = futureBookings.find(b => b.id === id);
+      if (!booking) return;
+
+      booking.status = newStatus;
+      await saveFutureBookingsToServer();
+      renderBookingRequestsList();
+      applyBookingsToTable();
+
+      if (newStatus === 'approved') {
+        showToast('Tempahan diluluskan & akan dikunci pada jadual.');
+      } else if (newStatus === 'rejected') {
+        showToast('Tempahan telah ditolak.', true);
+      }
+    }
+
+    async function deleteBooking(id) {
+      const idx = futureBookings.findIndex(b => b.id === id);
+      if (idx === -1) return;
+      if (!confirm('Padam permohonan tempahan ini?')) return;
+      futureBookings.splice(idx, 1);
+      await saveFutureBookingsToServer();
+      renderBookingRequestsList();
+      applyBookingsToTable();
+      showToast('Permohonan tempahan dipadam.', true);
+    }
+
+    // Sapukan tempahan diluluskan ke jadual minggu semasa
+    function applyBookingsToTable() {
+      if (!futureBookings || futureBookings.length === 0 || !currentWeekStart) return;
+
+      // buang label lama
+      Object.keys(DAYS_MAP).forEach(dayKey => {
+        for (let i = 1; i <= PERIODS_COUNT; i++) {
+          const cell = tableBody.querySelector(`td[data-day='${dayKey}'][data-period='${i}']`);
+          if (!cell) continue;
+          if (cell.dataset.booking === '1') {
+            const label = cell.querySelector('.booking-label');
+            if (label) label.remove();
+            cell.dataset.booking = '';
+            cell.classList.remove('bg-purple-100');
+            // re-enable kalau bukan maintenance & bukan arkib
+            if (archiveViewIndex === -1 && (!maintenance[dayKey] || !maintenance[dayKey][i])) {
+              const classSelect = cell.querySelector("select[data-type='class']");
+              const subjectSelect = cell.querySelector("select[data-type='subject']");
+              if (classSelect) {
+                classSelect.disabled = false;
+                classSelect.classList.remove('cursor-not-allowed');
+              }
+              if (subjectSelect) {
+                subjectSelect.disabled = false;
+                subjectSelect.classList.remove('cursor-not-allowed');
+              }
+            }
+          }
+        }
+      });
+
+      const weekStart = currentWeekStart.startOf('day');
+      const weekEnd = weekStart.add(4, 'day');
+
+      futureBookings
+        .filter(b => b.status === 'approved' && b.date)
+        .forEach(booking => {
+          const date = dayjs(booking.date);
+          if (!date.isValid()) return;
+          if (date.isBefore(weekStart) || date.isAfter(weekEnd)) return;
+
+          const dow = date.isoWeekday(); // 1-7
+          let dayKey = null;
+          if (dow === 1) dayKey = 'mo';
+          else if (dow === 2) dayKey = 'tu';
+          else if (dow === 3) dayKey = 'we';
+          else if (dow === 4) dayKey = 'th';
+          else if (dow === 5) dayKey = 'fr';
+          else return; // Sabtu/Ahad abaikan
+
+          const reasonShort = (booking.reason || '').trim();
+          const labelText = reasonShort || 'Tempahan Khas';
+
+          for (let i = 1; i <= PERIODS_COUNT; i++) {
+            const cell = tableBody.querySelector(`td[data-day='${dayKey}'][data-period='${i}']`);
+            if (!cell) continue;
+            const classSelect = cell.querySelector("select[data-type='class']");
+            const subjectSelect = cell.querySelector("select[data-type='subject']");
+
+            // disable
+            if (classSelect) {
+              classSelect.disabled = true;
+              classSelect.classList.add('cursor-not-allowed');
+            }
+            if (subjectSelect) {
+              subjectSelect.disabled = true;
+              subjectSelect.classList.add('cursor-not-allowed');
+            }
+
+            cell.classList.add('bg-purple-100');
+            cell.dataset.booking = '1';
+
+            const label = document.createElement('span');
+            label.className = 'booking-label';
+            label.textContent = labelText;
+            cell.appendChild(label);
+          }
+        });
+    }
+
     // ==== EVENT LISTENERS ====
     function initEventListeners() {
       tableBody.addEventListener("change", (event) => {
@@ -1310,6 +1573,54 @@
         await saveMaintenanceToServer();
         showToast(currentlyDisabled ? "Slot dibuka semula." : "Slot ditutup (maintenance).");
       });
+
+      // Buka/Tutup modal tempahan
+      bookingOpenBtn.addEventListener("click", openBookingModal);
+      bookingCancelBtn.addEventListener("click", closeBookingModal);
+      bookingModal.addEventListener("click", (e) => {
+        if (e.target === bookingModal) closeBookingModal();
+      });
+
+      // Hantar permohonan tempahan
+      bookingSubmitBtn.addEventListener("click", async () => {
+        const date = bookingDateInput.value;
+        const reason = bookingReasonInput.value.trim();
+
+        if (!date) {
+          alert('Sila pilih tarikh tempahan.');
+          return;
+        }
+        if (!reason) {
+          alert('Sila nyatakan tujuan tempahan.');
+          return;
+        }
+
+        const today = dayjs().startOf('day');
+        const selected = dayjs(date);
+        if (!selected.isValid()) {
+          alert('Tarikh tidak sah.');
+          return;
+        }
+        if (selected.isBefore(today)) {
+          if (!confirm('Tarikh yang dipilih adalah tarikh lepas. Teruskan juga?')) {
+            return;
+          }
+        }
+
+        const booking = {
+          id: Date.now().toString(),
+          date,
+          reason,
+          status: 'pending',
+          createdAt: new Date().toISOString()
+        };
+
+        futureBookings.push(booking);
+        await saveFutureBookingsToServer();
+        renderBookingRequestsList();
+        closeBookingModal();
+        showToast('Permohonan tempahan dihantar. Menunggu kelulusan admin.');
+      });
     }
 
     function updateScheduleDataFromTable() {
@@ -1363,6 +1674,7 @@
           currentWeekStart = newStartDate;
           await saveWeekStartToDB(currentWeekStart.format("YYYY-MM-DD"));
           renderWeekDate();
+          applyBookingsToTable();
           showToast("Tarikh minggu semasa telah ditukar.");
           closeAdminModal();
         }
@@ -1382,8 +1694,6 @@
       });
     }
 
-    // ==== INIT APP ====
-    
     // ==== FIX: Print Function (Diperlukan oleh Admin Panel) ====
     function printSchedule() {
       const printContainer = document.createElement('div');
@@ -1417,8 +1727,8 @@
       printWindow.close();
     }
 
-
-async function init() {
+    // ==== INIT APP ====
+    async function init() {
       showLoading("Memuatkan data...");
       try {
         const initial = await loadInitialData();
@@ -1455,6 +1765,10 @@ async function init() {
         // Chat minggu semasa
         currentWeekComments = Array.isArray(initial.weekComments) ? initial.weekComments : [];
         renderWeekCommentsLog();
+
+        // Tempahan akan datang
+        futureBookings = Array.isArray(initial.futureBookings) ? initial.futureBookings : [];
+        applyBookingsToTable();
 
         if (archiveCommentText) {
           archiveCommentText.textContent = "Tiada arkib dipilih.";
