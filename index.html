@@ -21,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-  <!-- Favicon (supaya tak keluar 404 di console) -->
+  <!-- Favicon untuk elak error 404 -->
   <link rel="icon" type="image/png" href="https://i.imgur.com/AfsVtVG.jpeg" />
 
   <style>
@@ -142,14 +142,15 @@
           Tempahan
         </button>
 
+        <!-- Butang komen disembunyikan dengan class hidden -->
         <button id="toggle-comments-btn"
-          class="bg-amber-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-amber-600 transition duration-300 font-medium text-sm">
+          class="hidden bg-amber-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-amber-600 transition duration-300 font-medium text-sm">
           Komen Guru
         </button>
       </div>
     </header>
 
-    <!-- PANEL KOMEN -->
+    <!-- PANEL KOMEN (masih ada, tapi tak boleh buka sebab button disembunyikan) -->
     <div id="comments-panel" class="no-print hidden mb-4">
       <div class="border border-amber-300 bg-amber-50 rounded-xl p-3 sm:p-4">
         <div class="flex justify-between items-center mb-2">
@@ -622,6 +623,7 @@
 
     // ---------- Chat ----------
     function renderWeekCommentsLog() {
+      if (!weekCommentsLog) return;
       weekCommentsLog.innerHTML = "";
       if (!currentWeekComments || currentWeekComments.length === 0) {
         const p = document.createElement("p");
@@ -1283,11 +1285,11 @@
       showToast("Permohonan tempahan dipadam.", true);
     }
 
-    // === FUNGSI PENTING DI SINI: hide dropdown bila tempahan ===
+    // === FUNGSI: hide dropdown bila tempahan ===
     function applyBookingsToTable() {
       if (!futureBookings || !futureBookings.length || !currentWeekStart) return;
 
-      // buang efek tempahan lama
+      // reset effect tempahan sebelum ini
       Object.keys(DAYS_MAP).forEach(dayKey => {
         for (let i = 1; i <= PERIODS_COUNT; i++) {
           const cell = tableBody.querySelector(`td[data-day='${dayKey}'][data-period='${i}']`);
@@ -1360,12 +1362,12 @@
             if (classSel) {
               classSel.disabled = true;
               classSel.classList.add("cursor-not-allowed");
-              classSel.style.display = "none"; // HIDE dropdown kelas
+              classSel.style.display = "none";
             }
             if (subjSel) {
               subjSel.disabled = true;
               subjSel.classList.add("cursor-not-allowed");
-              subjSel.style.display = "none"; // HIDE dropdown subjek
+              subjSel.style.display = "none";
             }
 
             if (pvc) pvc.textContent = "";
@@ -1414,26 +1416,32 @@
       archivePrevBtn.onclick = () => navigateArchive(1);
       archiveNextBtn.onclick = () => navigateArchive(-1);
 
-      toggleCommentsBtn.onclick = () => commentsPanel.classList.toggle("hidden");
+      if (toggleCommentsBtn) {
+        toggleCommentsBtn.onclick = () => commentsPanel.classList.toggle("hidden");
+      }
 
-      sendCommentBtn.onclick = async () => {
-        const name = (weekCommentNameInput.value || "").trim() || "Guru";
-        const text = (weekCommentTextInput.value || "").trim();
-        if (!text) return alert("Sila tulis komen dahulu.");
-        const msg = { id: Date.now(), name, text, time: new Date().toISOString() };
-        currentWeekComments.push(msg);
-        await saveWeekCommentsToDB(currentWeekComments);
-        renderWeekCommentsLog();
-        weekCommentTextInput.value = "";
-        showToast("Komen dihantar!");
-      };
+      if (sendCommentBtn) {
+        sendCommentBtn.onclick = async () => {
+          const name = (weekCommentNameInput.value || "").trim() || "Guru";
+          const text = (weekCommentTextInput.value || "").trim();
+          if (!text) return alert("Sila tulis komen dahulu.");
+          const msg = { id: Date.now(), name, text, time: new Date().toISOString() };
+          currentWeekComments.push(msg);
+          await saveWeekCommentsToDB(currentWeekComments);
+          renderWeekCommentsLog();
+          weekCommentTextInput.value = "";
+          showToast("Komen dihantar!");
+        };
+      }
 
-      weekCommentTextInput.addEventListener("keydown", e => {
-        if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
-          e.preventDefault();
-          sendCommentBtn.click();
-        }
-      });
+      if (weekCommentTextInput) {
+        weekCommentTextInput.addEventListener("keydown", e => {
+          if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+            e.preventDefault();
+            if (sendCommentBtn) sendCommentBtn.click();
+          }
+        });
+      }
 
       maintenanceToggleBtn.onclick = async () => {
         const day = maintenanceDaySelect.value;
