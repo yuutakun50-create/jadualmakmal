@@ -1,5 +1,5 @@
 // ==========================================
-// database.js — Firebase Module (Stable + Chat Comments + Maintenance + Future Bookings)
+// database.js — Firebase Module (Schedule + Archive + Chat + Maintenance + Future Bookings)
 // ==========================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
@@ -39,9 +39,9 @@ const PATHS = {
   classOptions: "classOptions",
   subjectOptions: "subjectOptions",
   lastRolloverDate: "lastRolloverDate",
-  weekComments: "weekComments",     // chat minggu semasa (array)
+  weekComments: "weekComments",     // chat minggu semasa
   maintenance: "maintenance",       // slot maintenance
-  futureBookings: "futureBookings"  // SENARAI TEMPAHAN TARIKH AKAN DATANG
+  futureBookings: "futureBookings"  // senarai tempahan akan datang
 };
 
 // ==============================
@@ -72,11 +72,8 @@ export async function loadInitialData() {
     classOptions: data[PATHS.classOptions] || [],
     subjectOptions: data[PATHS.subjectOptions] || [],
     lastRolloverDate: data[PATHS.lastRolloverDate] || null,
-    // Chat minggu semasa (array mesej)
     weekComments: data[PATHS.weekComments] || [],
-    // Peta maintenance (hari -> period -> true/false)
     maintenance: data[PATHS.maintenance] || null,
-    // Senarai tempahan akan datang
     futureBookings: data[PATHS.futureBookings] || []
   };
 }
@@ -152,7 +149,6 @@ export async function saveLastRolloverDateToDB(dateString) {
 
 // ==============================
 // Simpan CHAT minggu semasa
-// weekComments = [{id, name, text, time}, ...]
 // ==============================
 export async function saveWeekCommentsToDB(commentsArray) {
   try {
@@ -175,7 +171,6 @@ export async function saveMaintenanceToDB(maintenanceObj) {
 
 // ==============================
 // Simpan Senarai Tempahan Akan Datang
-// futureBookings = [{id, date, reason, status, createdAt}, ...]
 // ==============================
 export async function saveFutureBookingsToDB(futureBookingsArray) {
   try {
