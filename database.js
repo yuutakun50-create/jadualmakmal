@@ -1,5 +1,5 @@
 // ==========================================
-// database.js — Firebase Module (Stable + Chat Comments + Maintenance)
+// database.js — Firebase Module (Stable + Chat Comments + Maintenance + Future Bookings)
 // ==========================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
@@ -40,7 +40,8 @@ const PATHS = {
   subjectOptions: "subjectOptions",
   lastRolloverDate: "lastRolloverDate",
   weekComments: "weekComments",     // chat minggu semasa (array)
-  maintenance: "maintenance"        // slot maintenance
+  maintenance: "maintenance",       // slot maintenance
+  futureBookings: "futureBookings"  // SENARAI TEMPAHAN TARIKH AKAN DATANG
 };
 
 // ==============================
@@ -74,7 +75,9 @@ export async function loadInitialData() {
     // Chat minggu semasa (array mesej)
     weekComments: data[PATHS.weekComments] || [],
     // Peta maintenance (hari -> period -> true/false)
-    maintenance: data[PATHS.maintenance] || null
+    maintenance: data[PATHS.maintenance] || null,
+    // Senarai tempahan akan datang
+    futureBookings: data[PATHS.futureBookings] || []
   };
 }
 
@@ -167,5 +170,17 @@ export async function saveMaintenanceToDB(maintenanceObj) {
     await set(ref(db, PATHS.maintenance), maintenanceObj || {});
   } catch (err) {
     console.error("❌ Error simpan maintenance:", err);
+  }
+}
+
+// ==============================
+// Simpan Senarai Tempahan Akan Datang
+// futureBookings = [{id, date, reason, status, createdAt}, ...]
+// ==============================
+export async function saveFutureBookingsToDB(futureBookingsArray) {
+  try {
+    await set(ref(db, PATHS.futureBookings), futureBookingsArray || []);
+  } catch (err) {
+    console.error("❌ Error simpan futureBookings:", err);
   }
 }
