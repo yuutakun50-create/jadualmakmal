@@ -7,7 +7,6 @@ import {
   set
 } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js";
 
-// Firebase config cikgu
 const firebaseConfig = {
   apiKey: "AIzaSyAJ-eGCASGs7ZWoHtFgzcfcc2Y30jt_CWo",
   authDomain: "jadual-makmal-sksa.firebaseapp.com",
@@ -21,7 +20,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// Helper untuk get data dengan default
 async function safeGet(path, defaultValue) {
   try {
     const snap = await get(ref(db, path));
@@ -33,7 +31,6 @@ async function safeGet(path, defaultValue) {
   }
 }
 
-// Helper untuk set data
 async function safeSet(path, value) {
   try {
     await set(ref(db, path), value);
@@ -43,7 +40,6 @@ async function safeSet(path, value) {
   }
 }
 
-// Dipanggil sekali masa load page
 export async function loadInitialData() {
   const [
     schedule,
@@ -83,27 +79,22 @@ export async function loadInitialData() {
   };
 }
 
-// Simpan jadual minggu semasa
 export async function saveScheduleToDB(schedule) {
   await safeSet("schedule", schedule);
 }
 
-// Simpan arkib mingguan (array)
 export async function saveArchiveToDB(archive) {
   await safeSet("archive", archive);
 }
 
-// Simpan tarikh mula minggu (Isnin)
 export async function saveWeekStartToDB(weekStartISO) {
   await safeSet("weekStart", weekStartISO);
 }
 
-// Simpan label minggu (cth: Minggu Program STEM)
 export async function saveWeekLabelToDB(label) {
   await safeSet("weekLabel", label);
 }
 
-// Simpan pilihan dropdown kelas & subjek
 export async function saveOptionsToDB(classOptions, subjectOptions) {
   await Promise.all([
     safeSet("classOptions", classOptions),
@@ -111,22 +102,18 @@ export async function saveOptionsToDB(classOptions, subjectOptions) {
   ]);
 }
 
-// Simpan tarikh terakhir rollover auto
 export async function saveLastRolloverDateToDB(dateISO) {
   await safeSet("lastRolloverDate", dateISO);
 }
 
-// Simpan komen minggu semasa (array)
 export async function saveWeekCommentsToDB(comments) {
   await safeSet("weekComments", comments);
 }
 
-// Simpan data maintenance slot
 export async function saveMaintenanceToDB(maintenance) {
   await safeSet("maintenance", maintenance);
 }
 
-// Simpan senarai tempahan masa hadapan
 export async function saveFutureBookingsToDB(bookings) {
   await safeSet("futureBookings", bookings);
 }
