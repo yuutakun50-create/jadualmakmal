@@ -21,7 +21,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-  <!-- Favicon untuk elak error 404 -->
+  <!-- Favicon -->
   <link rel="icon" type="image/png" href="https://i.imgur.com/AfsVtVG.jpeg" />
 
   <style>
@@ -99,7 +99,6 @@
       }
     }
 
-    /* label tempahan dalam sel */
     .booking-label {
       font-size: 10px;
       font-weight: 600;
@@ -129,7 +128,6 @@
         </div>
       </div>
       <div class="flex flex-col items-stretch gap-2 no-print">
-        <!-- Panel admin + badge -->
         <button id="admin-login-btn"
           class="relative bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 font-medium">
           Panel Admin
@@ -142,7 +140,7 @@
           Tempahan
         </button>
 
-        <!-- Butang komen disembunyikan dengan class hidden -->
+        <!-- Butang komen disembunyikan -->
         <button id="toggle-comments-btn"
           class="hidden bg-amber-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-amber-600 transition duration-300 font-medium text-sm">
           Komen Guru
@@ -150,7 +148,7 @@
       </div>
     </header>
 
-    <!-- PANEL KOMEN (masih ada, tapi tak boleh buka sebab button disembunyikan) -->
+    <!-- PANEL KOMEN (masih wujud, tapi butang disembunyikan) -->
     <div id="comments-panel" class="no-print hidden mb-4">
       <div class="border border-amber-300 bg-amber-50 rounded-xl p-3 sm:p-4">
         <div class="flex justify-between items-center mb-2">
@@ -209,7 +207,6 @@
       </table>
     </div>
 
-    <!-- PRINT VIEW (unused – untuk masa hadapan kalau perlu) -->
     <div id="print-view" class="hidden">
       <table id="print-table" class="min-w-full border-2 border-black print-table"></table>
     </div>
@@ -467,9 +464,18 @@
 
     const PERIODS_COUNT = 12;
     const PERIOD_TIMES = [
-      "7.40-8.10", "8.10-8.40", "8.40-9.15", "9.15-9.40", "9.40-10.10",
-      "10.10-10.40", "10.40-11.10", "11.10-11.40", "11.40-12.10",
-      "12.10-12.40", "12.40-1.10", "1.10-1.40"
+      "7.40-8.10",
+      "8.10-8.40",
+      "8.40-9.10",
+      "9.10-9.40",
+      "9.40-10.10",
+      "10.10-10.40",
+      "10.40-11.10",
+      "11.10-11.40",
+      "11.40-12.10",
+      "12.10-12.40",
+      "12.40-1.10",
+      "1.10-1.40"
     ];
 
     const DAYS_MAP = {
@@ -480,23 +486,59 @@
       fr: { label: "Fr", bg: "bg-pink-300 day-fr" }
     };
 
-    let CLASS_OPTIONS = ["", "1B", "1C", "2B", "2C", "3B", "3C", "4B", "4C", "5B", "5C", "6B", "6C", "Other"];
-    let SUBJECT_OPTIONS = ["", "SJ", "MT", "BM", "BI", "RBT", "TMK", "PI", "PJPK", "PSV", "MZ", "Other"];
+    const DEFAULT_CLASS_OPTIONS = [
+      "",
+      "1B","1C","1G",
+      "2B","2C","2G",
+      "3B","3C","3G",
+      "4B","4C","4G",
+      "5B","5C","5G",
+      "6B","6C","6G",
+      "Other"
+    ];
+
+    const DEFAULT_SUBJECT_OPTIONS = [
+      "",
+      "SJ","MT","BM","BI","RBT","TMK","PI","PJPK","PSV","MZ","Other"
+    ];
+
+    let CLASS_OPTIONS = DEFAULT_CLASS_OPTIONS.slice();
+    let SUBJECT_OPTIONS = DEFAULT_SUBJECT_OPTIONS.slice();
 
     const CLASS_COLORS = {
-      "1B": "#fed7d7", "1C": "#feebc8",
-      "2B": "#fefcbf", "2C": "#c6f6d5",
-      "3B": "#bee3f8", "3C": "#c3dafe",
-      "4B": "#e9d8fd", "4C": "#fbb6ce",
-      "5B": "#fed7d7", "5C": "#feebc8",
-      "6B": "#fefcbf", "6C": "#c6f6d5",
+      "1B": "#fed7d7",
+      "1C": "#feebc8",
+      "1G": "#cffafe",
+
+      "2B": "#fefcbf",
+      "2C": "#c6f6d5",
+      "2G": "#a7f3d0",
+
+      "3B": "#bee3f8",
+      "3C": "#c3dafe",
+      "3G": "#bfdbfe",
+
+      "4B": "#e9d8fd",
+      "4C": "#fbb6ce",
+      "4G": "#f9a8d4",
+
+      "5B": "#fed7d7",
+      "5C": "#feebc8",
+      "5G": "#facc15",
+
+      "6B": "#fefcbf",
+      "6C": "#c6f6d5",
+      "6G": "#bbf7d0",
+
       Other: "#e2e8f0"
     };
+
     const SUBJECT_COLORS = {
       SJ: "#fbcfe8", MT: "#fde68a", BM: "#bbf7d0", BI: "#bae6fd",
       RBT: "#a5b4fc", TMK: "#d8b4fe", PI: "#6ee7b7", PJPK: "#fda4af",
       PSV: "#fca5a5", MZ: "#fdba74", Other: "#e2e8f0"
     };
+
     const DEFAULT_BG = "#ffffff";
     const ADMIN_PASS = "admin123";
 
@@ -573,7 +615,8 @@
 
     function showToast(msg, isError = false) {
       toast.textContent = msg;
-      toast.className = `fixed bottom-5 right-5 px-6 py-3 rounded-lg shadow-xl transition-transform transform ${isError ? "bg-red-600" : "bg-green-600"} text-white`;
+      toast.className =
+        `fixed bottom-5 right-5 px-6 py-3 rounded-lg shadow-xl transition-transform transform ${isError ? "bg-red-600" : "bg-green-600"} text-white`;
       toast.style.display = "block";
       toast.style.transform = "translateX(0)";
       setTimeout(() => (toast.style.transform = "translateX(120%)"), 3000);
@@ -621,7 +664,7 @@
       else adminNotificationBadge.classList.add("hidden");
     }
 
-    // ---------- Chat ----------
+    // --------- CHAT ----------
     function renderWeekCommentsLog() {
       if (!weekCommentsLog) return;
       weekCommentsLog.innerHTML = "";
@@ -670,19 +713,26 @@
       return "Tiada komen untuk minggu ini.";
     }
 
-    // ---------- Options ----------
+    // --------- OPTIONS ----------
     function loadOptionsFromData(cOpt, sOpt) {
-      if (Array.isArray(cOpt) && cOpt.length) CLASS_OPTIONS = cOpt;
-      if (Array.isArray(sOpt) && sOpt.length) SUBJECT_OPTIONS = sOpt;
+      const classSet = new Set(DEFAULT_CLASS_OPTIONS);
+      if (Array.isArray(cOpt)) cOpt.forEach(v => classSet.add(v));
+      CLASS_OPTIONS = Array.from(classSet);
       if (CLASS_OPTIONS[0] !== "") CLASS_OPTIONS.unshift("");
+
+      const subjSet = new Set(DEFAULT_SUBJECT_OPTIONS);
+      if (Array.isArray(sOpt)) sOpt.forEach(v => subjSet.add(v));
+      SUBJECT_OPTIONS = Array.from(subjSet);
       if (SUBJECT_OPTIONS[0] !== "") SUBJECT_OPTIONS.unshift("");
     }
 
     async function saveOptionsToServer() {
       let c = editClassOptions.value.split(",").map(s => s.trim()).filter(Boolean);
       let s = editSubjectOptions.value.split(",").map(s => s.trim()).filter(Boolean);
-      c.unshift(""); s.unshift("");
-      CLASS_OPTIONS = c; SUBJECT_OPTIONS = s;
+      const classSet = new Set(DEFAULT_CLASS_OPTIONS.concat(c));
+      const subjSet = new Set(DEFAULT_SUBJECT_OPTIONS.concat(s));
+      CLASS_OPTIONS = Array.from(classSet);
+      SUBJECT_OPTIONS = Array.from(subjSet);
       await saveOptionsToDB(CLASS_OPTIONS, SUBJECT_OPTIONS);
       showToast("Pilihan dropdown telah disimpan!");
       showLoading("Menjana semula jadual...");
@@ -701,10 +751,11 @@
       weekLabelInput.value = currentWeekLabel || "";
     }
 
-    // ---------- Table structure ----------
+    // --------- TABLE STRUCTURE ----------
     function createDropdown(type, day, period) {
       const sel = document.createElement("select");
-      sel.className = "w-full p-1 border-0 rounded-md shadow-sm focus:ring-1 focus:ring-blue-500 transition-all duration-200 mb-1";
+      sel.className =
+        "w-full p-1 border-0 rounded-md shadow-sm focus:ring-1 focus:ring-blue-500 transition-all duration-200 mb-1";
       sel.dataset.type = type;
       sel.dataset.day = day;
       sel.dataset.period = period;
@@ -725,7 +776,8 @@
       PERIOD_TIMES.forEach((t, i) => {
         const th = document.createElement("th");
         th.className = "p-2 text-xs font-semibold border-2 border-black tracking-wider bg-teal-600";
-        th.innerHTML = `<div class="font-bold text-white">W${i + 1}</div><div class="font-normal text-teal-100">${t}</div>`;
+        th.innerHTML =
+          `<div class="font-bold text-white">W${i + 1}</div><div class="font-normal text-teal-100">${t}</div>`;
         tableHeader.appendChild(th);
       });
 
@@ -774,7 +826,7 @@
       });
     }
 
-    // ---------- Render ----------
+    // --------- RENDER ----------
     function renderWeekDate() {
       if (!currentWeekStart) currentWeekStart = getDefaultWeekStart();
       const s = currentWeekStart.format("D");
@@ -851,7 +903,7 @@
       }
     }
 
-    // ---------- Maintenance ----------
+    // --------- MAINTENANCE ----------
     function applyMaintenanceToTable() {
       if (!maintenance) return;
       Object.keys(DAYS_MAP).forEach(dayKey => {
@@ -898,7 +950,7 @@
         : "Tiada slot maintenance (semua aktif).";
     }
 
-    // ---------- Admin modal ----------
+    // --------- ADMIN MODAL ----------
     function openAdminModal() {
       adminModal.style.display = "flex";
       adminPassword.value = "";
@@ -923,7 +975,7 @@
       }
     }
 
-    // ---------- Arkib ----------
+    // --------- ARKIB ----------
     function renderArchiveList() {
       if (!weeklyArchive || !weeklyArchive.length) {
         archiveListContainer.innerHTML = '<p class="text-gray-500">Tiada arkib ditemui.</p>';
@@ -1018,7 +1070,7 @@
       }
     }
 
-    // ---------- Rollover ----------
+    // --------- ROLLOVER ----------
     async function handleRollover(isManual) {
       if (!currentWeekStart) currentWeekStart = getDefaultWeekStart();
       const sLabel = currentWeekStart.format("D MMM");
@@ -1074,7 +1126,7 @@
       showToast("Minggu baru telah dimulakan (auto).");
     }
 
-    // ---------- Export / Copy ----------
+    // --------- EXPORT / COPY ----------
     function getDisplayedScheduleData() {
       if (archiveViewIndex === -1) return currentSchedule;
       return weeklyArchive[archiveViewIndex]?.schedule || currentSchedule;
@@ -1161,7 +1213,7 @@
       }
     }
 
-    // ---------- Tempahan ----------
+    // --------- TEMPAHAN ----------
     async function saveFutureBookingsToServer() {
       await saveFutureBookingsToDB(futureBookings);
     }
@@ -1285,11 +1337,10 @@
       showToast("Permohonan tempahan dipadam.", true);
     }
 
-    // === FUNGSI: hide dropdown bila tempahan ===
     function applyBookingsToTable() {
       if (!futureBookings || !futureBookings.length || !currentWeekStart) return;
 
-      // reset effect tempahan sebelum ini
+      // reset effect tempahan
       Object.keys(DAYS_MAP).forEach(dayKey => {
         for (let i = 1; i <= PERIODS_COUNT; i++) {
           const cell = tableBody.querySelector(`td[data-day='${dayKey}'][data-period='${i}']`);
@@ -1384,7 +1435,7 @@
         });
     }
 
-    // ---------- Event listeners ----------
+    // --------- EVENTS ----------
     function updateScheduleDataFromTable() {
       const ns = createEmptySchedule();
       Object.keys(DAYS_MAP).forEach(d => {
@@ -1563,7 +1614,7 @@
       printWindow.close();
     }
 
-    // ---------- INIT ----------
+    // --------- INIT ----------
     async function init() {
       showLoading("Memuatkan data...");
       try {
