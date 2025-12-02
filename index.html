@@ -148,7 +148,7 @@
       </div>
     </header>
 
-    <!-- PANEL KOMEN (masih wujud, tapi butang disembunyikan) -->
+    <!-- PANEL KOMEN (masih ada tapi butang hidden) -->
     <div id="comments-panel" class="no-print hidden mb-4">
       <div class="border border-amber-300 bg-amber-50 rounded-xl p-3 sm:p-4">
         <div class="flex justify-between items-center mb-2">
@@ -235,6 +235,13 @@
         <strong>admin meluluskan</strong>.
       </p>
       <div class="space-y-3">
+        <!-- NAMA PEMOHON BARU -->
+        <div>
+          <label for="booking-name" class="block text-sm font-medium text-gray-700 mb-1">Nama Pemohon</label>
+          <input type="text" id="booking-name"
+            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            placeholder="Contoh: Cikgu Sufian" />
+        </div>
         <div>
           <label for="booking-date" class="block text-sm font-medium text-gray-700 mb-1">Tarikh Tempahan</label>
           <input type="date" id="booking-date"
@@ -605,6 +612,7 @@
 
     const bookingOpenBtn = document.getElementById("booking-open-btn");
     const bookingModal = document.getElementById("booking-modal");
+    const bookingNameInput = document.getElementById("booking-name");
     const bookingDateInput = document.getElementById("booking-date");
     const bookingReasonInput = document.getElementById("booking-reason");
     const bookingSubmitBtn = document.getElementById("booking-submit-btn");
@@ -1220,6 +1228,7 @@
 
     function openBookingModal() {
       bookingModal.style.display = "flex";
+      bookingNameInput.value = "";
       bookingDateInput.value = "";
       bookingReasonInput.value = "";
     }
@@ -1242,15 +1251,23 @@
             "border border-emerald-100 rounded-lg px-3 py-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1";
           const left = document.createElement("div");
           left.className = "text-xs sm:text-sm";
+
+          const nameLine = document.createElement("div");
+          nameLine.className = "font-semibold text-emerald-900";
+          nameLine.textContent = b.applicant ? `Pemohon: ${b.applicant}` : "Pemohon: -";
+
           const date = dayjs(b.date).isValid()
             ? dayjs(b.date).format("DD/MM/YYYY (ddd)")
             : b.date;
           const t = document.createElement("div");
-          t.className = "font-semibold text-emerald-800";
+          t.className = "text-emerald-800";
           t.textContent = date || "-";
+
           const r = document.createElement("div");
           r.className = "text-gray-700";
           r.textContent = b.reason || "-";
+
+          left.appendChild(nameLine);
           left.appendChild(t);
           left.appendChild(r);
 
@@ -1512,8 +1529,10 @@
       });
 
       bookingSubmitBtn.onclick = async () => {
+        const applicant = bookingNameInput.value.trim();
         const date = bookingDateInput.value;
         const reason = bookingReasonInput.value.trim();
+        if (!applicant) return alert("Sila tulis nama pemohon.");
         if (!date) return alert("Sila pilih tarikh tempahan.");
         if (!reason) return alert("Sila nyatakan tujuan tempahan.");
 
@@ -1526,6 +1545,7 @@
 
         const booking = {
           id: Date.now().toString(),
+          applicant,
           date,
           reason,
           status: "pending",
