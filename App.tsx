@@ -278,9 +278,9 @@ const App: React.FC = () => {
                       <td 
                         key={period} 
                         onClick={() => togglePersistentSlot(dayKey, period)}
-                        className={`border-2 border-black p-1 h-20 min-w-[80px] transition-colors relative ${isPersistent ? 'ring-2 ring-inset ring-blue-500' : ''} ${isLockMode ? 'cursor-pointer hover:bg-red-50' : ''}`}
+                        className={`border-2 border-black p-1 h-20 min-w-[80px] transition-colors relative ${isPersistent && isAuthenticated ? 'ring-2 ring-inset ring-blue-500' : ''} ${isLockMode ? 'cursor-pointer hover:bg-red-50' : ''}`}
                       >
-                        {isPersistent && <span className="absolute top-0 right-0 text-[8px] bg-blue-600 text-white px-0.5 rounded-bl">🔒</span>}
+                        {isPersistent && isAuthenticated && <span className="absolute top-0 right-0 text-[8px] bg-blue-600 text-white px-0.5 rounded-bl">🔒</span>}
                         <select 
                           value={cell.class}
                           disabled={!isCurrentWeek && !isAuthenticated}
