@@ -11,15 +11,6 @@ export interface WeeklySchedule {
   [day: string]: DaySchedule;
 }
 
-export interface ArchiveEntry {
-  id: string;
-  label: string;
-  weekLabel: string;
-  startDate: string;
-  schedule: WeeklySchedule;
-  comments: any[];
-}
-
 export interface Booking {
   id: string;
   applicant: string;
@@ -36,11 +27,11 @@ export interface MaintenanceState {
 }
 
 export const DAYS_MAP: Record<string, { label: string; bg: string }> = {
-  mo: { label: "Mo", bg: "bg-yellow-300" },
-  tu: { label: "Tu", bg: "bg-green-300" },
-  we: { label: "We", bg: "bg-blue-300" },
-  th: { label: "Th", bg: "bg-orange-300" },
-  fr: { label: "Fr", bg: "bg-pink-300" }
+  mo: { label: "ISNIN", bg: "bg-yellow-300" },
+  tu: { label: "SELASA", bg: "bg-green-300" },
+  we: { label: "RABU", bg: "bg-blue-300" },
+  th: { label: "KHAMIS", bg: "bg-orange-300" },
+  fr: { label: "JUMAAT", bg: "bg-pink-300" }
 };
 
 export const PERIOD_TIMES = [
