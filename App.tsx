@@ -432,21 +432,31 @@ const App: React.FC = () => {
                   )}
 
                   {adminView === 'maintenance' && (
-                    <div className="grid grid-cols-7 gap-1">
-                      <div className="p-1"></div>
-                      {PERIOD_TIMES.map((_, i) => <div key={i} className="bg-gray-800 text-white text-[8px] text-center rounded p-1">W{i+1}</div>)}
-                      {Object.entries(DAYS_MAP).map(([dk, di]) => (
-                        <React.Fragment key={dk}>
-                          <div className={`p-1 rounded text-[8px] font-bold text-center ${di.bg}`}>{di.label.substring(0,2)}</div>
-                          {Array.from({ length: 12 }, (_, i) => i + 1).map(p => (
-                            <button 
-                              key={p} 
-                              onClick={() => toggleMaintenance(dk, p)}
-                              className={`h-6 rounded border ${maintenance[dk]?.[p] ? 'bg-red-500 border-red-700' : 'bg-white'}`}
-                            />
-                          ))}
-                        </React.Fragment>
-                      ))}
+                    <div className="overflow-x-auto">
+                      <div className="grid grid-cols-[30px_repeat(12,minmax(25px,1fr))] gap-1 min-w-[350px]">
+                        {/* Header */}
+                        <div className="p-1"></div>
+                        {PERIOD_TIMES.map((_, i) => (
+                           <div key={i} className="bg-gray-800 text-white text-[8px] flex items-center justify-center rounded">W{i+1}</div>
+                        ))}
+
+                        {/* Body */}
+                        {Object.entries(DAYS_MAP).map(([dk, di]) => (
+                          <React.Fragment key={dk}>
+                             <div className={`flex items-center justify-center rounded text-[8px] font-bold ${di.bg}`}>{di.label.substring(0,2)}</div>
+                             {Array.from({ length: 12 }, (_, i) => i + 1).map(p => (
+                                <button 
+                                  key={p} 
+                                  onClick={() => toggleMaintenance(dk, p)}
+                                  className={`h-8 rounded border text-[8px] font-bold hover:bg-gray-100 flex items-center justify-center ${maintenance[dk]?.[p] ? 'bg-red-500 border-red-700 text-white' : 'bg-white'}`}
+                                >
+                                  {maintenance[dk]?.[p] ? 'X' : ''}
+                                </button>
+                             ))}
+                          </React.Fragment>
+                        ))}
+                      </div>
+                      <p className="text-[10px] text-gray-400 italic mt-2 text-center">X = Slot Ditutup (Maintenance)</p>
                     </div>
                   )}
                 </div>
