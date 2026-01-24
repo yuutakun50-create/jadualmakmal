@@ -1,14 +1,16 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
+import 'dayjs/locale/ms'; 
 import { getData, saveData } from './services/firebase';
 import BookingModal from './components/BookingModal';
 import { 
-  ScheduleCell, WeeklySchedule, DAYS_MAP, PERIOD_TIMES, 
+  WeeklySchedule, DAYS_MAP, PERIOD_TIMES, 
   Booking, MaintenanceState 
 } from './types';
 
 dayjs.extend(isoWeek);
+dayjs.locale('ms'); 
 
 const DEFAULT_CLASS_OPTIONS = ["", "1B","1C","1G", "2B","2C","2G", "3B","3C","3G", "4B","4C","4G", "5B","5C","5G", "6B","6C","6G", "Other"];
 const DEFAULT_SUBJECT_OPTIONS = ["", "SJ","MT","BM","BI","RBT","TMK","PI","PJPK","PSV","MZ","Other"];
@@ -32,61 +34,103 @@ const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [futureBookings, setFutureBookings] = useState<Booking[]>([]);
   const [maintenance, setMaintenance] = useState<MaintenanceState>({});
+  const [persistentSlots, setPersistentSlots] = useState<WeeklySchedule>({});
   const [loading, setLoading] = useState(true);
+  const [adminView, setAdminView] = useState('bookings'); 
+  const [isLockMode, setIsLockMode] = useState(false);
+  const [archivesList, setArchivesList] = useState<any>(null);
+  const [viewingPath, setViewingPath] = useState<string | null>(null);
 
-  // LOGIK AUTO ROLL: Sabtu & Ahad akan tunjuk minggu depan
+  const getArchivePath = (mondayDate: string) => {
+    const m = dayjs(mondayDate);
+    const weekOfMonth = Math.ceil(m.date() / 7);
+    return `archives/${m.format('YYYY')}/${m.format('MMMM')}/Minggu ${weekOfMonth} (${m.format('D')}-${m.add(4, 'day').format('D MMM YYYY')})`;
+  };
+
   const calculateActiveWeekMonday = () => {
     const today = dayjs();
-    const dayOfWeek = today.day(); // 0: Ahad, 6: Sabtu
+    const dayOfWeek = today.day(); 
     if (dayOfWeek === 6 || dayOfWeek === 0) {
       return today.add(1, 'week').isoWeekday(1).format('YYYY-MM-DD');
     }
     return today.isoWeekday(1).format('YYYY-MM-DD');
   };
 
+  const fetchData = async (customPath?: string) => {
+    setLoading(true);
+    const activeMonday = calculateActiveWeekMonday();
+    if (!customPath) setWeekStart(activeMonday);
+
+    const path = customPath || getArchivePath(activeMonday);
+    setViewingPath(path);
+    
+    const [schedData, bookingData, maintData, persistData, allArchives] = await Promise.all([
+      getData(path),
+      getData('futureBookings'),
+      getData('maintenance'),
+      getData('persistentSlots'),
+      getData('archives')
+    ]);
+
+    setArchivesList(allArchives);
+    setPersistentSlots(persistData || {});
+
+    if (schedData) {
+      setSchedule(schedData);
+    } else {
+      const newSched: WeeklySchedule = {};
+      Object.keys(DAYS_MAP).forEach(d => {
+        newSched[d] = {};
+        for(let i=1; i<=12; i++) {
+          newSched[d][i] = persistData?.[d]?.[i] || { class: '', subject: '' };
+        }
+      });
+      setSchedule(newSched);
+      if (!customPath) saveData(path, newSched);
+    }
+
+    if (bookingData) setFutureBookings(bookingData);
+    if (maintData) setMaintenance(maintData);
+    
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      const activeMonday = calculateActiveWeekMonday();
-      setWeekStart(activeMonday);
-
-      const [schedData, bookingData, maintData] = await Promise.all([
-        getData(`schedules/${activeMonday}`),
-        getData('futureBookings'),
-        getData('maintenance')
-      ]);
-
-      if (schedData) {
-        setSchedule(schedData);
-      } else {
-        const empty: WeeklySchedule = {};
-        Object.keys(DAYS_MAP).forEach(d => {
-          empty[d] = {};
-          for(let i=1; i<=12; i++) empty[d][i] = { class: '', subject: '' };
-        });
-        setSchedule(empty);
-      }
-
-      if (bookingData) setFutureBookings(bookingData);
-      if (maintData) setMaintenance(maintData);
-      
-      setLoading(false);
-    };
     fetchData();
   }, []);
 
   const handleCellChange = (day: string, period: number, field: 'class' | 'subject', value: string) => {
+    if (viewingPath !== getArchivePath(weekStart) && !isAuthenticated) return;
+    
     const newSchedule = { ...schedule };
     if (!newSchedule[day]) newSchedule[day] = {};
     if (!newSchedule[day][period]) newSchedule[day][period] = { class: '', subject: '' };
     
-    newSchedule[day][period] = {
-      ...newSchedule[day][period],
-      [field]: value
-    };
-    
+    newSchedule[day][period] = { ...newSchedule[day][period], [field]: value };
     setSchedule(newSchedule);
-    saveData(`schedules/${weekStart}`, newSchedule);
+    
+    if (viewingPath) saveData(viewingPath, newSchedule);
+  };
+
+  const togglePersistentSlot = async (day: string, period: number) => {
+    if (!isAuthenticated || !isLockMode) return;
+    
+    const newPersist = { ...persistentSlots };
+    if (!newPersist[day]) newPersist[day] = {};
+    
+    const currentCell = schedule[day]?.[period];
+    
+    if (newPersist[day][period]) {
+      delete newPersist[day][period];
+    } else if (currentCell && (currentCell.class || currentCell.subject)) {
+      newPersist[day][period] = { ...currentCell };
+    } else {
+      alert("Sila isi Kelas/Subjek sebelum Lock.");
+      return;
+    }
+
+    setPersistentSlots(newPersist);
+    await saveData('persistentSlots', newPersist);
   };
 
   const handleBookingSubmit = async (data: Omit<Booking, 'id' | 'status' | 'createdAt'>) => {
@@ -106,7 +150,7 @@ const App: React.FC = () => {
     if (adminPass === 'admin123') {
       setIsAuthenticated(true);
     } else {
-      alert("Kata laluan salah!");
+      alert("Salah!");
       setAdminPass('');
     }
   };
@@ -123,72 +167,81 @@ const App: React.FC = () => {
     await saveData('futureBookings', updated);
   };
 
+  const toggleMaintenance = async (day: string, period: number) => {
+    const newMaint = { ...maintenance };
+    if (!newMaint[day]) newMaint[day] = {};
+    newMaint[day][period] = !newMaint[day][period];
+    setMaintenance(newMaint);
+    await saveData('maintenance', newMaint);
+  };
+
   const isSlotBooked = (dayKey: string) => {
-    if (!weekStart) return null;
+    if (!weekStart || viewingPath !== getArchivePath(weekStart)) return null;
     const dayIndexMap: Record<string, number> = { mo: 1, tu: 2, we: 3, th: 4, fr: 5 };
     const dayIdx = dayIndexMap[dayKey];
-    if (!dayIdx) return null;
     const dateOfSlot = dayjs(weekStart).isoWeekday(dayIdx).format('YYYY-MM-DD');
     return futureBookings.find(b => b.status === 'approved' && b.date === dateOfSlot);
   };
 
-  if (loading) return <div className="flex h-screen items-center justify-center font-bold text-teal-600">Memuatkan Jadual...</div>;
+  if (loading) return <div className="flex h-screen items-center justify-center font-bold">Memuatkan...</div>;
 
-  const isNextWeekArrival = dayjs().day() === 6 || dayjs().day() === 0;
+  const isCurrentWeek = viewingPath === getArchivePath(calculateActiveWeekMonday());
 
   return (
-    <div className="max-w-full mx-auto bg-white min-h-screen p-4 sm:p-6">
-      <header className="flex flex-col sm:flex-row items-center justify-between mb-6 pb-4 border-b-2 border-gray-200">
-        <div className="flex items-center mb-3 sm:mb-0">
-          <div className="relative group no-print">
-            <img 
-              src="https://i.imgur.com/wpfWEN4.jpeg" 
-              alt="Logo SKSA" 
-              onClick={() => setIsAdminOpen(true)}
-              className="h-16 w-16 sm:h-20 sm:w-20 mr-4 rounded-md border-2 border-gray-300 object-contain bg-white cursor-pointer hover:scale-105 transition-transform active:scale-95" 
-              title="Klik untuk Log Masuk Admin"
-            />
-            {futureBookings.some(b => b.status === 'pending') && (
-              <span className="absolute -top-1 right-3 w-4 h-4 bg-red-500 rounded-full border-2 border-white animate-pulse"></span>
+    <div className="max-w-4xl mx-auto bg-white min-h-screen p-4">
+      {/* Header Visual Asal */}
+      <header className="flex items-center gap-4 mb-4">
+        <img 
+          src="https://i.imgur.com/wpfWEN4.jpeg" 
+          alt="Logo SKSA" 
+          onClick={() => setIsAdminOpen(true)}
+          className="h-16 w-16 cursor-pointer border-2 border-gray-200 rounded p-1" 
+        />
+        <div className="flex-1">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-800 uppercase leading-tight">
+            JADUAL MAKMAL KOMPUTER SKSA 2025
+          </h1>
+          <div className="flex items-center gap-2 mt-1">
+            <span className="bg-gray-100 px-2 py-1 rounded text-xs font-semibold text-gray-600 border flex items-center gap-1">
+              📅 {viewingPath?.split('/').pop()}
+            </span>
+            {isCurrentWeek && (
+              <span className="bg-amber-500 text-white px-2 py-1 rounded text-[10px] font-bold uppercase">Minggu Ini</span>
+            )}
+            {!isCurrentWeek && (
+               <button onClick={() => fetchData()} className="bg-teal-600 text-white px-2 py-1 rounded text-[10px] font-bold uppercase no-print">Balik Semasa</button>
             )}
           </div>
-          <div>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 leading-tight">
-              JADUAL MAKMAL KOMPUTER SKSA 2025
-            </h1>
-            <div className="flex items-center gap-2 mt-1">
-              <p className="text-sm sm:text-lg text-gray-600 font-semibold bg-gray-100 px-3 py-1 rounded-full">
-                📅 {dayjs(weekStart).format('DD/MM')} - {dayjs(weekStart).add(4, 'day').format('DD/MM/YYYY')}
-              </p>
-              {isNextWeekArrival && (
-                <span className="text-[10px] sm:text-xs bg-amber-500 text-white px-2 py-1 rounded-md font-black uppercase tracking-wider no-print">
-                  Minggu Ini
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-        <div className="flex flex-col gap-2 no-print w-full sm:w-auto">
-          <button 
-            onClick={() => setIsBookingOpen(true)}
-            className="bg-emerald-600 text-white px-6 py-3 rounded-xl shadow-md hover:bg-emerald-700 font-black transition-all text-sm uppercase tracking-wide"
-          >
-            Borang Tempahan
-          </button>
         </div>
       </header>
 
-      <div className="overflow-x-auto w-full rounded-xl shadow-lg border border-gray-300">
-        <table className="min-w-full border-collapse border-separate border-spacing-0">
+      {/* Button Visual Asal */}
+      <div className="mb-6 no-print">
+        <button 
+          onClick={() => setIsBookingOpen(true)}
+          className="w-full bg-emerald-600 text-white py-3 rounded-lg font-bold text-lg uppercase shadow-md hover:bg-emerald-700 transition-colors"
+        >
+          BORANG TEMPAHAN
+        </button>
+      </div>
+
+      {isLockMode && isAuthenticated && (
+        <div className="mb-4 bg-red-600 text-white p-2 rounded text-xs font-bold flex justify-between items-center animate-pulse">
+          <span>🔒 MOD LOCK AKTIF: Klik pada slot jadual untuk mengunci.</span>
+          <button onClick={() => setIsLockMode(false)} className="bg-white text-red-600 px-2 py-1 rounded">Tutup</button>
+        </div>
+      )}
+
+      {/* Table Visual Asal */}
+      <div className="overflow-x-auto border-2 border-black rounded shadow-sm">
+        <table className="min-w-full border-collapse">
           <thead>
-            <tr className="bg-teal-800 text-white">
-              <th className="sticky left-0 z-20 w-20 p-3 text-sm font-black border-2 border-black bg-teal-900 shadow-[2px_0_5px_rgba(0,0,0,0.3)]">
-                HARI
-              </th>
+            <tr className="bg-[#004d40] text-white">
+              <th className="border-2 border-black p-2 text-sm font-bold w-20">HARI</th>
               {PERIOD_TIMES.map((t, i) => (
-                <th key={i} className="p-1 border-2 border-black min-w-[85px] text-center">
-                  <div className="text-[10px] font-black opacity-80">W{i+1}</div>
-                  <div className="text-[9px] font-bold">{t}</div>
+                <th key={i} className="border-2 border-black p-1 text-[10px] min-w-[80px]">
+                  <div>W{i+1}</div>
+                  <div className="font-normal opacity-80">{t}</div>
                 </th>
               ))}
             </tr>
@@ -197,46 +250,51 @@ const App: React.FC = () => {
             {Object.entries(DAYS_MAP).map(([dayKey, dayInfo]) => {
               const bookedEvent = isSlotBooked(dayKey);
               return (
-                <tr key={dayKey} className={`${dayInfo.bg} hover:brightness-95 transition-all`}>
-                  <td className={`sticky left-0 z-10 p-2 text-base font-black border-2 border-black text-gray-900 text-center shadow-[2px_0_5px_rgba(0,0,0,0.1)] ${dayInfo.bg}`}>
-                    {dayInfo.label}
+                <tr key={dayKey}>
+                  <td className={`border-2 border-black p-2 text-center font-bold text-lg ${dayInfo.bg}`}>
+                    {dayInfo.label.substring(0,2)}
                   </td>
                   {Array.from({ length: 12 }, (_, i) => i + 1).map((period) => {
                     const cell = schedule[dayKey]?.[period] || { class: '', subject: '' };
-                    const isMaintenance = maintenance[dayKey]?.[period];
+                    const isMaint = maintenance[dayKey]?.[period];
+                    const isPersistent = persistentSlots[dayKey]?.[period];
 
                     if (bookedEvent) {
                        return (
-                         <td key={period} className="p-1 border-2 border-black bg-purple-200 text-center align-middle h-20">
-                           <span className="text-[10px] font-black text-purple-900 leading-tight uppercase">
-                             {bookedEvent.reason || "TEMPAHAN KHAS"}
-                           </span>
+                         <td key={period} className="border-2 border-black bg-purple-100 p-1 text-center h-20 align-middle">
+                           <div className="text-[10px] font-bold text-purple-900 leading-tight line-clamp-2">
+                             {bookedEvent.applicant}
+                           </div>
+                           <div className="text-[8px] opacity-75">{bookedEvent.reason}</div>
                          </td>
                        );
                     }
 
-                    if (isMaintenance) {
-                      return (
-                        <td key={period} className="p-1 border-2 border-black bg-gray-500 text-white opacity-80 text-center h-20">
-                          <span className="text-[10px] font-black tracking-tighter">PENYELENGGARAAN</span>
-                        </td>
-                      );
+                    if (isMaint) {
+                      return <td key={period} className="border-2 border-black bg-gray-500 text-white text-[8px] text-center p-1 h-20 opacity-50">LOCK</td>;
                     }
 
                     return (
-                      <td key={period} className="p-1 border-2 border-black bg-white h-20 min-w-[85px] transition-colors">
+                      <td 
+                        key={period} 
+                        onClick={() => togglePersistentSlot(dayKey, period)}
+                        className={`border-2 border-black p-1 h-20 min-w-[80px] transition-colors relative ${isPersistent ? 'ring-2 ring-inset ring-blue-500' : ''} ${isLockMode ? 'cursor-pointer hover:bg-red-50' : ''}`}
+                      >
+                        {isPersistent && <span className="absolute top-0 right-0 text-[8px] bg-blue-600 text-white px-0.5 rounded-bl">🔒</span>}
                         <select 
                           value={cell.class}
+                          disabled={!isCurrentWeek && !isAuthenticated}
                           onChange={(e) => handleCellChange(dayKey, period, 'class', e.target.value)}
-                          className="w-full text-[11px] font-bold p-1 mb-1 border rounded-md focus:ring-2 focus:ring-teal-500 outline-none appearance-none text-center cursor-pointer shadow-sm"
+                          className="w-full text-[11px] font-bold p-1 mb-1 border rounded bg-white text-center appearance-none shadow-sm"
                           style={{ backgroundColor: CLASS_COLORS[cell.class] || 'white' }}
                         >
                           {DEFAULT_CLASS_OPTIONS.map(opt => <option key={opt} value={opt}>{opt || "-"}</option>)}
                         </select>
                         <select 
                           value={cell.subject}
+                          disabled={!isCurrentWeek && !isAuthenticated}
                           onChange={(e) => handleCellChange(dayKey, period, 'subject', e.target.value)}
-                          className="w-full text-[10px] font-semibold p-1 border rounded-md focus:ring-2 focus:ring-teal-500 outline-none appearance-none text-center cursor-pointer bg-gray-50 shadow-sm"
+                          className="w-full text-[10px] font-semibold p-0.5 border rounded bg-gray-50 text-center appearance-none shadow-sm"
                         >
                           {DEFAULT_SUBJECT_OPTIONS.map(opt => <option key={opt} value={opt}>{opt || "-"}</option>)}
                         </select>
@@ -250,28 +308,16 @@ const App: React.FC = () => {
         </table>
       </div>
 
-      <div className="mt-8 p-5 bg-gradient-to-r from-yellow-50 to-orange-50 border-l-8 border-yellow-500 rounded-xl shadow-md no-print">
-        <h3 className="text-xl font-black text-yellow-900 mb-3 flex items-center gap-2">
+      {/* Warning Visual Asal */}
+      <div className="mt-8 p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded no-print">
+        <h3 className="text-lg font-bold text-yellow-900 mb-2 flex items-center gap-2">
           ⚠️ TATACARA PENGGUNAAN LAPTOP
         </h3>
-        <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 list-none text-sm font-semibold text-gray-800">
-          <li className="flex items-start gap-2">
-            <span className="bg-yellow-500 text-white rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0 text-xs font-bold">1</span>
-            Guru meminta murid mengambil laptop di rak besi dengan tertib.
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="bg-yellow-500 text-white rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0 text-xs font-bold">2</span>
-            Pastikan murid mencabut wayar "charger" dengan berhati-hati.
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="bg-yellow-500 text-white rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0 text-xs font-bold">3</span>
-            Password laptop: <strong className="text-red-700 bg-red-100 px-2 rounded">123456</strong>.
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="bg-yellow-500 text-white rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0 text-xs font-bold">4</span>
-            Kembalikan laptop ke rak dan sambung semula "charger" selepas guna.
-          </li>
-        </ul>
+        <ol className="list-decimal list-inside text-sm font-semibold text-gray-800 space-y-2">
+          <li>Guru meminta murid mengambil laptop di rak dengan tertib.</li>
+          <li>Pastikan laptop diletakkan semula ke rak asal selepas guna.</li>
+          <li>Sambung semula wayar pengecas (charger) selepas simpan.</li>
+        </ol>
       </div>
 
       <BookingModal 
@@ -280,83 +326,135 @@ const App: React.FC = () => {
         onSubmit={handleBookingSubmit}
       />
 
+      {/* Admin Modal Visual Asal dengan Dropdown */}
       {isAdminOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl p-6 max-w-lg w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
             {!isAuthenticated ? (
-              <div className="text-center py-4">
-                <h2 className="text-2xl font-black text-gray-800 mb-6">Log Masuk Pentadbir</h2>
-                <div className="max-w-xs mx-auto">
-                  <input 
-                    type="password" 
-                    className="border-2 border-gray-200 p-3 w-full rounded-xl mb-4 focus:border-blue-500 outline-none text-center text-lg tracking-widest" 
-                    placeholder="KATA LALUAN"
-                    value={adminPass}
-                    onChange={e => setAdminPass(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleAdminLogin()}
-                  />
-                  <div className="flex gap-3">
-                    <button onClick={() => setIsAdminOpen(false)} className="flex-1 px-4 py-3 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition-colors">Batal</button>
-                    <button onClick={handleAdminLogin} className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-200 transition-colors">Masuk</button>
-                  </div>
+              <div className="py-4">
+                <h2 className="text-xl font-bold mb-4 text-center">LOGIN ADMIN</h2>
+                <input 
+                  type="password" 
+                  className="border-2 p-3 w-full rounded mb-4 text-center font-bold" 
+                  placeholder="KATA LALUAN"
+                  value={adminPass}
+                  onChange={e => setAdminPass(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleAdminLogin()}
+                />
+                <div className="flex gap-2">
+                  <button onClick={() => setIsAdminOpen(false)} className="flex-1 bg-gray-200 p-2 rounded font-bold">Batal</button>
+                  <button onClick={handleAdminLogin} className="flex-1 bg-emerald-600 text-white p-2 rounded font-bold">Masuk</button>
                 </div>
               </div>
             ) : (
-              <div>
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-2xl font-black text-gray-800">Panel Kawalan Pentadbir</h2>
-                  <button onClick={() => setIsAdminOpen(false)} className="text-gray-400 hover:text-gray-600 font-black">TUTUP</button>
-                </div>
-                
-                <div className="space-y-6">
-                  <div className="border-2 border-gray-100 p-5 rounded-2xl bg-gray-50/50">
-                    <h3 className="text-lg font-black text-teal-800 mb-4 flex items-center gap-2">
-                      📋 Senarai Permohonan Tempahan
-                    </h3>
-                    {futureBookings.length === 0 ? (
-                      <p className="text-sm text-gray-500 italic py-4 text-center bg-white rounded-xl border border-dashed border-gray-300">Tiada permohonan aktif buat masa ini.</p>
-                    ) : (
-                      <div className="space-y-3">
-                        {futureBookings.map(b => (
-                          <div key={b.id} className="bg-white p-4 border border-gray-200 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-sm">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="font-black text-teal-700 text-base">{b.applicant}</span>
-                                <span className="text-[10px] bg-gray-100 px-2 py-0.5 rounded text-gray-500 font-bold">{dayjs(b.date).format('DD/MM/YYYY')}</span>
-                              </div>
-                              <p className="text-xs text-gray-600 font-medium italic mb-2">" {b.reason} "</p>
-                              <span className={`text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-wider ${
-                                b.status === 'approved' ? 'bg-green-100 text-green-700' :
-                                b.status === 'rejected' ? 'bg-red-100 text-red-700' : 
-                                'bg-yellow-100 text-yellow-700'
-                              }`}>{b.status}</span>
-                            </div>
-                            <div className="flex gap-2 w-full sm:w-auto">
-                              {b.status === 'pending' && (
-                                <>
-                                  <button onClick={() => handleBookingAction(b.id, 'approved')} className="flex-1 sm:flex-none bg-green-600 text-white px-4 py-2 rounded-lg text-xs font-black hover:bg-green-700 shadow-md shadow-green-100">Lulus</button>
-                                  <button onClick={() => handleBookingAction(b.id, 'rejected')} className="flex-1 sm:flex-none bg-orange-500 text-white px-4 py-2 rounded-lg text-xs font-black hover:bg-orange-600 shadow-md shadow-orange-100">Tolak</button>
-                                </>
-                              )}
-                              <button onClick={() => handleBookingAction(b.id, 'delete')} className="flex-1 sm:flex-none bg-red-50 text-red-600 px-4 py-2 rounded-lg text-xs font-black hover:bg-red-100 transition-colors border border-red-100">Hapus</button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="bg-blue-50 border-2 border-blue-100 p-5 rounded-2xl">
-                    <p className="text-xs text-blue-700 font-bold leading-relaxed">
-                      💡 Nota: Maklumat jadual disimpan secara automatik sebaik sahaja anda menukar pilihan di dalam kotak jadual.
-                    </p>
-                  </div>
+              <>
+                <div className="flex justify-between items-center mb-4 pb-2 border-b">
+                  <h2 className="font-bold uppercase tracking-tight">⚙️ PENTADBIR</h2>
+                  <button onClick={() => setIsAdminOpen(false)} className="text-red-500 font-bold">✕</button>
                 </div>
 
-                <div className="mt-8 pt-6 border-t border-gray-100 flex justify-end">
-                  <button onClick={() => setIsAdminOpen(false)} className="px-8 py-3 bg-gray-800 text-white rounded-xl font-black hover:bg-black transition-all shadow-xl">SELESAI</button>
+                <div className="mb-4">
+                  <select 
+                    value={adminView}
+                    onChange={(e) => setAdminView(e.target.value)}
+                    className="w-full p-3 border-2 rounded font-bold bg-gray-50"
+                  >
+                    <option value="bookings">📅 Kelulusan Tempahan</option>
+                    <option value="lock_slots">🔒 Urus Slot Lock (Auto-Carry)</option>
+                    <option value="archives">📂 Lihat Arkib Sejarah</option>
+                    <option value="maintenance">🔧 Maintenance (Lock Slot)</option>
+                  </select>
                 </div>
-              </div>
+
+                <div className="flex-1 overflow-y-auto space-y-3">
+                  {adminView === 'bookings' && (
+                    <div className="space-y-2">
+                      {futureBookings.length === 0 ? <p className="text-center text-xs text-gray-400 py-4 italic">Tiada tempahan baru.</p> :
+                        futureBookings.map(b => (
+                          <div key={b.id} className="p-3 border rounded-lg bg-gray-50 text-xs">
+                            <div className="flex justify-between font-bold text-emerald-800">
+                               <span>{b.applicant}</span>
+                               <span>{b.date}</span>
+                            </div>
+                            <p className="mt-1 font-medium">"{b.reason}"</p>
+                            <div className="mt-2 flex gap-1">
+                              {b.status === 'pending' && (
+                                <>
+                                  <button onClick={() => handleBookingAction(b.id, 'approved')} className="bg-green-600 text-white px-2 py-1 rounded">Lulus</button>
+                                  <button onClick={() => handleBookingAction(b.id, 'rejected')} className="bg-red-500 text-white px-2 py-1 rounded">Tolak</button>
+                                </>
+                              )}
+                              <button onClick={() => handleBookingAction(b.id, 'delete')} className="bg-gray-200 px-2 py-1 rounded text-gray-500 ml-auto">Padam</button>
+                            </div>
+                          </div>
+                        ))
+                      }
+                    </div>
+                  )}
+
+                  {adminView === 'lock_slots' && (
+                    <div className="p-4 bg-blue-50 rounded border text-center">
+                      <p className="text-xs font-bold mb-3">Tekan butang di bawah dan pilih slot yang ingin dibawa ke minggu depan di jadual utama.</p>
+                      <button 
+                        onClick={() => { setIsLockMode(true); setIsAdminOpen(false); }}
+                        className="bg-blue-600 text-white px-4 py-2 rounded font-bold text-xs uppercase"
+                      >
+                        AKTIFKAN MOD LOCK
+                      </button>
+                    </div>
+                  )}
+
+                  {adminView === 'archives' && (
+                    <div className="space-y-4">
+                      {archivesList ? (
+                        Object.entries(archivesList).sort((a,b) => b[0].localeCompare(a[0])).map(([year, months]: [string, any]) => (
+                          <div key={year} className="mb-2">
+                            <div className="text-xs font-black bg-gray-100 p-1 rounded mb-2">{year}</div>
+                            {Object.entries(months).map(([month, weeks]: [string, any]) => (
+                              <div key={month} className="ml-2 mb-3">
+                                <div className="text-[10px] font-bold text-teal-700 uppercase mb-1">{month}</div>
+                                {Object.entries(weeks).map(([weekName, data]: [string, any]) => (
+                                  <button
+                                    key={weekName}
+                                    onClick={() => { fetchData(`archives/${year}/${month}/${weekName}`); setIsAdminOpen(false); }}
+                                    className="w-full text-left p-2 border-b text-[10px] hover:bg-gray-50 flex justify-between"
+                                  >
+                                    <span>📄 {weekName}</span>
+                                    <span className="text-blue-500 font-bold uppercase">Buka</span>
+                                  </button>
+                                ))}
+                              </div>
+                            ))}
+                          </div>
+                        ))
+                      ) : <p className="text-center text-xs py-10 opacity-40 italic">Arkib Kosong.</p>}
+                    </div>
+                  )}
+
+                  {adminView === 'maintenance' && (
+                    <div className="grid grid-cols-7 gap-1">
+                      <div className="p-1"></div>
+                      {PERIOD_TIMES.map((_, i) => <div key={i} className="bg-gray-800 text-white text-[8px] text-center rounded p-1">W{i+1}</div>)}
+                      {Object.entries(DAYS_MAP).map(([dk, di]) => (
+                        <React.Fragment key={dk}>
+                          <div className={`p-1 rounded text-[8px] font-bold text-center ${di.bg}`}>{di.label.substring(0,2)}</div>
+                          {Array.from({ length: 12 }, (_, i) => i + 1).map(p => (
+                            <button 
+                              key={p} 
+                              onClick={() => toggleMaintenance(dk, p)}
+                              className={`h-6 rounded border ${maintenance[dk]?.[p] ? 'bg-red-500 border-red-700' : 'bg-white'}`}
+                            />
+                          ))}
+                        </React.Fragment>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-4 pt-4 border-t flex justify-end">
+                  <button onClick={() => setIsAdminOpen(false)} className="px-6 py-2 bg-black text-white rounded font-bold text-xs uppercase">Selesai</button>
+                </div>
+              </>
             )}
           </div>
         </div>
