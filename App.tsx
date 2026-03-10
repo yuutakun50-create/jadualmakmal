@@ -47,6 +47,10 @@ const createEmptySchedule = (base?: WeeklySchedule | null): WeeklySchedule => {
 const isCellFilled = (cell?: ScheduleCell | null) => Boolean(cell?.class || cell?.subject);
 const isQueueCellLocked = (cell?: ScheduleCell | null) => Boolean(cell?.class && cell?.subject);
 const formatCellLabel = (cell?: ScheduleCell | null, separator = ' ') => [cell?.class, cell?.subject].filter(Boolean).join(separator);
+const hasQueueDraftEntries = (schedule?: WeeklySchedule | null) =>
+  Object.keys(DAYS_MAP).some((day) =>
+    Array.from({ length: 12 }, (_, index) => index + 1).some((period) => isCellFilled(schedule?.[day]?.[period]))
+  );
 
 const sanitizeQueueSchedule = (source?: WeeklySchedule | null): WeeklySchedule | null => {
   if (!source) return null;
@@ -263,22 +267,33 @@ const App: React.FC = () => {
 
       const updatedQueue = createEmptySchedule(queueSchedule);
       const existingQueueCell = updatedQueue[day]?.[period] || { ...EMPTY_CELL };
-
-      if (isQueueCellLocked(existingQueueCell)) return;
-
       updatedQueue[day][period] = { ...existingQueueCell, [field]: value };
 
       if (!validateQueueSelection(day, period, updatedQueue[day][period])) {
         updatedQueue[day][period] = { ...EMPTY_CELL };
         setQueueSchedule(updatedQueue);
+        if (hasQueueDraftEntries(updatedQueue)) {
+          await saveQueueScheduleToDB(updatedQueue);
+        } else {
+          await clearQueueScheduleFromDB();
+        }
         return;
       }
 
       setQueueSchedule(updatedQueue);
 
-      if (isQueueCellLocked(updatedQueue[day][period])) {
+      if (hasQueueDraftEntries(updatedQueue)) {
         await saveQueueScheduleToDB(updatedQueue);
+      } else {
+        await clearQueueScheduleFromDB();
+      }
+
+      if (isQueueCellLocked(updatedQueue[day][period])) {
         showToast(`${formatCellLabel(updatedQueue[day][period])} disimpan untuk minggu depan.`);
+      } else if (!isCellFilled(updatedQueue[day][period])) {
+        showToast(`Queue slot W${period} telah dikosongkan.`);
+      } else {
+        showToast(`Queue slot W${period} dikemas kini.`);
       }
 
       return;
@@ -468,9 +483,7 @@ const App: React.FC = () => {
                     const cell = isQueueMode ? queueMeta.queuedCell : schedule[dayKey]?.[period] || { class: '', subject: '' };
                     const isMaint = maintenance[dayKey]?.[period];
                     const isPersistent = persistentSlots[dayKey]?.[period];
-                    const areSelectsDisabled = isQueueMode
-                      ? queueMeta.isQueuedLocked
-                      : (!isCurrentWeek && !isAuthenticated);
+                    const areSelectsDisabled = !isQueueMode && !isCurrentWeek && !isAuthenticated;
 
                     if (bookedEvent) {
                        return (
@@ -485,19 +498,6 @@ const App: React.FC = () => {
 
                     if (isMaint) {
                       return <td key={period} className="border-2 border-black bg-gray-500 text-white text-[8px] text-center p-1 h-20 opacity-50">LOCK</td>;
-                    }
-
-                    if (isQueueMode && queueMeta.isQueuedLocked) {
-                      return (
-                        <td key={period} className="border-2 border-black bg-orange-100 p-1 text-center h-20 align-middle">
-                          <div className="text-[11px] font-bold text-orange-900 leading-tight">
-                            {formatCellLabel(queueMeta.queuedCell) || '-'}
-                          </div>
-                          <div className="mt-1 text-[8px] font-bold uppercase text-orange-700">
-                            Sudah diisi
-                          </div>
-                        </td>
-                      );
                     }
 
                     return (
@@ -524,6 +524,11 @@ const App: React.FC = () => {
                         >
                           {DEFAULT_SUBJECT_OPTIONS.map(opt => <option key={opt} value={opt}>{opt || "-"}</option>)}
                         </select>
+                        {isQueueMode && queueMeta.isQueuedLocked && (
+                          <div className="mt-1 rounded bg-orange-200 px-1 py-0.5 text-[8px] font-bold text-orange-800">
+                            Sudah diisi - boleh ubah atau kosongkan
+                          </div>
+                        )}
                         {isQueueMode && queueMeta.hasCurrentWeekEntry && (
                           <div className="mt-1 rounded bg-orange-100 px-1 py-0.5 text-[8px] font-bold text-orange-700">
                             Dikunci: {queueMeta.currentWeekLabel}
