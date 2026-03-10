@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import 'dayjs/locale/ms'; 
-import { getData, saveData } from './services/firebase';
+import { clearQueueScheduleFromDB, getData, saveData, saveQueueScheduleToDB } from './services/firebase';
 import BookingModal from './components/BookingModal';
 import { 
   WeeklySchedule, DAYS_MAP, PERIOD_TIMES, 
-  Booking, MaintenanceState 
+  Booking, MaintenanceState, ScheduleCell 
 } from './types';
 
 dayjs.extend(isoWeek);
@@ -25,6 +25,85 @@ const CLASS_COLORS: Record<string, string> = {
   "Other": "#e2e8f0"
 };
 
+const EMPTY_CELL: ScheduleCell = { class: '', subject: '' };
+
+const createEmptySchedule = (base?: WeeklySchedule | null): WeeklySchedule => {
+  const nextSchedule: WeeklySchedule = {};
+
+  Object.keys(DAYS_MAP).forEach((day) => {
+    nextSchedule[day] = {};
+    for (let period = 1; period <= 12; period += 1) {
+      const baseCell = base?.[day]?.[period];
+      nextSchedule[day][period] = {
+        class: baseCell?.class || '',
+        subject: baseCell?.subject || ''
+      };
+    }
+  });
+
+  return nextSchedule;
+};
+
+const isCellFilled = (cell?: ScheduleCell | null) => Boolean(cell?.class || cell?.subject);
+const isQueueCellLocked = (cell?: ScheduleCell | null) => Boolean(cell?.class && cell?.subject);
+const formatCellLabel = (cell?: ScheduleCell | null, separator = ' ') => [cell?.class, cell?.subject].filter(Boolean).join(separator);
+
+const sanitizeQueueSchedule = (source?: WeeklySchedule | null): WeeklySchedule | null => {
+  if (!source) return null;
+
+  const sanitized = createEmptySchedule();
+  let hasEntry = false;
+
+  Object.keys(DAYS_MAP).forEach((day) => {
+    for (let period = 1; period <= 12; period += 1) {
+      const cell = source?.[day]?.[period];
+      if (isQueueCellLocked(cell)) {
+        sanitized[day][period] = { ...cell! };
+        hasEntry = true;
+      }
+    }
+  });
+
+  return hasEntry ? sanitized : null;
+};
+
+const buildNextWeekSchedule = (
+  currentSchedule?: WeeklySchedule | null,
+  queueSchedule?: WeeklySchedule | null,
+  persistentSlots?: WeeklySchedule | null
+): WeeklySchedule => {
+  const nextSchedule = createEmptySchedule();
+  const currentWeek = createEmptySchedule(currentSchedule);
+
+  Object.keys(DAYS_MAP).forEach((day) => {
+    for (let period = 1; period <= 12; period += 1) {
+      const queuedCell = queueSchedule?.[day]?.[period];
+      const currentCell = currentWeek[day]?.[period];
+      const persistentCell = persistentSlots?.[day]?.[period];
+
+      // Queue entries always win over carried or existing allocations.
+      if (isQueueCellLocked(queuedCell)) {
+        nextSchedule[day][period] = { ...queuedCell! };
+        continue;
+      }
+
+      if (isCellFilled(currentCell)) {
+        nextSchedule[day][period] = { ...currentCell };
+        continue;
+      }
+
+      if (isCellFilled(persistentCell)) {
+        nextSchedule[day][period] = {
+          class: persistentCell?.class || '',
+          subject: persistentCell?.subject || ''
+        };
+      }
+    }
+  });
+
+  return nextSchedule;
+};
+
 const App: React.FC = () => {
   const [schedule, setSchedule] = useState<WeeklySchedule>({});
   const [weekStart, setWeekStart] = useState<string>('');
@@ -40,6 +119,9 @@ const App: React.FC = () => {
   const [isLockMode, setIsLockMode] = useState(false);
   const [archivesList, setArchivesList] = useState<any>(null);
   const [viewingPath, setViewingPath] = useState<string | null>(null);
+  const [queueSchedule, setQueueSchedule] = useState<WeeklySchedule | null>(null);
+  const [isQueueMode, setIsQueueMode] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const getArchivePath = (mondayDate: string) => {
     const m = dayjs(mondayDate);
@@ -56,64 +138,166 @@ const App: React.FC = () => {
     return today.isoWeekday(1).format('YYYY-MM-DD');
   };
 
+  const showToast = (message: string) => {
+    setToastMessage(message);
+  };
+
+  const getNextWeekDisplay = () => {
+    const baseMonday = dayjs(weekStart || calculateActiveWeekMonday());
+    const nextMonday = baseMonday.add(1, 'week');
+    return `${nextMonday.format('D')}-${nextMonday.add(4, 'day').format('D MMM YYYY')}`;
+  };
+
+  const applyQueueRestrictions = (dayKey: string, period: number) => {
+    const currentCell = schedule[dayKey]?.[period] || EMPTY_CELL;
+    const queuedCell = queueSchedule?.[dayKey]?.[period] || EMPTY_CELL;
+
+    return {
+      currentCell,
+      queuedCell,
+      hasCurrentWeekEntry: isCellFilled(currentCell),
+      isQueuedLocked: isQueueCellLocked(queuedCell),
+      currentWeekLabel: formatCellLabel(currentCell, '/')
+    };
+  };
+
+  const validateQueueSelection = (dayKey: string, period: number, nextCell: ScheduleCell) => {
+    const currentCell = schedule[dayKey]?.[period] || EMPTY_CELL;
+    const isExactMatch =
+      Boolean(nextCell.class && nextCell.subject) &&
+      nextCell.class === currentCell.class &&
+      nextCell.subject === currentCell.subject;
+
+    if (isExactMatch) {
+      showToast('Gabungan ini dikunci');
+      return false;
+    }
+
+    return true;
+  };
+
   const fetchData = async (customPath?: string) => {
     setLoading(true);
     const activeMonday = calculateActiveWeekMonday();
     if (!customPath) setWeekStart(activeMonday);
 
     const path = customPath || getArchivePath(activeMonday);
+    const previousWeekPath = getArchivePath(dayjs(activeMonday).subtract(1, 'week').format('YYYY-MM-DD'));
     setViewingPath(path);
+    setIsQueueMode(false);
     
-    const [schedData, bookingData, maintData, persistData, allArchives] = await Promise.all([
+    const [schedData, bookingData, maintData, persistData, queueData, allArchives, previousWeekSchedule] = await Promise.all([
       getData(path),
       getData('futureBookings'),
       getData('maintenance'),
       getData('persistentSlots'),
-      getData('archives')
+      getData('queueSchedule'),
+      getData('archives'),
+      customPath ? Promise.resolve(null) : getData(previousWeekPath)
     ]);
 
     setArchivesList(allArchives);
     setPersistentSlots(persistData || {});
+    setQueueSchedule(queueData ? createEmptySchedule(queueData) : null);
 
     if (schedData) {
-      setSchedule(schedData);
+      setSchedule(createEmptySchedule(schedData));
     } else {
-      const newSched: WeeklySchedule = {};
-      Object.keys(DAYS_MAP).forEach(d => {
-        newSched[d] = {};
-        for(let i=1; i<=12; i++) {
-          newSched[d][i] = persistData?.[d]?.[i] || { class: '', subject: '' };
-        }
-      });
+      const newSched = customPath
+        ? createEmptySchedule()
+        : buildNextWeekSchedule(previousWeekSchedule, queueData, persistData);
       setSchedule(newSched);
-      if (!customPath) saveData(path, newSched);
+      if (!customPath) {
+        await saveData(path, newSched);
+        if (queueData) {
+          await clearQueueScheduleFromDB();
+          setQueueSchedule(null);
+        }
+      }
     }
 
-    if (bookingData) setFutureBookings(bookingData);
-    if (maintData) setMaintenance(maintData);
+    setFutureBookings(bookingData || []);
+    setMaintenance(maintData || {});
     
     setLoading(false);
   };
 
   useEffect(() => {
-    fetchData();
+    void fetchData();
   }, []);
 
-  const handleCellChange = (day: string, period: number, field: 'class' | 'subject', value: string) => {
+  useEffect(() => {
+    if (!toastMessage) return undefined;
+
+    const timer = window.setTimeout(() => setToastMessage(null), 3000);
+    return () => window.clearTimeout(timer);
+  }, [toastMessage]);
+
+  const isCurrentWeek = viewingPath === getArchivePath(calculateActiveWeekMonday());
+
+  const toggleQueueMode = () => {
+    if (!isCurrentWeek) {
+      showToast('Mod Giliran hanya tersedia untuk jadual semasa.');
+      return;
+    }
+
+    if (isQueueMode) {
+      setQueueSchedule((currentQueue) => sanitizeQueueSchedule(currentQueue));
+      setIsQueueMode(false);
+      return;
+    }
+
+    if (!queueSchedule) {
+      setQueueSchedule(createEmptySchedule());
+    } else {
+      setQueueSchedule(createEmptySchedule(queueSchedule));
+    }
+
+    setIsLockMode(false);
+    setIsQueueMode(true);
+  };
+
+  const handleCellChange = async (day: string, period: number, field: 'class' | 'subject', value: string) => {
+    if (isQueueMode) {
+      if (!isCurrentWeek) return;
+
+      const updatedQueue = createEmptySchedule(queueSchedule);
+      const existingQueueCell = updatedQueue[day]?.[period] || { ...EMPTY_CELL };
+
+      if (isQueueCellLocked(existingQueueCell)) return;
+
+      updatedQueue[day][period] = { ...existingQueueCell, [field]: value };
+
+      if (!validateQueueSelection(day, period, updatedQueue[day][period])) {
+        updatedQueue[day][period] = { ...EMPTY_CELL };
+        setQueueSchedule(updatedQueue);
+        return;
+      }
+
+      setQueueSchedule(updatedQueue);
+
+      if (isQueueCellLocked(updatedQueue[day][period])) {
+        await saveQueueScheduleToDB(updatedQueue);
+        showToast(`${formatCellLabel(updatedQueue[day][period])} disimpan untuk minggu depan.`);
+      }
+
+      return;
+    }
+
     if (viewingPath !== getArchivePath(weekStart) && !isAuthenticated) return;
     
-    const newSchedule = { ...schedule };
+    const newSchedule = createEmptySchedule(schedule);
     if (!newSchedule[day]) newSchedule[day] = {};
     if (!newSchedule[day][period]) newSchedule[day][period] = { class: '', subject: '' };
     
     newSchedule[day][period] = { ...newSchedule[day][period], [field]: value };
     setSchedule(newSchedule);
     
-    if (viewingPath) saveData(viewingPath, newSchedule);
+    if (viewingPath) await saveData(viewingPath, newSchedule);
   };
 
   const togglePersistentSlot = async (day: string, period: number) => {
-    if (!isAuthenticated || !isLockMode) return;
+    if (!isAuthenticated || !isLockMode || isQueueMode) return;
     
     const newPersist = { ...persistentSlots };
     if (!newPersist[day]) newPersist[day] = {};
@@ -185,10 +369,16 @@ const App: React.FC = () => {
 
   if (loading) return <div className="flex h-screen items-center justify-center font-bold">Memuatkan...</div>;
 
-  const isCurrentWeek = viewingPath === getArchivePath(calculateActiveWeekMonday());
+  const weekBadgeText = `GILIRAN MINGGU DEPAN: ${getNextWeekDisplay()}`;
 
   return (
     <div className="max-w-4xl mx-auto bg-white min-h-screen p-4">
+      {toastMessage && (
+        <div className="fixed right-4 top-4 z-50 rounded-lg bg-gray-900 px-4 py-3 text-xs font-bold text-white shadow-xl no-print">
+          {toastMessage}
+        </div>
+      )}
+
       {/* Header Visual Asal */}
       <header className="flex items-center gap-4 mb-4">
         <img 
@@ -216,14 +406,33 @@ const App: React.FC = () => {
       </header>
 
       {/* Button Visual Asal */}
-      <div className="mb-6 no-print">
+      <div className="mb-6 no-print grid gap-3 sm:grid-cols-2">
         <button 
           onClick={() => setIsBookingOpen(true)}
           className="w-full bg-emerald-600 text-white py-3 rounded-lg font-bold text-lg uppercase shadow-md hover:bg-emerald-700 transition-colors"
         >
           BORANG TEMPAHAN
         </button>
+        {isCurrentWeek && (
+          <button
+            onClick={toggleQueueMode}
+            className={`w-full py-3 rounded-lg font-bold text-sm uppercase shadow-md transition-colors ${
+              isQueueMode
+                ? 'bg-orange-700 text-white ring-4 ring-orange-200'
+                : 'bg-orange-500 text-white hover:bg-orange-600'
+            }`}
+          >
+            {isQueueMode ? 'MOD GILIRAN: AKTIF' : 'MOD GILIRAN'}
+          </button>
+        )}
       </div>
+
+      {isQueueMode && (
+        <div className="mb-4 rounded-lg border border-orange-300 bg-orange-500 p-3 text-xs font-bold text-white no-print sm:text-sm">
+          MOD GILIRAN AKTIF - Anda sedang mengisi giliran untuk MINGGU DEPAN. Setiap slot hanya boleh diisi sekali.
+          <div className="mt-1 text-[11px] font-semibold text-orange-50">{weekBadgeText}</div>
+        </div>
+      )}
 
       {isLockMode && isAuthenticated && (
         <div className="mb-4 bg-red-600 text-white p-2 rounded text-xs font-bold flex justify-between items-center animate-pulse">
@@ -248,16 +457,20 @@ const App: React.FC = () => {
           </thead>
           <tbody>
             {Object.entries(DAYS_MAP).map(([dayKey, dayInfo]) => {
-              const bookedEvent = isSlotBooked(dayKey);
+              const bookedEvent = isQueueMode ? null : isSlotBooked(dayKey);
               return (
                 <tr key={dayKey}>
                   <td className={`border-2 border-black p-2 text-center font-bold text-lg ${dayInfo.bg}`}>
                     {dayInfo.label.substring(0,2)}
                   </td>
                   {Array.from({ length: 12 }, (_, i) => i + 1).map((period) => {
-                    const cell = schedule[dayKey]?.[period] || { class: '', subject: '' };
+                    const queueMeta = applyQueueRestrictions(dayKey, period);
+                    const cell = isQueueMode ? queueMeta.queuedCell : schedule[dayKey]?.[period] || { class: '', subject: '' };
                     const isMaint = maintenance[dayKey]?.[period];
                     const isPersistent = persistentSlots[dayKey]?.[period];
+                    const areSelectsDisabled = isQueueMode
+                      ? queueMeta.isQueuedLocked
+                      : (!isCurrentWeek && !isAuthenticated);
 
                     if (bookedEvent) {
                        return (
@@ -274,30 +487,53 @@ const App: React.FC = () => {
                       return <td key={period} className="border-2 border-black bg-gray-500 text-white text-[8px] text-center p-1 h-20 opacity-50">LOCK</td>;
                     }
 
+                    if (isQueueMode && queueMeta.isQueuedLocked) {
+                      return (
+                        <td key={period} className="border-2 border-black bg-orange-100 p-1 text-center h-20 align-middle">
+                          <div className="text-[11px] font-bold text-orange-900 leading-tight">
+                            {formatCellLabel(queueMeta.queuedCell) || '-'}
+                          </div>
+                          <div className="mt-1 text-[8px] font-bold uppercase text-orange-700">
+                            Sudah diisi
+                          </div>
+                        </td>
+                      );
+                    }
+
                     return (
                       <td 
                         key={period} 
-                        onClick={() => togglePersistentSlot(dayKey, period)}
-                        className={`border-2 border-black p-1 h-20 min-w-[80px] transition-colors relative ${isPersistent && isAuthenticated ? 'ring-2 ring-inset ring-blue-500' : ''} ${isLockMode ? 'cursor-pointer hover:bg-red-50' : ''}`}
+                        onClick={() => { if (!isQueueMode) void togglePersistentSlot(dayKey, period); }}
+                        className={`border-2 border-black p-1 h-20 min-w-[80px] transition-colors relative ${isPersistent && isAuthenticated && !isQueueMode ? 'ring-2 ring-inset ring-blue-500' : ''} ${isLockMode && !isQueueMode ? 'cursor-pointer hover:bg-red-50' : ''} ${isQueueMode ? 'bg-orange-50/40' : ''}`}
                       >
                         {isPersistent && isAuthenticated && <span className="absolute top-0 right-0 text-[8px] bg-blue-600 text-white px-0.5 rounded-bl">🔒</span>}
                         <select 
                           value={cell.class}
-                          disabled={!isCurrentWeek && !isAuthenticated}
-                          onChange={(e) => handleCellChange(dayKey, period, 'class', e.target.value)}
-                          className="w-full text-[11px] font-bold p-1 mb-1 border rounded bg-white text-center appearance-none shadow-sm"
+                          disabled={areSelectsDisabled}
+                          onChange={(e) => void handleCellChange(dayKey, period, 'class', e.target.value)}
+                          className={`w-full text-[11px] font-bold p-1 mb-1 border rounded text-center appearance-none shadow-sm ${isQueueMode ? 'bg-orange-50 border-orange-200' : 'bg-white'}`}
                           style={{ backgroundColor: CLASS_COLORS[cell.class] || 'white' }}
                         >
                           {DEFAULT_CLASS_OPTIONS.map(opt => <option key={opt} value={opt}>{opt || "-"}</option>)}
                         </select>
                         <select 
                           value={cell.subject}
-                          disabled={!isCurrentWeek && !isAuthenticated}
-                          onChange={(e) => handleCellChange(dayKey, period, 'subject', e.target.value)}
-                          className="w-full text-[10px] font-semibold p-0.5 border rounded bg-gray-50 text-center appearance-none shadow-sm"
+                          disabled={areSelectsDisabled}
+                          onChange={(e) => void handleCellChange(dayKey, period, 'subject', e.target.value)}
+                          className={`w-full text-[10px] font-semibold p-0.5 border rounded text-center appearance-none shadow-sm ${isQueueMode ? 'bg-orange-50 border-orange-200' : 'bg-gray-50'}`}
                         >
                           {DEFAULT_SUBJECT_OPTIONS.map(opt => <option key={opt} value={opt}>{opt || "-"}</option>)}
                         </select>
+                        {isQueueMode && queueMeta.hasCurrentWeekEntry && (
+                          <div className="mt-1 rounded bg-orange-100 px-1 py-0.5 text-[8px] font-bold text-orange-700">
+                            Dikunci: {queueMeta.currentWeekLabel}
+                          </div>
+                        )}
+                        {isQueueMode && !queueMeta.isQueuedLocked && (cell.class || cell.subject) && (
+                          <div className="mt-1 text-[8px] font-bold text-orange-600">
+                            Lengkapkan kelas dan subjek untuk lock slot.
+                          </div>
+                        )}
                       </td>
                     );
                   })}
@@ -396,7 +632,7 @@ const App: React.FC = () => {
                     <div className="p-4 bg-blue-50 rounded border text-center">
                       <p className="text-xs font-bold mb-3">Tekan butang di bawah dan pilih slot yang ingin dibawa ke minggu depan di jadual utama.</p>
                       <button 
-                        onClick={() => { setIsLockMode(true); setIsAdminOpen(false); }}
+                        onClick={() => { setIsLockMode(true); setIsQueueMode(false); setIsAdminOpen(false); }}
                         className="bg-blue-600 text-white px-4 py-2 rounded font-bold text-xs uppercase"
                       >
                         AKTIFKAN MOD LOCK

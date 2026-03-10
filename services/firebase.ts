@@ -38,3 +38,11 @@ export const saveData = async (path: string, data: any) => {
     throw error;
   }
 };
+
+export const saveQueueScheduleToDB = async (queueSchedule: any) => {
+  await saveData('queueSchedule', queueSchedule);
+};
+
+export const clearQueueScheduleFromDB = async () => {
+  await saveData('queueSchedule', null);
+};
