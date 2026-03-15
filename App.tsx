@@ -72,27 +72,19 @@ const sanitizeQueueSchedule = (source?: WeeklySchedule | null): WeeklySchedule |
 };
 
 const buildNextWeekSchedule = (
-  currentSchedule?: WeeklySchedule | null,
   queueSchedule?: WeeklySchedule | null,
   persistentSlots?: WeeklySchedule | null
 ): WeeklySchedule => {
   const nextSchedule = createEmptySchedule();
-  const currentWeek = createEmptySchedule(currentSchedule);
 
   Object.keys(DAYS_MAP).forEach((day) => {
     for (let period = 1; period <= 12; period += 1) {
       const queuedCell = queueSchedule?.[day]?.[period];
-      const currentCell = currentWeek[day]?.[period];
       const persistentCell = persistentSlots?.[day]?.[period];
 
-      // Queue entries always win over carried or existing allocations.
+      // Queue entries always win over auto carry slots.
       if (isQueueCellLocked(queuedCell)) {
         nextSchedule[day][period] = { ...queuedCell! };
-        continue;
-      }
-
-      if (isCellFilled(currentCell)) {
-        nextSchedule[day][period] = { ...currentCell };
         continue;
       }
 
@@ -186,18 +178,16 @@ const App: React.FC = () => {
     if (!customPath) setWeekStart(activeMonday);
 
     const path = customPath || getArchivePath(activeMonday);
-    const previousWeekPath = getArchivePath(dayjs(activeMonday).subtract(1, 'week').format('YYYY-MM-DD'));
     setViewingPath(path);
     setIsQueueMode(false);
-    
-    const [schedData, bookingData, maintData, persistData, queueData, allArchives, previousWeekSchedule] = await Promise.all([
+
+    const [schedData, bookingData, maintData, persistData, queueData, allArchives] = await Promise.all([
       getData(path),
       getData('futureBookings'),
       getData('maintenance'),
       getData('persistentSlots'),
       getData('queueSchedule'),
       getData('archives'),
-      customPath ? Promise.resolve(null) : getData(previousWeekPath)
     ]);
 
     setArchivesList(allArchives);
@@ -209,7 +199,7 @@ const App: React.FC = () => {
     } else {
       const newSched = customPath
         ? createEmptySchedule()
-        : buildNextWeekSchedule(previousWeekSchedule, queueData, persistData);
+        : buildNextWeekSchedule(queueData, persistData);
       setSchedule(newSched);
       if (!customPath) {
         await saveData(path, newSched);
@@ -229,6 +219,28 @@ const App: React.FC = () => {
   useEffect(() => {
     void fetchData();
   }, []);
+
+  useEffect(() => {
+    const checkWeekChange = () => {
+      if (!weekStart) return;
+      const activeMonday = calculateActiveWeekMonday();
+      if (activeMonday === weekStart) return;
+
+      // Minggu telah bertukar. Auto-reload jika user masih view minggu semasa.
+      const oldCurrentPath = getArchivePath(weekStart);
+      if (viewingPath === oldCurrentPath) {
+        void fetchData();
+      }
+    };
+
+    document.addEventListener('visibilitychange', checkWeekChange);
+    const interval = setInterval(checkWeekChange, 60 * 1000);
+
+    return () => {
+      document.removeEventListener('visibilitychange', checkWeekChange);
+      clearInterval(interval);
+    };
+  }, [weekStart, viewingPath]);
 
   useEffect(() => {
     if (!toastMessage) return undefined;
